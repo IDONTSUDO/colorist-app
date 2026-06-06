@@ -39,9 +39,7 @@ export class OrdersStore extends CrudFormLocalDbStore<
       message.error("введите телефон");
       return;
     }
-    (await this.clientsDbRepository.findModel('numberPhone', this.searchPhoneNumberField)).map((el) => {
-      console.log(el);
-    })
+    
     await this.mapOk(
       "clients",
       this.clientsDbRepository.findModel('numberPhone', this.searchPhoneNumberField),
