@@ -327,7 +327,7 @@ export class OrderStoreInvalid extends FormState<OrderViewModel> {
     this.viewModel.consumables?.map((el) => {
       cost += el.consumables.costPrice;
     });
-    const recipe = JSON.parse(this.viewModel.recipeJSON ?? "");
+    // const recipe = JSON.parse(this.viewModel.recipeJSON ?? "");
     // recipe.components = JSON.parse(recipe.components);
     // const components = recipe?.components as PaintComponentViewModel[];
     // const sumAllPigments = components.reduce((acc, el) => {
@@ -362,7 +362,7 @@ export class OrderStoreInvalid extends FormState<OrderViewModel> {
   getCostComponents = () => {
     let cost = 0;
 
-    const recipe = JSON.parse(this.viewModel.recipeJSON ?? "");
+    // const recipe = JSON.parse(this.viewModel.recipeJSON ?? "");
     // recipe.components = JSON.parse(recipe.components);
     // const components = recipe?.components as PaintComponentViewModel[];
     // const sumAllPigments = components.reduce((acc, el) => {

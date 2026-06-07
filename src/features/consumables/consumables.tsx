@@ -49,7 +49,7 @@ export const Consumables = observer(() => {
             }
           />
           <div style={{ height: 10 }} />
-          <InputV3
+          {/* <InputV3
             validation={(e) => Number(e).isPositive()}
             error="только числа"
             label="текущий остаток"
@@ -59,7 +59,7 @@ export const Consumables = observer(() => {
                 currentBalance: Number(text),
               })
             }
-          />
+          /> */}
           <div style={{ height: 10 }} />
           {/* <InputV3
             validation={(e) => Number(e).isPositive()}

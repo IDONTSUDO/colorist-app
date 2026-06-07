@@ -19,10 +19,7 @@ export class HttpError extends Error {
 }
 
 export class HttpRepository {
-  private server =
-    process.env.NODE_ENV === "production"
-      ? "https://automatic-balance-sheet-server.ru"
-      : "http://localhost:4001";
+  private server = "http://localhost:4001";
   public async _formDataRequest<T>(
     method: HttpMethod,
     url: string,

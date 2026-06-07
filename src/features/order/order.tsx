@@ -1028,8 +1028,3 @@ const Dust: React.FC<{
     </div>
   );
 };
-
-const ConsoleLog: React.FC<{ log: any; el: any }> = ({ log, el }) => {
-  console.log(JSON.stringify(log));
-  return <>{el}</>;
-};
