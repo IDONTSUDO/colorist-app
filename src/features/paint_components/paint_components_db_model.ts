@@ -13,8 +13,7 @@ export class PaintComponentViewModel extends ValidationModel {
     @IsNotEmpty({ message: "Поле приватный номер не может быть пустым" })
     @IsString({ message: "Поле приватный номер обязательно" })
     privateNumber: string;
-    @IsNumber({}, { message: "Поле текущий баланс обязательно" })
-    currentBalance: number;
+
 
     constructor() {
         super();
