@@ -15,8 +15,6 @@ export class ConsumablesViewModel extends ValidationModel {
     costPrice: number; //цена за единицу измеренеия
     @IsString({ message: "Поле описание является обязательным" })
     description: string; // описание
-    @IsNumber({}, { message: "Поле текущий является обязательным" })
-    currentBalance: number; // текущий остаток
     @IsString({ message: "Поле еденица измерения является обязательным" })
     unitOfMeasurement: string = "Граммы"; //еденица измерения
 }

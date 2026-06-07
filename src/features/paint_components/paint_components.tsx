@@ -41,7 +41,7 @@ export const PaintsComponent = observer(() => {
               store.updateForm({ costPrice: text === null ? undefined : text })
             }
           />
-          <TextV2 text={"Текущий остаток в граммах"} />
+          {/* <TextV2 text={"Текущий остаток в граммах"} />
           <InputNumber
             value={store.viewModel.currentBalance}
             onChange={(text) =>
@@ -49,7 +49,7 @@ export const PaintsComponent = observer(() => {
                 currentBalance: text === null ? undefined : text,
               })
             }
-          />
+          /> */}
           <TextV2 text={"Приватный номер"} />
           <Input
             initialValue={store.viewModel.privateNumber}
