@@ -3,6 +3,7 @@ import { ValidationModel } from "../../core/model/validation_model";
 import { IsNumber, IsString } from "class-validator";
 import { defineEntity } from "@indexeddb-orm/idb-orm";
 
+
 export class ConsumablesViewModel extends ValidationModel {
     constructor() {
         super();
