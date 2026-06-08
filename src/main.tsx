@@ -36,6 +36,7 @@ export const authService = new AuthService();
 export const themeStore = new ThemeStore();
 
 extensions();
+
 createRoot(document.getElementById("root")!).render(
   <>
     <RouterProvider router={router} />
