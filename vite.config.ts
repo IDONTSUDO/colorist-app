@@ -44,7 +44,7 @@ export default defineConfig({
       }
     })
   ],
-  base: '/colorosit-app/',
+  base: '/colorist-app/',
   resolve: {
     dedupe: ['dexie'],
   },
