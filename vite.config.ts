@@ -16,12 +16,11 @@ export default defineConfig({
       registerType: 'autoUpdate', // Автоматически обновляет сервис-воркер
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'My Awesome App',
-        short_name: 'MyApp',
-        description: 'My Progressive Web App',
+        name: 'Colorist calc',
+        short_name: 'Colorist calc',
+        description: 'Colorist calc',
         theme_color: '#ffffff',
         icons: [
-
           { src: '/icons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
       },
