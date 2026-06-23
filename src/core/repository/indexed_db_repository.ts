@@ -39,9 +39,7 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
     }
     edit = async (model: M): Promise<Result<string, void>> => {
         try {
-            console.log(model.id);
-            const p = await this.db.getRepository(this.entity).where('id').equals(model.id ?? 1).modify(JSON.parse(JSON.stringify(model)));
-            console.log(p);
+            await this.db.getRepository(this.entity).where('id').equals(model.id ?? 1).modify(JSON.parse(JSON.stringify(model)));
             return Result.ok(undefined);
         } catch (error) {
             return Result.error('');

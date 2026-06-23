@@ -1,13 +1,10 @@
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../core/helper/use_store";
 import { CrudPage } from "../../core/ui/page/crud_page";
-
 import { PaintComponentStore } from "./paint_components_store";
-import { Input } from "../../core/ui/input/input";
-import { TextV2 } from "../../core/ui/text/text";
-import { InputNumber } from "antd";
 import { Button } from "../../core/ui/button/Button";
 import { PaintComponentViewModel } from "./paint_components_db_model";
+import { InputV3 } from "../../core/ui/input/input_v3";
 
 export const PaintsComponentPath = "/components";
 export const PaintsComponent = observer(() => {
@@ -27,39 +24,27 @@ export const PaintsComponent = observer(() => {
       missingKey={["id"]}
       editableComponent={
         <div>
-          <TextV2 text={"Вес в граммах"} />
-          <InputNumber
-            value={store.viewModel.weight}
-            onChange={(text) =>
-              store.updateForm({ weight: text === null ? undefined : text })
-            }
-          />
-          <TextV2 text={"Цена"} />
-          <InputNumber
-            value={store.viewModel.costPrice}
-            onChange={(text) =>
-              store.updateForm({ costPrice: text === null ? undefined : text })
-            }
-          />
-          {/* <TextV2 text={"Текущий остаток в граммах"} />
-          <InputNumber
-            value={store.viewModel.currentBalance}
+          <InputV3
+            label="Цена за грамм"
+            value={store.viewModel.costPrice?.toString()}
+            initialValue={store.viewModel.costPrice?.toString()}
+            validation={Number().isValid}
             onChange={(text) =>
               store.updateForm({
-                currentBalance: text === null ? undefined : text,
+                costPrice: text === "" ? undefined : Number(text),
               })
             }
-          /> */}
-          <TextV2 text={"Приватный номер"} />
-          <Input
-            initialValue={store.viewModel.privateNumber}
+          />
+          <div style={{ height: 10 }} />
+          <InputV3
+            value={store.viewModel.privateNumber}
             onChange={(text) =>
               store.updateForm({
                 privateNumber: text,
               })
             }
+            label={"Приватный номер"}
           />
-
           <div style={{ height: 20 }}></div>
           <Button
             text="Сохранить"

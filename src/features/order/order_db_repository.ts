@@ -1,10 +1,10 @@
 import { Result } from "../../core/helper/result";
 import { ClientsDbRepository } from "../clients/clients_db_repository";
 import { ConsumablesDbRepository } from "../consumables/consumables_db_repository";
+import type { OrderViewModel } from "../orders/orders_db_model";
 import { OrdersDbRepository } from "../orders/orders_db_repository";
 import { PaintComponentsDbRepository } from "../paint_components/paint_components_db_repository";
 import { RecipesDbRepository } from "../recipes/recipes_db_repository";
-import { OrderViewModel } from "./order_store";
 
 export class IOrderDbRepository extends OrdersDbRepository {
   clientDbRepository = new ClientsDbRepository();

@@ -14,11 +14,9 @@ import type { ClassConstructor } from "class-transformer";
 import { Select } from "../select/select";
 import React from "react";
 import { Icon, IconType } from "../icon/icon";
-import { RecipesPath } from "../../../features/recipes/recipes";
 import { PaintsComponentPath } from "../../../features/paint_components/paint_components";
 import { OrdersPath } from "../../../features/orders/orders";
 import { useNavigate } from "react-router-dom";
-import { ConsumablesPath } from "../../../features/consumables/consumables";
 import { ReportsPath } from "../../../features/reports/reports";
 import { useInstallPWA } from "../../helper/use_install_pwa";
 import { InputV3 } from "../input/input_v3";
@@ -27,13 +25,13 @@ const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
   [
     { icon: IconType.clients, name: "Клиенты", path: "/clients" },
     { icon: IconType.order, name: "Заказы", path: OrdersPath },
-    { icon: IconType.consumables, name: "Расходники", path: ConsumablesPath },
+    // { icon: IconType.consumables, name: "Расходники", path: ConsumablesPath },
     {
       icon: IconType.components,
       name: "Компоненты",
       path: PaintsComponentPath,
     },
-    { icon: IconType.recipes, name: "Рецепты", path: RecipesPath },
+    // { icon: IconType.recipes, name: "Рецепты", path: RecipesPath },
     { icon: IconType.report, name: "Отчеты", path: ReportsPath },
   ];
 export const CrudPage: React.FC<{
@@ -82,7 +80,7 @@ export const CrudPage: React.FC<{
     const { canInstall, install } = useInstallPWA();
 
     return (
-      <div style={{ overflowY: "hidden" }}>
+      <div style={{ overflowY: "hidden", height: "100%" }}>
         {!canInstall && (
           <button onClick={install}>📲 Установить приложение</button>
         )}
