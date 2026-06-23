@@ -10,6 +10,7 @@ export enum CoreInputType {
 export const InputV3 = (props: {
   style?: React.CSSProperties;
   label: string;
+  initialValue?: string;
   value?: string;
   subLabel?: React.ReactNode;
   onChange?: (value: string) => void;
@@ -23,7 +24,11 @@ export const InputV3 = (props: {
   const [value, setValue] = React.useState<string>(() => props.value ?? "");
   const ref = React.useRef<HTMLDivElement>(null);
   const [isAppendInnerText, setAppendInnerText] = React.useState(true);
-
+  React.useEffect(() => {
+    if (ref.current) {
+      ref.current.innerText = "";
+    }
+  }, [props.initialValue]);
   React.useEffect(() => {
     if (ref.current && isAppendInnerText) {
       ref.current.innerText = value;

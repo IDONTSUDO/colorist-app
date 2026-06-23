@@ -11,21 +11,39 @@ export const CalculateOrder: React.FC<{ store: OrderStore }> = observer(
         <ModalV2
           isOpen={store.reportComponentsModalIsOpen}
           onClose={() => store.closeReportComponentsModal()}
-          children={<></>}
+          children={
+            <>
+              {store.getOrderStatisticComponents().map((el, i) => {
+                return (
+                  <div
+                    key={i}
+                    style={{ border: "1px solid", padding: 10, margin: 10 }}
+                  >
+                    {/* <div>{el.privateNumber}</div> */}
+                    <TextBar
+                      left={el.privateNumber}
+                      right="приватный компонент"
+                    />
+                    <TextBar
+                      left={el.costPrice.shortToDecimalPlaces(2)}
+                      right="цена за грамм компонента"
+                    />
+                    <TextBar
+                      left={el.weightInTheRecipe.shortToDecimalPlaces(2)}
+                      right="вес в рецепте"
+                    />
+                    <TextBar
+                      left={el.finalCostOfTheComponent.shortToDecimalPlaces(2)}
+                      right="финальная себе стоймость компонента"
+                    />
+                  </div>
+                );
+              })}
+            </>
+          }
         />
-        <ModalV2
-          isOpen={store.reportConsumablesModalIsOpen}
-          onClose={() => store.closeReportConsumablesModal()}
-          children={<></>}
-        />
-        <div>
-          <div style={{ height: 10 }} />
 
-          <Button
-            text={`себестоймость расходников: ${store.getCostConsumables()}`}
-            style={{ width: 300 }}
-            onClick={() => store.openReportConsumablesModal()}
-          />
+        <div>
           <div style={{ height: 10 }} />
           <Button
             text={`себестоймость компонентов: ${store.getCostComponents()}`}
@@ -33,14 +51,17 @@ export const CalculateOrder: React.FC<{ store: OrderStore }> = observer(
             onClick={() => store.openReportComponentsModal()}
           />
         </div>
-        <div>Итог себестоймости: {store.getOrderCost()}</div>
+        <div style={{ height: 10 }}></div>
         <div style={{ width: 500 }}>
           <InputV3
             label={"Наценка"}
             validation={(e) => Number(e).isPositive()}
             error="только числа"
             value={store.viewModel.markup?.toString()}
-            onChange={(text) => store.updateForm({ markup: Number(text) })}
+            onChange={(text) => {
+              store.updateForm({ markup: Number(text) });
+              store.updateOrder();
+            }}
           />
         </div>
         <div style={{ height: 10 }} />
@@ -57,3 +78,15 @@ export const CalculateOrder: React.FC<{ store: OrderStore }> = observer(
     );
   },
 );
+
+const TextBar: React.FC<{ left: string | number; right: string | number }> = ({
+  left,
+  right,
+}) => {
+  return (
+    <div style={{ display: "flex" }}>
+      <div>{right} :</div>
+      <div>{left}</div>
+    </div>
+  );
+};

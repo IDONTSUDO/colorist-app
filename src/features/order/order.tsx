@@ -30,16 +30,6 @@ export const Order = observer(() => {
         <Loader />
       ) : (
         <>
-          {/* <Button text="1" onClick={() => store.addBeginComponents()} />
-          <Button text="2" onClick={() => store.addComponents()} />
-          <Button
-            text="3"
-            onClick={async () => {
-              await store.aabab();
-              store.addComponents();
-            }}
-          /> */}
-
           <Menu
             right={
               <>
@@ -59,6 +49,11 @@ export const Order = observer(() => {
                         style={{ width: 120, marginRight: 20, height: 50 }}
                         onClick={() => store.openComponentsModal()}
                       />
+                      <Button
+                        text="выбрать рецепт"
+                        style={{ width: 150, marginRight: 20, height: 50 }}
+                        onClick={() => store.setSelectReceptMode()}
+                      />
                     </>
                   )}
                 </div>
@@ -66,35 +61,12 @@ export const Order = observer(() => {
             }
             child={
               <>
-                {/* {store.viewModel?.orderCharacteristics === undefined ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      width: "100%",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <TextV2
-                      style={{ textDecoration: "underline" }}
-                      text="По рецепту"
-                      onClick={() => store.selectOrderProcessType("IN_RECEPT")}
-                    />
-                    <div style={{ width: "20%" }} />
-                    <TextV2
-                      style={{ textDecoration: "underline" }}
-                      text="Создание нового рецепта"
-                      onClick={() => store.selectOrderProcessType("NEW_RECEPT")}
-                    />
-                  </div>
-                ) : (
-                  <></>
-                )} */}
                 {store.orderCharacteristics === "NEW_RECEPT" ? (
                   <div className="ee" style={{ width: "max-content" }}>
                     <Tabs
                       tabs={[
                         {
-                          name: "Слив по рецепту",
+                          name: "Рецепт",
                           jsx: (
                             <>
                               <div
@@ -254,15 +226,15 @@ export const Order = observer(() => {
                                       (orderMapper, index) => {
                                         return (
                                           <div
-                                            onClick={() => {
-                                              store.selectReceptIndex = index;
-                                            }}
+                                            onClick={() =>
+                                              store.setSelectRecept(index)
+                                            }
                                             style={{
                                               display: "flex",
-                                              border:
+                                              backgroundColor:
                                                 store.selectReceptIndex ===
                                                 index
-                                                  ? "1px solid red"
+                                                  ? "#d0ff49"
                                                   : "",
                                             }}
                                           >
@@ -459,96 +431,130 @@ export const Order = observer(() => {
                                 store.selectReceptMode ===
                                   SelectReceptMode.one ? (
                                   <>
-                                    <InputV3
-                                      onChange={(text) =>
-                                        store.updateSelectReceptWeight(
-                                          Number(text),
-                                        )
-                                      }
-                                      label={"краски для слива"}
-                                    />
-                                    <Button
-                                      text="Готово"
-                                      onClick={() => store.rrrfdasf()}
-                                    />
+                                    <div style={{ height: 10 }}></div>
+                                    <div style={{ display: "flex" }}>
+                                      <InputV3
+                                        validation={Number().isValid}
+                                        error="только цифры"
+                                        onChange={(text) =>
+                                          store.updateSelectReceptWeight(
+                                            Number(text),
+                                          )
+                                        }
+                                        label={"обьем краски для слива"}
+                                      />
+                                      <Button
+                                        text="Готово"
+                                        onClick={() =>
+                                          store.setTheInkVolumeForDraining()
+                                        }
+                                      />
+                                    </div>
                                   </>
                                 ) : (
                                   <>
-                                    {store.selectReceptPaintFinal.map((el) => {
-                                      return (
+                                    {store.selectReceptMode ===
+                                    SelectReceptMode.two ? (
+                                      <>
                                         <div style={{ display: "flex" }}>
-                                          <div
-                                            style={{
-                                              border: "1px solid black  ",
-                                              width: 60,
-                                              backgroundColor: "black",
-                                              color: "white",
-                                            }}
-                                          >
-                                            {el.privateNumber}
+                                          <div style={{ fontSize: 20 }}>
+                                            Слив по рецепту{" "}
+                                            {store.selectReceptWeight} грамм
                                           </div>
+                                          <div style={{ width: 20 }} />
                                           <div
                                             style={{
-                                              border: "1px solid black  ",
-                                              width: 60,
+                                              fontSize: 20,
+                                              textDecoration: "underline",
                                             }}
+                                            onClick={() => store.cancelLeak()}
                                           >
-                                            {el.weightCalcRecept}
+                                            отменить
                                           </div>
                                         </div>
-                                      );
-                                    })}
+                                        {store.selectReceptPaintFinal.map(
+                                          (el) => {
+                                            return (
+                                              <div style={{ display: "flex" }}>
+                                                <div
+                                                  style={{
+                                                    border: "1px solid black  ",
+                                                    width: 60,
+                                                    backgroundColor: "black",
+                                                    color: "white",
+                                                  }}
+                                                >
+                                                  {el.privateNumber}
+                                                </div>
+                                                <div
+                                                  style={{
+                                                    border: "1px solid black  ",
+                                                    width: 60,
+                                                  }}
+                                                >
+                                                  {Number(
+                                                    el.weightCalcRecept,
+                                                  ).shortToDecimalPlaces(2)}
+                                                </div>
+                                              </div>
+                                            );
+                                          },
+                                        )}
+                                      </>
+                                    ) : (
+                                      <></>
+                                    )}
                                   </>
                                 )}
                               </div>
                             </>
                           ),
                         },
-                        {
-                          name: "Расходники",
-                          jsx: (
-                            <div
-                              style={{
-                                display: "flex",
-                                width: "100%",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                {store.viewModel.consumables?.isNotEmpty() ? (
-                                  <>
-                                    {store.viewModel.consumables?.map((el) => (
-                                      <div
-                                        style={{
-                                          width: "100%",
-                                          margin: 10,
-                                          padding: 10,
-                                          backgroundColor: "#3c51e0",
+                        // {
+                        //   name: "Расходники",
+                        //   jsx: (
+                        //     <div
+                        //       style={{
+                        //         display: "flex",
+                        //         width: "100%",
+                        //         justifyContent: "space-between",
+                        //       }}
+                        //     >
+                        //       <div>
+                        //         {store.viewModel.consumables?.isNotEmpty() ? (
+                        //           <>
+                        //             {store.viewModel.consumables?.map((el) => (
+                        //               <div
+                        //                 style={{
+                        //                   width: "100%",
+                        //                   margin: 10,
+                        //                   padding: 10,
+                        //                   backgroundColor: "#3c51e0",
 
-                                          color: "white",
-                                          border: "4px solid #6474de",
-                                          borderRadius: 10,
-                                        }}
-                                      >
-                                        <div>количество: {el.count}</div>
-                                        <div>
-                                          описание: {el.consumables.description}
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </>
-                                ) : (
-                                  <>У заказа нету расходников</>
-                                )}
-                              </div>
-                              <Button
-                                style={{ width: 200 }}
-                                text="Добавить расходники"
-                                onClick={() => store.consumablesModalOpen()}
-                              />
-                            </div>
-                          ),
-                        },
+                        //                   color: "white",
+                        //                   border: "4px solid #6474de",
+                        //                   borderRadius: 10,
+                        //                 }}
+                        //               >
+                        //                 <div>количество: {el.count}</div>
+                        //                 <div>
+                        //                   описание: {el.consumables.description}
+                        //                 </div>
+                        //               </div>
+                        //             ))}
+                        //           </>
+                        //         ) : (
+                        //           <>У заказа нету расходников</>
+                        //         )}
+                        //       </div>
+                        //       <Button
+                        //         style={{ width: 200 }}
+                        //         text="Добавить расходники"
+                        //         onClick={() => store.consumablesModalOpen()}
+                        //       />
+                        //     </div>
+                        //   ),
+                        // },
                         {
                           name: "Заказ",
                           jsx: (
@@ -628,119 +634,6 @@ export const Order = observer(() => {
                         },
                       ]}
                     />
-
-                    {/* {store.componentsNewRecept.length !== 0 ? (
-                      <>
-                        <div style={{ display: "flex" }}>
-                          <div
-                            style={{
-                              border: "1px solid",
-                              width: 60,
-                              height: 65,
-                            }}
-                          >
-                            <div
-                              style={{
-                                transform: "rotate(-90deg)",
-                                position: "relative",
-                                top: 20,
-                              }}
-                            >
-                              вес (гр)
-                            </div>
-                          </div>
-
-                          <div
-                            style={{
-                              border: "1px solid",
-                              width: 60,
-                              height: 65,
-                              alignContent: "center",
-                              justifyItems: "center",
-                            }}
-                          >
-                            <div
-                              style={{
-                                // transform: "rotate(-90deg)",
-                                position: "relative",
-                                // top: 40,
-                              }}
-                            >
-                              {store.componentsNewRecept.reduce((acc, el) => {
-                                return acc + el.weight!;
-                              }, 0)}
-                            </div>
-                          </div>
-                          <div
-                            style={{
-                              border: "1px solid",
-                              width: 60,
-                              height: 65,
-                              alignContent: "center",
-                              justifyItems: "center",
-                            }}
-                          >
-                            <div>
-                              {store.componentsNewRecept.reduce((acc, el) => {
-                                return acc + el.weightCalcRecept!;
-                              }, 0)}
-                            </div>
-                          </div>
-                          <div
-                            style={{
-                              border: "1px solid",
-                              width: 60,
-                              height: 65,
-                              alignContent: "center",
-                              justifyItems: "center",
-                            }}
-                          >
-                            <TextV2
-                              text={store.getWeightOfTheDust()}
-                              // onChange={(text) => store.updateRemainder(text)}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                alignContent: "center",
-                                padding: 5,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <></>
-                    )} */}
-                    {store.componentsNewRecept.length !== 0 ? (
-                      <>
-                        <div style={{ display: "flex" }}>
-                          {/* <div
-                            style={{
-                              border: "1px solid",
-                              width: 120,
-                              height: 50,
-                              alignContent: "center",
-                              justifyItems: "center",
-                            }}
-                          >
-                            <div>Общий вес</div>
-                          </div>
-                          <div
-                            style={{
-                              border: "1px solid",
-                              width: 60,
-                              height: 50,
-                              alignContent: "center",
-                              justifyItems: "center",
-                            }}
-                          >
-                            <div>{store.getCommonWeight()}</div>
-                          </div> */}
-                        </div>
-                      </>
-                    ) : (
-                      <></>
-                    )}
                   </div>
                 ) : (
                   <></>
@@ -856,6 +749,7 @@ export const Order = observer(() => {
                               label="Вес в рецепте"
                               style={{ width: "max-content" }}
                               validation={Number().isValid}
+                              initialValue={el.privateNumber}
                               value={el.weight
                                 ?.shortToDecimalPlaces(2)
                                 ?.toString()}
@@ -937,13 +831,12 @@ export const Order = observer(() => {
                     <InputV3
                       label="Вес в рецепте"
                       style={{ width: "max-content" }}
+                      initialValue={el.id?.toString()}
                       validation={Number().isValid}
-                      value={el.weight?.toString()}
                       onChange={(val) => {
                         store.updateWeights(Number(val), i);
                       }}
                     />
-
                     <Button
                       width={150}
                       onClick={() => store.addComponents(i)}

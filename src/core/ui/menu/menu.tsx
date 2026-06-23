@@ -10,7 +10,15 @@ export const Menu: React.FC<{
   return (
     <div style={{ height: "100vh", backgroundColor: "var(--bg-secondary)" }}>
       <div style={{ height: 48 }}></div>
-      <div className="app" style={{ marginLeft: 20, marginRight: 20 }}>
+      <div
+        className="app"
+        style={{
+          marginLeft: 20,
+          marginRight: 20,
+          minHeight: "90%",
+          height: 10,
+        }}
+      >
         <div
           className="topbar"
           style={{
@@ -50,7 +58,9 @@ export const Menu: React.FC<{
             </div>
           </div>
         </div>
-        <div style={{ padding: 20, overflow: "auto" }}>{child}</div>
+        <div style={{ padding: 20, overflowX: "auto", height: "100%" }}>
+          {child}
+        </div>
       </div>
     </div>
   );
