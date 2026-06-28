@@ -21,7 +21,7 @@ defineEntity(ClientViewModel, {
     columns: {
         name: { indexed: true },
         family: { indexed: true },
-        numberPhone: { indexed: true },
+        numberPhone: { indexed: true, unique: true },
         surName: { indexed: true },
     },
 });

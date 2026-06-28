@@ -148,6 +148,7 @@ export const Recipes = observer(() => {
             />
           </div>
         }
+        feature={""}
       />
       <ModalV2
         isOpen={store.isModalAddComponentsOpen}

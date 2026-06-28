@@ -32,7 +32,6 @@ export class ValidationModel extends BaseEntity<number> {
 
   validMessage = async<T>(): Promise<Result<string, T>> => {
     const result = await this.valid<T>();
-
     if (result.isFailure()) {
       message.error(result.error);
     }

@@ -15,8 +15,8 @@ export const Menu: React.FC<{
         style={{
           marginLeft: 20,
           marginRight: 20,
-          minHeight: "90%",
-          height: 10,
+          // minHeight: "",
+          // height: 10,
         }}
       >
         <div

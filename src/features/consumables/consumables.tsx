@@ -50,27 +50,27 @@ export const Consumables = observer(() => {
           />
           <div style={{ height: 10 }} />
           {/* <InputV3
-            validation={(e) => Number(e).isPositive()}
-            error="только числа"
-            label="текущий остаток"
-            value={store.viewModel.currentBalance?.toString()}
-            onChange={(text) =>
-              store.updateForm({
-                currentBalance: Number(text),
-              })
-            }
-          /> */}
+              validation={(e) => Number(e).isPositive()}
+              error="только числа"
+              label="текущий остаток"
+              value={store.viewModel.currentBalance?.toString()}
+              onChange={(text) =>
+                store.updateForm({
+                  currentBalance: Number(text),
+                })
+              }
+            /> */}
           <div style={{ height: 10 }} />
           {/* <InputV3
-            validation={(e) => Number(e).isPositive()}
-            label="еденица измерения"
-            value={store.viewModel.unitOfMeasurement?.toString()}
-            onChange={(text) =>
-              store.updateForm({
-                unitOfMeasurement: text,
-              })
-            }
-          /> */}
+              validation={(e) => Number(e).isPositive()}
+              label="еденица измерения"
+              value={store.viewModel.unitOfMeasurement?.toString()}
+              onChange={(text) =>
+                store.updateForm({
+                  unitOfMeasurement: text,
+                })
+              }
+            /> */}
           <Select
             options={["Граммы", "Милилитры", "Штуки"].map((el) => {
               return {
@@ -91,6 +91,7 @@ export const Consumables = observer(() => {
           />
         </>
       }
+      feature={ConsumablesPath}
     />
   );
 });

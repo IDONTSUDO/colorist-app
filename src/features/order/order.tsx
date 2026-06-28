@@ -1,6 +1,11 @@
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../core/helper/use_store";
-import { OrderMapper, OrderStore, SelectReceptMode } from "./order_store";
+import {
+  OrderMapper,
+  OrderMode,
+  OrderStore,
+  SelectReceptMode,
+} from "./order_store";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Loader } from "../../core/ui/loader/loader";
@@ -41,9 +46,19 @@ export const Order = observer(() => {
                         style={{ width: 140, marginRight: 20, height: 50 }}
                         onClick={() => store.openNewReceptModal()}
                       />
+                      <Button
+                        text="из буффера обмена"
+                        style={{ width: 200, marginRight: 20, height: 50 }}
+                        onClick={() => store.insertReceptFromClickBoard()}
+                      />
                     </>
                   ) : (
                     <>
+                      <Button
+                        text="скопировать"
+                        style={{ width: 120, marginRight: 20, height: 50 }}
+                        onClick={() => store.copyRecept()}
+                      />
                       <Button
                         text="компоненты"
                         style={{ width: 120, marginRight: 20, height: 50 }}
@@ -51,6 +66,16 @@ export const Order = observer(() => {
                       />
                       <Button
                         text="выбрать рецепт"
+                        color={
+                          store.orderMode === OrderMode.selectRecept
+                            ? "rgb(208, 255, 73)"
+                            : undefined
+                        }
+                        textColor={
+                          store.orderMode === OrderMode.selectRecept
+                            ? "black"
+                            : undefined
+                        }
                         style={{ width: 150, marginRight: 20, height: 50 }}
                         onClick={() => store.setSelectReceptMode()}
                       />
@@ -231,11 +256,6 @@ export const Order = observer(() => {
                                             }
                                             style={{
                                               display: "flex",
-                                              backgroundColor:
-                                                store.selectReceptIndex ===
-                                                index
-                                                  ? "#d0ff49"
-                                                  : "",
                                             }}
                                           >
                                             {index === 0 ? (
@@ -249,6 +269,11 @@ export const Order = observer(() => {
                                                         <div
                                                           style={{
                                                             display: "flex",
+                                                            backgroundColor:
+                                                              store.selectReceptIndex ===
+                                                              index
+                                                                ? "#d0ff49"
+                                                                : "",
                                                           }}
                                                         >
                                                           <div
@@ -256,6 +281,11 @@ export const Order = observer(() => {
                                                               border:
                                                                 "1px solid",
                                                               width: 60,
+                                                              backgroundColor:
+                                                                store.selectReceptIndex ===
+                                                                index
+                                                                  ? "#d0ff49"
+                                                                  : "",
                                                             }}
                                                           >
                                                             {paint.weightCalcRecept?.shortToDecimalPlaces(
@@ -270,6 +300,11 @@ export const Order = observer(() => {
                                                     style={{
                                                       border: "1px solid",
                                                       width: 60,
+                                                      backgroundColor:
+                                                        store.selectReceptIndex ===
+                                                        index
+                                                          ? "#d0ff49"
+                                                          : "",
                                                     }}
                                                   >
                                                     отпыл
@@ -278,13 +313,21 @@ export const Order = observer(() => {
                                                     style={{
                                                       border: "1px solid",
                                                       width: 60,
+                                                      backgroundColor:
+                                                        store.selectReceptIndex ===
+                                                        index
+                                                          ? "#d0ff49"
+                                                          : "",
                                                     }}
                                                   >
                                                     вес
                                                   </div>
                                                 </div>
-                                                <div>
-                                                  <div>
+                                                <div
+                                                  className="3"
+                                                  style={{ width: 60 }}
+                                                >
+                                                  <div className="2">
                                                     {orderMapper.balance.map(
                                                       (paint) => (
                                                         <>
@@ -292,6 +335,7 @@ export const Order = observer(() => {
                                                             style={{
                                                               display: "flex",
                                                             }}
+                                                            className="1"
                                                           >
                                                             <div
                                                               style={{
@@ -300,10 +344,11 @@ export const Order = observer(() => {
                                                                 width: 60,
                                                               }}
                                                             >
+                                                              {/* todo */}
                                                               {paint.privateNumber ===
                                                               orderMapper.add
                                                                 .privateNumber
-                                                                ? paint.weightCalcRecept?.shortToDecimalPlaces(
+                                                                ? orderMapper.add.weight?.shortToDecimalPlaces(
                                                                     2,
                                                                   )
                                                                 : "-"}{" "}
@@ -445,6 +490,7 @@ export const Order = observer(() => {
                                       />
                                       <Button
                                         text="Готово"
+                                        style={{ width: 100 }}
                                         onClick={() =>
                                           store.setTheInkVolumeForDraining()
                                         }
@@ -510,51 +556,7 @@ export const Order = observer(() => {
                             </>
                           ),
                         },
-                        // {
-                        //   name: "Расходники",
-                        //   jsx: (
-                        //     <div
-                        //       style={{
-                        //         display: "flex",
-                        //         width: "100%",
-                        //         justifyContent: "space-between",
-                        //       }}
-                        //     >
-                        //       <div>
-                        //         {store.viewModel.consumables?.isNotEmpty() ? (
-                        //           <>
-                        //             {store.viewModel.consumables?.map((el) => (
-                        //               <div
-                        //                 style={{
-                        //                   width: "100%",
-                        //                   margin: 10,
-                        //                   padding: 10,
-                        //                   backgroundColor: "#3c51e0",
 
-                        //                   color: "white",
-                        //                   border: "4px solid #6474de",
-                        //                   borderRadius: 10,
-                        //                 }}
-                        //               >
-                        //                 <div>количество: {el.count}</div>
-                        //                 <div>
-                        //                   описание: {el.consumables.description}
-                        //                 </div>
-                        //               </div>
-                        //             ))}
-                        //           </>
-                        //         ) : (
-                        //           <>У заказа нету расходников</>
-                        //         )}
-                        //       </div>
-                        //       <Button
-                        //         style={{ width: 200 }}
-                        //         text="Добавить расходники"
-                        //         onClick={() => store.consumablesModalOpen()}
-                        //       />
-                        //     </div>
-                        //   ),
-                        // },
                         {
                           name: "Заказ",
                           jsx: (
@@ -578,7 +580,19 @@ export const Order = observer(() => {
                             </>
                           ),
                         },
-                        { name: "Клиент", jsx: <>3</> },
+                        {
+                          name: "Клиент",
+                          jsx: (
+                            <>
+                              <div>имя - {store.client.name}</div>
+                              <div>фамилия - {store.client.family}</div>
+                              <div>отчество - {store.client.surName}</div>
+                              <div>
+                                номер телефона - {store.client.numberPhone}
+                              </div>
+                            </>
+                          ),
+                        },
                         {
                           name: "Производство заказа",
                           jsx: (
