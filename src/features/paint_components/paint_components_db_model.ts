@@ -25,7 +25,7 @@ defineEntity(PaintComponentViewModel, {
         weight: { indexed: true },
         weightCalcRecept: { indexed: true },
         costPrice: { indexed: true },
-        privateNumber: { indexed: true },
+        privateNumber: { indexed: true, unique: true },
         currentBalance: { indexed: true },
     },
 }); 

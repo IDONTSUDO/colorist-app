@@ -8,7 +8,8 @@ export const Button: React.FC<{
   width?: number;
   onClick?: () => void;
   style?: React.CSSProperties;
-}> = ({ text, color, height, width, onClick, style }) => (
+  textColor?: string;
+}> = ({ text, color, height, width, onClick, style, textColor }) => (
   <div
     onClick={() => onClick?.()}
     style={Object.assign(
@@ -23,6 +24,6 @@ export const Button: React.FC<{
       style,
     )}
   >
-    <TextV2 text={text} color="white" />
+    <TextV2 text={text} color={textColor ? textColor : "white"} />
   </div>
 );

@@ -46,7 +46,7 @@ export const CalculateOrder: React.FC<{ store: OrderStore }> = observer(
         <div>
           <div style={{ height: 10 }} />
           <Button
-            text={`себестоймость компонентов: ${store.getCostComponents()}`}
+            text={`себестоймость компонентов: ${store.getCostComponents().shortToDecimalPlaces(2)}`}
             style={{ width: 300 }}
             onClick={() => store.openReportComponentsModal()}
           />
@@ -72,7 +72,9 @@ export const CalculateOrder: React.FC<{ store: OrderStore }> = observer(
         />
         <div style={{ fontSize: 30, fontWeight: 600 }}>
           Итоговая стоймость для клиента:
-          {store.getOrderCost() + (store.viewModel.markup ?? 0)}
+          {(
+            store.getOrderCost() + (store.viewModel.markup ?? 0)
+          ).shortToDecimalPlaces(2)}
         </div>
       </div>
     );

@@ -44,10 +44,10 @@ export class OrderViewModel extends ValidationModel {
     codePaint!: string; //КОД КРАСКИ
     @IsString({ message: "Поле цвет краски является обязательным" })
     color!: string; //ЦВЕТ
-    @IsInt({
+    @IsString({
         message: "Поле обьем краски которую хочет клиент является обязательным",
     })
-    theVolumeOfPainTheCustomerWant!: number; //ОБЬЕМ КРАСКИ КОТОРУЮ ХОЧЕТ КЛИЕНТ в граммах
+    theVolumeOfPainTheCustomerWant!: string; //ОБЬЕМ КРАСКИ КОТОРУЮ ХОЧЕТ КЛИЕНТ в граммах
     @IsInt({ message: "Выберите клиента" })
     client!: number; //ID model Client
     statusOrder: string = "Начат"; //НАЧАТ,ЗАКОНЧЕН

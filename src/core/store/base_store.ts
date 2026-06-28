@@ -7,6 +7,7 @@ import { CrudHttpRepository, HttpError } from "../repository/http_repository";
 import { ValidationModel } from "../model/validation_model";
 import type { IPagination } from "../model/pagination";
 import type { CrudIndexedDbRepository } from "../repository/indexed_db_repository";
+import { LocalStorageRepository } from "../repository/local_storage_repository";
 
 export type CoreError = HttpError | Error;
 
@@ -172,11 +173,16 @@ export enum CrudMode {
   edit,
   create,
 }
+
+class CrudFormLocalStorage extends LocalStorageRepository { }
+
 export abstract class CrudFormStore<
   V extends ValidationModel,
   R extends CrudHttpRepository<V>
 > extends FormState<V> {
   currentMode?: CrudMode;
+  crudFormLocalStorage = new CrudFormLocalStorage();
+  feature?: string;
   page?: IPagination<V>;
   abstract repository: R;
   searchByField?: string;
@@ -191,11 +197,14 @@ export abstract class CrudFormStore<
   };
 
   selectPage = async (page: number) => {
+    console.log(2000);
     this.page!.currentPage = page;
+    console.log(2001);
     await this.read();
   };
   models = (): V[] | undefined => this.page?.data;
   async init(_?: NavigateFunction): Promise<any> {
+    // this.crudFormLocalStorage.
     await this.mapOk("page", this.read());
   }
 
@@ -209,6 +218,7 @@ export abstract class CrudFormStore<
   nextPage = async () => {
     if (this.page?.currentPage !== undefined) {
       this.page!.currentPage += 1;
+
       await this.mapOk("page", this.read());
     }
   };
@@ -223,6 +233,7 @@ export abstract class CrudFormStore<
     }
   };
   async initCrud() {
+
     await this.mapOk("page", this.read());
   }
   new = async () => {
@@ -282,6 +293,7 @@ export abstract class CrudFormLocalDbStore<
   R extends CrudIndexedDbRepository<V>
 > extends FormState<V> {
   currentMode?: CrudMode;
+  feature?: string;
   page?: IPagination<V>;
   abstract repository: R;
   searchByField?: string;
@@ -297,7 +309,7 @@ export abstract class CrudFormLocalDbStore<
 
   selectPage = async (page: number) => {
     this.page!.currentPage = page;
-    await this.read();
+    await this.mapOk("page", this.read());
   };
   models = (): V[] | undefined => this.page?.data;
   async init(_?: NavigateFunction): Promise<any> {
@@ -332,11 +344,15 @@ export abstract class CrudFormLocalDbStore<
     await this.mapOk("page", this.read());
   }
   new = async () => {
-    (await this.viewModel.validMessage()).map(async () => {
-      await this.create(this.viewModel);
-      await this.mapOk("page", this.read());
-      this.modalCancel();
-    });
+    try {
+      (await this.viewModel.validMessage()).map(async () => {
+        await this.create(this.viewModel);
+        await this.mapOk("page", this.read());
+        this.modalCancel();
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
   createOrUpdate = async () => {
     if (this.currentMode === CrudMode.edit) {

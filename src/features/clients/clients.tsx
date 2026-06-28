@@ -13,6 +13,7 @@ export const Clients = observer(() => {
   const store = useStore(ClientsStore);
   return (
     <CrudPage
+      feature={ClientsPath}
       isEditable={true}
       instanceModel={ClientViewModel}
       store={store}

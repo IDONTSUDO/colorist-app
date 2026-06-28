@@ -6,7 +6,7 @@ import { PaintComponentViewModel } from "../paint_components/paint_components_db
 import type { ConsumablesViewModel } from "../consumables/consumables_db_model";
 import type { RecipesViewModel } from "../recipes/recipes_db_model";
 import { ClientViewModel } from "../clients/clients_db_model";
-import { plainToClass } from "class-transformer";
+import { plainToClass, type ClassTransformOptions } from "class-transformer";
 import { OrderViewModel } from "../orders/orders_db_model";
 
 export class OrderMapper {
@@ -46,12 +46,96 @@ export enum OrderMode {
   selectRecept,
   none,
 }
+function isValidJson(str: string): boolean {
+  try {
+    // Попытка распарсить строку
+    JSON.parse(str);
+    // Если ошибки не возникло, строка валидна
+    return true;
+  } catch (e) {
+    // Если возникла ошибка, строка не является валидным JSON
+    return false;
+  }
+}
+
 export class OrderStore extends FormState<OrderViewModel> {
+  insertReceptFromClickBoard = async () => {
+    const buff = await navigator.clipboard.readText();
+    if (buff === "" && !isValidJson(buff)) {
+      message.error("буфер обмена содержит неверные данные");
+      return;
+    }
+
+    const result = JSON.parse(buff).map(
+      (el: ClassTransformOptions | undefined) =>
+        plainToClass(PaintComponentViewModel, el),
+    ) as PaintComponentViewModel[];
+    if (result.length === 0) {
+      message.error("не валидные данные");
+      return;
+    }
+
+    const paintComponentViewModels: PaintComponentViewModel[] = [];
+    let lastComponent: any;
+    result
+      .filter(
+        (el, index, self) =>
+          index === self.findIndex((u) => u.privateNumber === el.privateNumber),
+      )
+      .forEach((el) => {
+        const component = el;
+        const c = JSON.parse(JSON.stringify(component));
+        c.weightCalcRecept = c.weight;
+        lastComponent = c;
+
+        paintComponentViewModels
+          .rFind<PaintComponentViewModel>(
+            (el) => el.privateNumber === c.privateNumber,
+          )
+          .fold(
+            (s) => {
+              if (s.weightCalcRecept === undefined) {
+                s.weightCalcRecept = 0;
+              }
+              s.weightCalcRecept = c.weight;
+            },
+            () => {
+              paintComponentViewModels.add(c);
+            },
+          );
+      });
+    this.componentsAddInRecept.push(
+      new OrderMapper(lastComponent, paintComponentViewModels),
+    );
+    this.componentsAddInRecept.push(
+      new OrderMapper(lastComponent, paintComponentViewModels),
+    );
+    this.componentsAddInRecept[0].balance.forEach((el) => {
+      this.addingComponentsTable.push(el);
+    });
+    this.updateOrder();
+  };
+  copyRecept = async () => {
+    if (this.selectReceptIndex === undefined) {
+      message.error(
+        "не выбран рецепт для копирования нажмите на кнопку выбрать рецепт и выберете активный рецепт",
+      );
+      return;
+    }
+
+    await navigator.clipboard.writeText(
+      JSON.stringify(
+        this.componentsAddInRecept.at(this.selectReceptIndex)?.balance,
+      ),
+    );
+
+    message.info("выбранный рецепт скопирован!");
+  };
   selectReceptPaintFinal: PaintComponentViewModel[] = [];
   selectReceptMode: SelectReceptMode = SelectReceptMode.one;
   selectReceptWeight?: number = undefined;
   selectReceptIndex?: number = undefined;
-  weihgs: number[] = [];
+  weighs: number[] = [];
   orderMode = OrderMode.none;
   orderCharacteristics = "NEW_RECEPT";
   isNewReceptModal = false;
@@ -255,10 +339,11 @@ export class OrderStore extends FormState<OrderViewModel> {
       this.selectReceptWeight = this.viewModel.selectReceptWeight;
       this.selectReceptMode = SelectReceptMode.two;
     }
+    // OrderMode.selectRecept
 
     if (this.viewModel.selectReceptIndex) {
       this.selectReceptIndex = this.viewModel.selectReceptIndex;
-      this.orderMode = OrderMode.selectRecept;
+      // this.orderMode = OrderMode.selectRecept;
     }
     if (this.viewModel.recipeJSON !== undefined) {
       this.componentsNewRecept = JSON.parse(this.viewModel.recipeJSON) as any;
@@ -438,6 +523,7 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.newReceptComponents = this.newReceptComponents.filter(
       (el) => el.privateNumber !== c.privateNumber,
     );
+    this.components = [];
     this.newReceptComponents.push(c);
   };
   addComponentsToRecept = (i: number): void => {
@@ -451,6 +537,7 @@ export class OrderStore extends FormState<OrderViewModel> {
     // this.components = [];
     const component = components.at(i)!;
     const c = JSON.parse(JSON.stringify(component));
+    const addWeight = c.weight;
     if (c.weight === undefined) {
       message.error("введите добавляймый вес");
       return;
@@ -484,11 +571,13 @@ export class OrderStore extends FormState<OrderViewModel> {
           if (s.weightCalcRecept === undefined) {
             s.weightCalcRecept = 0;
           }
+          // s.weightCalcRecept = 0;
           s.weightCalcRecept += c.weight;
           // s.weight = s.weightCalcRecept;
           this.addingComponentsTable.forEach((el) => {
             if (el.privateNumber === c.privateNumber) {
               el.weightCalcRecept += c.weight;
+              //todo
             }
           });
         },
@@ -523,10 +612,12 @@ export class OrderStore extends FormState<OrderViewModel> {
           dust;
       });
     }
-
+    c.weight = addWeight;
     this.componentsAddInRecept.push(
       new OrderMapper(c, paintComponentViewModels),
     );
+    this.components = [];
+    this.closeComponentsModal();
     this.updateOrder();
   };
   addBeginComponents = () => {
@@ -572,9 +663,9 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.closeNewReceptModal();
   };
   setSelectRecept = (index: number): void => {
-    if (this.selectReceptMode === SelectReceptMode.two) {
-      return;
-    }
+    // if (this.selectReceptMode === SelectReceptMode.two) {
+    //   return;
+    // }
     if (this.orderMode === OrderMode.selectRecept) {
       if (this.selectReceptIndex === index) {
         this.selectReceptIndex = undefined;

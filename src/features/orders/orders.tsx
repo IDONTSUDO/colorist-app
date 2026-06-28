@@ -23,6 +23,7 @@ export const Orders = observer(() => {
   return (
     <>
       <CrudPage
+        feature={OrdersPath}
         searchByField={{
           createdAt: () => (
             <>
@@ -81,6 +82,7 @@ export const Orders = observer(() => {
           "addingComponentsTableJson",
           "selectReceptWeight",
           "selectReceptPaintFinal",
+          "orderCreate",
         ]}
         isEditable={false}
         addingColumns={[
@@ -179,13 +181,13 @@ export const Orders = observer(() => {
             />
             <div style={{ height: 5 }} />
             <InputV3
-              validation={(e) => Number(e).isPositive()}
-              error="только числа"
+              // validation={(e) => Number(e).isPositive()}
+              // error="только числа"
               label="Обьем краски которую хочет клиент в грамах"
-              value={store.viewModel.theVolumeOfPainTheCustomerWant?.toString()}
+              value={store.viewModel.theVolumeOfPainTheCustomerWant}
               onChange={(text) =>
                 store.updateForm({
-                  theVolumeOfPainTheCustomerWant: Number(text),
+                  theVolumeOfPainTheCustomerWant: text,
                 })
               }
             />

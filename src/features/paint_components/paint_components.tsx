@@ -11,6 +11,7 @@ export const PaintsComponent = observer(() => {
   const store = useStore(PaintComponentStore);
   return (
     <CrudPage
+      feature={PaintsComponentPath}
       isEditable={true}
       instanceModel={PaintComponentViewModel}
       store={store}
@@ -27,7 +28,6 @@ export const PaintsComponent = observer(() => {
           <InputV3
             label="Цена за грамм"
             value={store.viewModel.costPrice?.toString()}
-            initialValue={store.viewModel.costPrice?.toString()}
             validation={Number().isValid}
             onChange={(text) =>
               store.updateForm({

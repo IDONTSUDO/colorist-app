@@ -12,7 +12,7 @@ import { Pagination } from "../pagination/pagination";
 import { Button } from "../button/Button";
 import type { ClassConstructor } from "class-transformer";
 import { Select } from "../select/select";
-import React from "react";
+import React, { useEffect } from "react";
 import { Icon, IconType } from "../icon/icon";
 import { PaintsComponentPath } from "../../../features/paint_components/paint_components";
 import { OrdersPath } from "../../../features/orders/orders";
@@ -35,6 +35,7 @@ const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
     { icon: IconType.report, name: "Отчеты", path: ReportsPath },
   ];
 export const CrudPage: React.FC<{
+  feature: string;
   store: CrudFormStore<any, any> | CrudFormLocalDbStore<any, any>;
   missingKey?: string[];
   pageName?: string;
@@ -46,7 +47,6 @@ export const CrudPage: React.FC<{
   isNeedDelete?: boolean;
   modalStyle?: React.CSSProperties;
   addingColumns?: { name: string; jsx: (el: any) => React.ReactNode }[];
-
   mappedColumns?: {
     name: string;
     mapper: (date: any) => React.ReactNode;
@@ -63,7 +63,6 @@ export const CrudPage: React.FC<{
     store,
     missingKey,
     replacedColumns,
-
     isEditable = true,
     searchByField = {},
     editableComponent,
@@ -74,13 +73,16 @@ export const CrudPage: React.FC<{
     modalStyle,
     replacedJSXColumns,
     addingColumns,
+    feature,
   }) => {
     const n = useNavigate();
     const fieldReplace = searchByField[store.searchByField ?? ""];
     const { canInstall, install } = useInstallPWA();
-
+    useEffect(() => {
+      store.feature = feature;
+    }, []);
     return (
-      <div style={{ overflowY: "hidden", height: "100%" }}>
+      <div style={{ height: "100%" }}>
         {!canInstall && (
           <button onClick={install}>📲 Установить приложение</button>
         )}
