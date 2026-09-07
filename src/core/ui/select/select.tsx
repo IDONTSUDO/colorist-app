@@ -1,4 +1,6 @@
-import * as React from "react";
+// import * as React from "react";
+
+import React from "react";
 
 export enum CoreInputType {
   small = "small",
@@ -34,7 +36,7 @@ export const Select: React.FC<{
   const isSmall = type !== undefined && type === CoreInputType.small;
 
   const selected = options.find((o) => o.value === value);
-
+  console.log(value);
   React.useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -54,21 +56,19 @@ export const Select: React.FC<{
         style,
       )}
     >
-      {/* Trigger */}
       <div
         onClick={() => setIsOpen((v) => !v)}
         style={{
-          backgroundColor: "#F5F5F5",
-          height: isSmall ? 40 : 58,
-          // borderRadius: "4px 4px 0 0",
-          // borderBottom: "1.5px solid #000",
-          border: "1px solid",
-          padding: "0 10px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
+          height: "100%",
+          alignContent: "center",
+          justifyItems: "center",
+          borderRadius: 6,
           cursor: "pointer",
-          userSelect: "none",
+          paddingLeft: 12,
+          border: "1px solid",
+          paddingRight: 12,
+          paddingTop: 10,
+          paddingBottom: 10,
         }}
       >
         <span
@@ -89,11 +89,11 @@ export const Select: React.FC<{
         >
           <span
             style={{
-              fontSize: isSmall ? 12 : 16,
+              fontSize: 12,
               color: selected ? "#000" : "#999",
             }}
           >
-            {selected ? selected.label : (placeholder ?? "Выберите")}
+            {selected ? selected.label : (placeholder ?? "Выбрать")}
           </span>
           <span
             style={{
@@ -109,7 +109,6 @@ export const Select: React.FC<{
         </div>
       </div>
 
-      {/* Dropdown */}
       {isOpen && (
         <div
           style={{

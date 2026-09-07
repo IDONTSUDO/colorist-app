@@ -70,28 +70,28 @@ const PhoneInput: React.FC<RussianPhoneInputDivProps> = ({
   }, [value]);
 
   return (
-    <div
-      ref={divRef}
-      contentEditable
-      onInput={handleInput}
-      style={{
-        border: "1px solid",
-        borderRadius: "4px",
-        padding: "16px 10px",
-        width: "220px",
-        backgroundColor: "rgb(245, 245, 245)",
-        fontSize: "16px",
-        minHeight: "30px",
-        outline: "none",
-        userSelect: "text",
-      }}
-      spellCheck={false}
-      data-placeholder="+7 (___) ___-__-__"
-    />
+    <div>
+      <div>Номер телефона</div>
+      <div
+        ref={divRef}
+        contentEditable
+        onInput={handleInput}
+        style={{
+          border: "1px solid oklch(0.929 0.013 255.508)",
+          borderRadius: "4px",
+          paddingTop: "6px",
+          paddingLeft: "6px",
+          width: "220px",
+          backgroundColor: "white",
+          minHeight: "40px",
+          outline: "none",
+          userSelect: "text",
+        }}
+        spellCheck={false}
+        data-placeholder="+7 (___) ___-__-__"
+      />
+    </div>
   );
 };
 
 export default PhoneInput;
-
-// 2000+2000+
-// -2000-16500
