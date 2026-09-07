@@ -271,14 +271,6 @@ export const CrudPage: React.FC<{
           ) : (
             <> </>
           )}
-          {isNeedHttpError ? (
-            <>
-              {" "}
-              <div></div>
-            </>
-          ) : (
-            <></>
-          )}
 
           <div style={{ height: "100%" }}>
             {store.isLoading &&
