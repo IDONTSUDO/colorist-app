@@ -8,7 +8,7 @@ export enum CoreInputType {
 
 export const InputV3 = (props: {
   style?: React.CSSProperties;
-  placeholder: string;
+  placeholder?: string;
   initialValue?: string;
   value?: string;
   subLabel?: React.ReactNode;

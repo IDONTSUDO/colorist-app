@@ -55,12 +55,9 @@ export const Button: React.FC<{
   type?: ButtonType;
 }> = ({
   text,
-  color,
-  height,
-  width,
+
   onClick,
   style,
-  textColor,
   type = ButtonType.default,
 }) => (
   <div
