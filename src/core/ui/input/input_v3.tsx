@@ -1,5 +1,4 @@
 import * as React from "react";
-import { TextV2 } from "../text/text";
 
 export enum CoreInputType {
   small = "small",
@@ -9,7 +8,7 @@ export enum CoreInputType {
 
 export const InputV3 = (props: {
   style?: React.CSSProperties;
-  label: string;
+  placeholder: string;
   initialValue?: string;
   value?: string;
   subLabel?: React.ReactNode;
@@ -20,102 +19,70 @@ export const InputV3 = (props: {
   trim?: boolean;
   styleContentEditable?: React.CSSProperties;
   isFormBuilder?: boolean;
+  label?: string;
+  placeHolderType?: string;
 }) => {
-  const [value, setValue] = React.useState<string>(() => props.value ?? "");
-  const ref = React.useRef<HTMLDivElement>(null);
-  const [isAppendInnerText, setAppendInnerText] = React.useState(true);
-  React.useEffect(() => {
-    if (ref.current) {
-      ref.current.innerText = "";
-    }
-  }, [props.initialValue]);
-  React.useEffect(() => {
-    if (ref.current && isAppendInnerText) {
-      ref.current.innerText = value;
-      setAppendInnerText(false);
-    }
-  }, [ref, value, isAppendInnerText, setAppendInnerText, props]);
+  const [value, setValue] = React.useState<string>(
+    () => props.value ?? props.initialValue ?? "",
+  );
 
-  const isSmall =
-    props.type !== undefined && props.type.isEqual(CoreInputType.small);
+  React.useEffect(() => {
+    if (props.value !== undefined) {
+      setValue(props.value);
+    }
+  }, [props.value]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let newValue = event.target.value;
+
+    if (props.trim) {
+      newValue = newValue.trim();
+    }
+
+    if (props.validation && !props.validation(newValue)) {
+      return;
+    }
+
+    if (props.value === undefined) {
+      setValue(newValue);
+    }
+
+    props.onChange?.(newValue);
+  };
 
   return (
-    <div
-      style={Object.assign(
-        {
-          backgroundColor: "#F5F5F5", // светло-серый вместо фиолетового
-          height: isSmall ? 40 : 58,
-          // borderRadius: "4px 4px 0px 0px",
-          borderBottom: "solid 1px #000000", // чёрная линия снизу
-          padding: "10px 10px 10px 10px",
-          border: "1px solid",
-        },
-        props.style,
+    <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+      {props.label && <div>{props.label}</div>}
+      {props.placeHolderType === undefined ? (
+        <>
+          <div style={{ fontSize: 10 }}>{props.placeholder}</div>
+        </>
+      ) : (
+        <></>
       )}
-    >
-      <TextV2
-        style={
-          {
-            fontSize: 9,
-            position: "relative",
-            top: -8,
-            color: "rgb(0 0 0)",
-          } // серый лейбл
+
+      <input
+        value={value}
+        onChange={handleChange}
+        placeholder={
+          props.placeHolderType !== undefined ? props.placeholder : undefined
         }
-        text={props.label}
-      />
-      <div
-        ref={ref}
-        contentEditable={true}
         style={Object.assign(
           {
-            backgroundColor: "transparent",
-            border: 1,
-            fontSize: isSmall ? 12 : 16,
-            fontFamily: "system-ui",
-            color: "#000000", // чёрный текст
-            height: 24,
-            width: "100%",
-            userSelect: "none",
-            outline: "none",
-            position: isSmall ? "relative" : undefined,
-            top: isSmall ? -8 : undefined,
+            height: 40,
+            color: "#8fa1b9",
+            borderRadius: 5,
+            border: "1px solid oklch(92.9% 0.013 255.508)",
           },
-          props.styleContentEditable,
+          props.style,
         )}
-        onInput={(e) => {
-          let val = e.currentTarget.innerText;
-          setValue(val);
-          if (val) {
-            if (props.trim) {
-              val = val.trim().replaceAll("\n", "");
-            }
-            if (
-              props.validation !== undefined &&
-              props.validation(val) &&
-              props.onChange
-            ) {
-              props.onChange(val);
-              return;
-            }
-            if (props.onChange && props.validation === undefined) {
-              props.onChange(val);
-              return;
-            }
-          }
-        }}
+        type="text"
       />
-      {value ? (
-        props.validation ? (
-          props.validation(value) ? null : (
-            <div style={{ color: "#000000", fontWeight: 600 }}>
-              {" "}
-              {/* чёрная ошибка */}
-              {props.error ? props.error : "error"}
-            </div>
-          )
-        ) : null
-      ) : null}
+
+      {props.error && (
+        <span style={{ color: "red", fontSize: "12px" }}>{props.error}</span>
+      )}
+      {props.subLabel && <div>{props.subLabel}</div>}
     </div>
   );
 };

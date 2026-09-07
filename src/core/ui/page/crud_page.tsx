@@ -9,17 +9,16 @@ import { observer } from "mobx-react-lite";
 import { CoreTable } from "../table/table";
 import { ModalV2 } from "../modal/modal";
 import { Pagination } from "../pagination/pagination";
-import { Button } from "../button/Button";
+import { Button, ButtonType } from "../button/Button";
 import type { ClassConstructor } from "class-transformer";
 import { Select } from "../select/select";
 import React, { useEffect } from "react";
 import { Icon, IconType } from "../icon/icon";
-import { PaintsComponentPath } from "../../../features/paint_components/paint_components";
-import { OrdersPath } from "../../../features/orders/orders";
 import { useNavigate } from "react-router-dom";
-import { ReportsPath } from "../../../features/reports/reports";
-import { useInstallPWA } from "../../helper/use_install_pwa";
 import { InputV3 } from "../input/input_v3";
+import { OrdersPath } from "../../../features/orders/orders";
+import { PaintsComponentPath } from "../../../features/paint_components/paint_components";
+import { ReportsPath } from "../../../features/reports/reports";
 
 const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
   [
@@ -36,6 +35,9 @@ const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
   ];
 export const CrudPage: React.FC<{
   feature: string;
+  // isNeedHttpError: boolean;
+  isNeedTable?: boolean;
+  body?: React.ReactNode;
   store: CrudFormStore<any, any> | CrudFormLocalDbStore<any, any>;
   missingKey?: string[];
   pageName?: string;
@@ -74,20 +76,23 @@ export const CrudPage: React.FC<{
     replacedJSXColumns,
     addingColumns,
     feature,
+    isNeedTable = true,
+    body,
   }) => {
     const n = useNavigate();
     const fieldReplace = searchByField[store.searchByField ?? ""];
-    const { canInstall, install } = useInstallPWA();
     useEffect(() => {
       store.feature = feature;
     }, []);
     return (
       <div style={{ height: "100%" }}>
-        {!canInstall && (
-          <button onClick={install}>📲 Установить приложение</button>
-        )}
-
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            paddingLeft: 9,
+            borderBottom: "1px solid oklch(92.9% 0.013 255.508)",
+          }}
+        >
           {pages.map((el) => (
             <div
               onClick={() => {
@@ -106,8 +111,24 @@ export const CrudPage: React.FC<{
                 cursor: "pointer",
               }}
             >
-              <Icon type={el.icon} size={50} />
-              <TextV2 text={el.name} />
+              <Icon
+                color={pageName === el.name ? undefined : "#8fa1b9"}
+                type={el.icon}
+                size={25}
+              />
+              <TextV2
+                color={pageName === el.name ? undefined : "#8fa1b9"}
+                text={el.name}
+              />
+              <div style={{ height: 5 }}></div>
+              <div
+                style={{
+                  borderBottom:
+                    pageName !== el.name
+                      ? undefined
+                      : "2px solid oklch(20.8% 0.042 265.755)",
+                }}
+              ></div>
             </div>
           ))}
         </div>
@@ -116,108 +137,148 @@ export const CrudPage: React.FC<{
             height: "100%",
             display: "flex",
             flexDirection: "column",
+            paddingLeft: 20,
+            paddingRight: 20,
             // justifyContent: "space-between",
           }}
         >
-          <TextV2
-            style={{ fontSize: 40, paddingLeft: 20 }}
-            text={pageName ?? ""}
-          />
+          <div style={{ height: 10 }} />
+          <TextV2 style={{ fontSize: "1.5rem" }} text={pageName ?? ""} />
+          <div style={{ height: 10 }} />
 
-          <div style={{ display: "flex" }}>
-            {fieldReplace !== undefined ? (
-              <>{fieldReplace()}</>
-            ) : (
-              <>
-                <InputV3
-                  style={{ width: "100%" }}
-                  label="Поиск по полю"
-                  onChange={(text) => store.findBy(text)}
-                />
-              </>
-            )}
+          {isNeedTable ? (
+            <>
+              <div style={{ display: "flex", width: "100%" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "calc(0.25rem * 2)",
+                    width: "100%",
+                  }}
+                >
+                  {fieldReplace !== undefined ? (
+                    <>{fieldReplace()}</>
+                  ) : (
+                    <>
+                      <InputV3
+                        style={{ width: "100%" }}
+                        placeHolderType=""
+                        placeholder="Поиск по полю"
+                        onChange={(text) => store.findBy(text)}
+                      />
+                    </>
+                  )}
 
-            <Button
-              style={{ width: 150 }}
-              text="Поиск"
-              // color="cornflowerblue"
-              onClick={() => store.onClickFindButton()}
-            />
-            <Select
-              options={Object.keys(store.models()?.at(0) ?? {})
-                .filter((el) => !missingKey?.includes(el))
-                .map((el) => {
-                  return {
-                    value: el,
-                    label:
-                      replacedColumns
-                        ?.rFind<{
-                          name: string;
-                          replace: string;
-                        }>((element) => element.name === el)
-                        .fold(
-                          (s) => s.replace,
-                          (_) => el,
-                        ) ?? "",
-                  };
-                })}
-              value={store.searchByField ?? ""}
-              onChange={function (value: string): void {
-                store.searchByField = value;
-              }}
-              label={""}
-            />
-            <div></div>
-            <div
-              onClick={() => {
-                // store.setMode(CrudMode.create);
-                // store.loadClassInstance(
-                //   instanceModel as ClassConstructor<any>,
-                //   {}
-                // );
-
-                store.modalShow();
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <Button text="Создать" width={100} />
-              </div>
-            </div>
-            <div style={{ display: "flex" }}>
-              {isNeedDelete === undefined || isNeedDelete ? (
-                <div onClick={() => store.setMode(CrudMode.delete)}>
                   <Button
-                    text="Удалить"
-                    width={100}
-                    color={
-                      store.currentMode === CrudMode.delete
-                        ? "rgb(28 29 38)"
-                        : undefined
-                    }
+                    text="Поиск"
+                    type={ButtonType.gray}
+                    // color="cornflowerblue"
+                    onClick={() => store.onClickFindButton()}
+                  />
+                  <Select
+                    options={Object.keys(store.models()?.at(0) ?? {})
+                      .filter((el) => !missingKey?.includes(el))
+                      .map((el) => {
+                        return {
+                          value: el,
+                          label:
+                            replacedColumns
+                              ?.rFind<{
+                                name: string;
+                                replace: string;
+                              }>((element) => element.name === el)
+                              .fold(
+                                (s) => s.replace,
+                                (_) => el,
+                              ) ?? "",
+                        };
+                      })}
+                    value={store.searchByField ?? ""}
+                    onChange={function (value: string): void {
+                      store.searchByField = value;
+                    }}
+                    label={""}
                   />
                 </div>
-              ) : (
-                <></>
-              )}
-              {isEditable ? (
-                <>
-                  <div onClick={() => store.setMode(CrudMode.edit)}>
-                    <Button
-                      text="Редактировать"
-                      width={130}
-                      color={
-                        store.currentMode === CrudMode.edit
-                          ? "rgb(28 29 38)"
-                          : undefined
-                      }
-                    />
+                <div
+                  style={{
+                    width: 20,
+                    textAlign: "center",
+                    justifyItems: "center",
+                    alignContent: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 1.5,
+                      backgroundColor: "oklch(92.9% 0.013 255.508)",
+                      height: 18,
+                    }}
+                  ></div>
+                </div>
+                <div style={{ display: "flex", gap: "calc(0.25rem * 2)" }}>
+                  <div
+                    onClick={() => {
+                      // store.setMode(CrudMode.create);
+                      // store.loadClassInstance(
+                      //   instanceModel as ClassConstructor<any>,
+                      //   {}
+                      // );
+
+                      store.modalShow();
+                    }}
+                  >
+                    <div style={{ width: "100%" }}>
+                      <Button text="Создать" width={100} />
+                    </div>
                   </div>
-                </>
-              ) : (
-                <></>
-              )}
-            </div>
-          </div>
+                  {isNeedDelete === undefined || isNeedDelete ? (
+                    <div onClick={() => store.setMode(CrudMode.delete)}>
+                      <Button
+                        text="Удалить"
+                        type={ButtonType.delete}
+                        width={100}
+                        color={
+                          store.currentMode === CrudMode.delete
+                            ? "rgb(28 29 38)"
+                            : undefined
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                  {isEditable ? (
+                    <>
+                      <div onClick={() => store.setMode(CrudMode.edit)}>
+                        <Button
+                          text="Редактировать"
+                          width={130}
+                          color={
+                            store.currentMode === CrudMode.edit
+                              ? "rgb(28 29 38)"
+                              : undefined
+                          }
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            <> </>
+          )}
+          {isNeedHttpError ? (
+            <>
+              {" "}
+              <div></div>
+            </>
+          ) : (
+            <></>
+          )}
 
           <div style={{ height: "100%" }}>
             {store.isLoading &&
@@ -226,30 +287,41 @@ export const CrudPage: React.FC<{
               <Loader />
             ) : (
               <>
-                <CoreTable
-                  addingColumns={addingColumns}
-                  replacedJSXColumns={replacedJSXColumns}
-                  missingKey={missingKey}
-                  replacedColumns={replacedColumns}
-                  mappedColumns={mappedColumns}
-                  onClick={(index) => {
-                    if (store.currentMode === CrudMode.edit) {
-                      store.loadClassInstance(
-                        instanceModel as ClassConstructor<any>,
-                        store.models()!.at(index),
-                      );
-                      store.modalShow();
-                    }
-                    if (store.currentMode === CrudMode.delete) {
-                      store.delete(store.models()!.at(index).id);
-                    }
-                  }}
-                  columns={Object.keys(store.models()?.at(0) ?? {}).filter(
-                    (el) => !missingKey?.includes(el),
-                  )}
-                  source={store.models() ?? []}
-                />
-                <Pagination store={store} />
+                {isNeedTable ? (
+                  <>
+                    <div style={{ height: 20 }}></div>
+                    <CoreTable
+                      addingColumns={addingColumns}
+                      replacedJSXColumns={replacedJSXColumns}
+                      missingKey={missingKey}
+                      replacedColumns={replacedColumns}
+                      mappedColumns={mappedColumns}
+                      onClick={(index) => {
+                        if (store.currentMode === CrudMode.edit) {
+                          store.loadClassInstance(
+                            instanceModel as ClassConstructor<any>,
+                            store.models()!.at(index),
+                          );
+                          // if(this.viewModel)
+                          if (Object.hasOwn(store.viewModel, "fromServer")) {
+                            store.viewModel.fromServer();
+                          }
+                          store.modalShow();
+                        }
+                        if (store.currentMode === CrudMode.delete) {
+                          store.delete(store.models()!.at(index).id);
+                        }
+                      }}
+                      columns={Object.keys(store.models()?.at(0) ?? {}).filter(
+                        (el) => !missingKey?.includes(el),
+                      )}
+                      source={store.models() ?? []}
+                    />
+                    <Pagination store={store} />
+                  </>
+                ) : (
+                  <>{body}</>
+                )}
               </>
             )}
           </div>
