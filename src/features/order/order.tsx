@@ -10,15 +10,16 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Loader } from "../../core/ui/loader/loader";
 import { TextV2 } from "../../core/ui/text/text";
-import { Button } from "../../core/ui/button/Button";
+import { Button, ButtonType } from "../../core/ui/button/Button";
 import { Tabs } from "../../core/ui/tabs/tabs";
-import { TextPointer } from "../../core/ui/text/text_pointer";
 import { Menu } from "../../core/ui/menu/menu";
-import { Select } from "../../core/ui/select/select";
 import { Icon, IconType } from "../../core/ui/icon/icon";
 import { ModalV2 } from "../../core/ui/modal/modal";
-import { CalculateOrder } from "./ui/calculate_order";
 import { InputV3 } from "../../core/ui/input/input_v3";
+import { M } from "./ui/modal_add_components";
+import { OrderForm } from "./ui/order_form";
+import { ClientForm } from "./ui/client";
+import { FinancialAccountingForm } from "./ui/finance_form";
 
 export const OrderPath = "/order";
 
@@ -41,44 +42,125 @@ export const Order = observer(() => {
                 <div style={{ display: "flex", width: "max-content" }}>
                   {store.componentsAddInRecept.isEmpty() ? (
                     <>
-                      <Button
-                        text="создать рецепт"
-                        style={{ width: 140, marginRight: 20, height: 50 }}
-                        onClick={() => store.openNewReceptModal()}
-                      />
-                      <Button
-                        text="из буффера обмена"
-                        style={{ width: 200, marginRight: 20, height: 50 }}
+                      <div
                         onClick={() => store.insertReceptFromClickBoard()}
-                      />
+                        style={{
+                          padding: "10px 18px",
+                          borderRadius: "8px",
+                          fontSize: 14,
+                          fontWeight: 500,
+                          alignContent: "center",
+                          cursor: "pointer",
+                          border: "none",
+                          backgroundColor: "#f0f2f5",
+                          color: "#4a5568",
+                          transition: "all 0.2s",
+                        }}
+                      >
+                        из буффера обмена
+                      </div>
+                      <div style={{ width: 10 }}> </div>
+                      <div
+                        onClick={() => store.openNewReceptModal()}
+                        style={{
+                          padding: "10px 18px",
+                          borderRadius: "8px",
+                          fontSize: 14,
+                          fontWeight: 500,
+                          alignContent: "center",
+                          cursor: "pointer",
+                          border: "none",
+                          backgroundColor: "#4f46e5",
+                          color: "#ffffff",
+                          transition: "all 0.2s",
+                        }}
+                      >
+                        создать рецепт
+                      </div>
                     </>
                   ) : (
                     <>
-                      <Button
-                        text="скопировать"
-                        style={{ width: 120, marginRight: 20, height: 50 }}
+                      <div
+                        style={{
+                          padding: "10px 18px",
+                          borderRadius: "8px",
+                          fontSize: 14,
+                          fontWeight: 500,
+                          alignContent: "center",
+                          cursor: "pointer",
+                          border: "none",
+                          backgroundColor: "rgb(240, 242, 245)",
+                          color: "rgb(74, 85, 104)",
+                          transition: "all 0.2s",
+                        }}
                         onClick={() => store.copyRecept()}
-                      />
-                      <Button
-                        text="компоненты"
-                        style={{ width: 120, marginRight: 20, height: 50 }}
+                      >
+                        скопировать
+                      </div>
+                      <div style={{ width: 10 }}></div>
+                      <div
+                        style={{
+                          padding: "10px 18px",
+                          borderRadius: "8px",
+                          fontSize: 14,
+                          fontWeight: 500,
+                          alignContent: "center",
+                          cursor: "pointer",
+                          border: "none",
+                          backgroundColor: "#4f46e5",
+                          color: "#ffffff",
+                          transition: "all 0.2s",
+                        }}
                         onClick={() => store.openComponentsModal()}
-                      />
-                      <Button
+                      >
+                        компоненты
+                      </div>
+                      <div style={{ width: 10 }}></div>
+
+                      <div
+                        style={{
+                          // padding: "10px 18px",
+                          // borderRadius: "8px",
+                          // fontSize: 14,
+                          // fontWeight: 500,
+                          // alignContent: "center",
+                          // cursor: "pointer",
+                          // border: "none",
+                          // backgroundColor: "#4f46e5",
+
+                          // transition: "all 0.2s",
+                          padding: "10px 18px",
+                          borderRadius: "8px",
+                          fontSize: 14,
+                          fontWeight: 500,
+                          alignContent: "center",
+                          cursor: "pointer",
+                          border: "none",
+                          backgroundColor:
+                            store.orderMode === OrderMode.selectRecept
+                              ? "rgb(79, 70, 229)"
+                              : "rgb(240, 242, 245)",
+                          // color: "rgb(74, 85, 104)",
+                          color:
+                            store.orderMode === OrderMode.selectRecept
+                              ? "white"
+                              : "rgb(74, 85, 104)",
+                          transition: "all 0.2s",
+                        }}
+                        onClick={() => store.setSelectReceptMode()}
+                      >
+                        выбрать рецепт
+                      </div>
+                      {/* <Button
                         text="выбрать рецепт"
                         color={
-                          store.orderMode === OrderMode.selectRecept
-                            ? "rgb(208, 255, 73)"
-                            : undefined
+                         
                         }
                         textColor={
-                          store.orderMode === OrderMode.selectRecept
-                            ? "black"
-                            : undefined
+                          
                         }
                         style={{ width: 150, marginRight: 20, height: 50 }}
-                        onClick={() => store.setSelectReceptMode()}
-                      />
+                       /> */}
                     </>
                   )}
                 </div>
@@ -104,7 +186,10 @@ export const Order = observer(() => {
                               <div>
                                 {store.componentsNewRecept.length !== 0 ? (
                                   <>
-                                    <div style={{ display: "flex" }}>
+                                    <div
+                                      style={{ display: "flex" }}
+                                      className="1"
+                                    >
                                       <div
                                         style={{
                                           border: "1px solid",
@@ -406,44 +491,7 @@ export const Order = observer(() => {
                           })} */}
                                   </>
                                 </div>
-                                <div style={{ display: "flex" }}>
-                                  <div
-                                    style={{
-                                      border: "1px solid",
-                                      width: 120,
-                                      height: 50,
-                                      alignContent: "center",
-                                      justifyItems: "center",
-                                    }}
-                                  >
-                                    <div>Вес тары</div>
-                                  </div>
-                                  <div
-                                    style={{
-                                      border: "1px solid",
-                                      width: 60,
-                                      height: 50,
-                                      alignContent: "center",
-                                      justifyItems: "center",
-                                    }}
-                                  >
-                                    <TextV2
-                                      isEditable={true}
-                                      initialValue={store.weightContainers
-                                        .shortToDecimalPlaces(2)
-                                        .toString()}
-                                      onChange={(text) =>
-                                        store.updateWeightContainers(text)
-                                      }
-                                      style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        alignContent: "center",
-                                        padding: 5,
-                                      }}
-                                    />
-                                  </div>
-                                </div>
+                                <div style={{ display: "flex" }}></div>
                               </div>
                               <div style={{ display: "flex" }}>
                                 {store.addingComponentsTable.map((el) => {
@@ -471,26 +519,117 @@ export const Order = observer(() => {
                                   );
                                 })}
                               </div>
+                              <div style={{ height: 10 }}></div>
+                              <div
+                                style={{
+                                  // border: "1px solid",
+                                  background: "#fafafa",
+                                  border: "1px solid #e2e8f0",
+                                  borderRadius: 8,
+                                  padding: 20,
+                                  maxWidth: 320,
+                                  // width: 120,
+                                  // height: 50,
+                                  // alignContent: "center",
+                                  // justifyItems: "center",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    color: "#4a5568",
+                                    textTransform: "uppercase",
+                                    letterSpacing: 0.5,
+                                    width: "100%",
+                                  }}
+                                >
+                                  Вес тары
+                                </div>
+                                <div
+                                  style={
+                                    {
+                                      // border: "1px solid",
+                                      // width: 60,
+                                      // height: 50,
+                                      // alignContent: "center",
+                                      // justifyItems: "center",
+                                    }
+                                  }
+                                >
+                                  <div style={{ display: "flex" }}>
+                                    <TextV2
+                                      isEditable={true}
+                                      initialValue={store.weightContainers
+                                        .shortToDecimalPlaces(2)
+                                        .toString()}
+                                      onChange={(text) =>
+                                        store.updateWeightContainers(text)
+                                      }
+                                      style={{
+                                        // width: "100%",
+                                        // height: "100%",
+                                        // alignContent: "center",
+                                        // padding: 5,
+                                        width: 170,
+                                        padding: "11px 36px 11px 14px",
+                                        fontSize: 16,
+                                        border: "1px solid #cbd5e1",
+                                        borderRadius: 6,
+                                        backgroundColor: "#ffffff",
+                                        color: "#1a202c",
+                                        outline: "none",
+                                        transition:
+                                          "border-color 0.2s, box-shadow 0.2s",
+                                      }}
+                                    />
+                                    <div
+                                      style={{
+                                        position: "relative",
+                                        left: -20,
+                                        top: 13,
+                                        color: "#1a202c",
+                                      }}
+                                    >
+                                      г{" "}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                               <div>
                                 {store.selectReceptIndex !== undefined &&
                                 store.selectReceptMode ===
                                   SelectReceptMode.one ? (
                                   <>
                                     <div style={{ height: 10 }}></div>
-                                    <div style={{ display: "flex" }}>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "flex-end",
+                                      }}
+                                    >
                                       <InputV3
+                                        labelStyle={{
+                                          fontSize: 10,
+                                          fontWeight: 800,
+                                        }}
                                         validation={Number().isValid}
-                                        error="только цифры"
+                                        // error="только цифры"
                                         onChange={(text) =>
                                           store.updateSelectReceptWeight(
                                             Number(text),
                                           )
                                         }
+                                        // value="0"
                                         label={"обьем краски для слива"}
                                       />
                                       <Button
                                         text="Готово"
-                                        style={{ width: 100 }}
+                                        style={{ height: 40 }}
+                                        textStyle={{
+                                          position: "relative",
+                                          top: -3,
+                                        }}
                                         onClick={() =>
                                           store.setTheInkVolumeForDraining()
                                         }
@@ -503,7 +642,12 @@ export const Order = observer(() => {
                                     SelectReceptMode.two ? (
                                       <>
                                         <div style={{ display: "flex" }}>
-                                          <div style={{ fontSize: 20 }}>
+                                          <div
+                                            style={{
+                                              fontSize: 20,
+                                              fontWeight: 100,
+                                            }}
+                                          >
                                             Слив по рецепту{" "}
                                             {store.selectReceptWeight} грамм
                                           </div>
@@ -561,7 +705,7 @@ export const Order = observer(() => {
                           name: "Заказ",
                           jsx: (
                             <>
-                              <TextPointer
+                              {/* <TextPointer
                                 rightText={"авто"}
                                 leftText={store.viewModel.auto}
                               />
@@ -577,6 +721,8 @@ export const Order = observer(() => {
                                 rightText={"Обьем краски для клиента"}
                                 leftText={store.viewModel.theVolumeOfPainTheCustomerWant?.toString()}
                               />
+                               */}
+                              <OrderForm orderViewModel={store.viewModel} />
                             </>
                           ),
                         },
@@ -584,12 +730,13 @@ export const Order = observer(() => {
                           name: "Клиент",
                           jsx: (
                             <>
-                              <div>имя - {store.client.name}</div>
+                              {/* <div>имя - {store.client.name}</div>
                               <div>фамилия - {store.client.family}</div>
                               <div>отчество - {store.client.surName}</div>
                               <div>
                                 номер телефона - {store.client.numberPhone}
-                              </div>
+                              </div> */}
+                              <ClientForm orderViewModel={store.client} />
                             </>
                           ),
                         },
@@ -597,7 +744,7 @@ export const Order = observer(() => {
                           name: "Производство заказа",
                           jsx: (
                             <>
-                              <Select
+                              {/* <Select
                                 options={["Начат", "Готов", "На паузе"].map(
                                   (el) => {
                                     return {
@@ -611,7 +758,51 @@ export const Order = observer(() => {
                                   store.updateForm({ statusOrder: text });
                                   store.updateOrder();
                                 }}
-                              />
+                              /> */}
+                              <div>
+                                <label
+                                  style={{
+                                    fontSize: "12px",
+                                    fontWeight: 600,
+                                    color: "#4a5568",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.5px",
+                                    marginBottom: "6px",
+                                    display: "block",
+                                  }}
+                                >
+                                  Статус
+                                </label>
+                                <select
+                                  value={store.viewModel.statusOrder}
+                                  onChange={(e) => {
+                                    store.updateForm({
+                                      statusOrder: e.target.value,
+                                    });
+                                    store.updateOrder();
+                                  }}
+                                  style={{
+                                    width: "100%",
+                                    padding: "10px 12px",
+                                    fontSize: "15px",
+                                    border: "1px solid #cbd5e1",
+                                    borderRadius: "6px",
+                                    backgroundColor: "#ffffff",
+                                    color: "#1a202c",
+
+                                    outline: "none",
+                                    cursor: "pointer",
+                                    boxSizing: "border-box",
+                                  }}
+                                >
+                                  <option value="" disabled hidden>
+                                    Выберите статус...
+                                  </option>
+                                  <option value="Начат">Начат</option>
+                                  <option value="Готов">Готов</option>
+                                  <option value="На паузе">На паузе</option>
+                                </select>
+                              </div>
                             </>
                           ),
                           width: 200,
@@ -620,7 +811,7 @@ export const Order = observer(() => {
                           name: "Финансовый учет",
                           jsx: (
                             <>
-                              <div style={{ fontSize: 20 }}>
+                              {/* <div style={{ fontSize: 20 }}>
                                 Управление статусом финансов
                               </div>
                               <Select
@@ -641,7 +832,9 @@ export const Order = observer(() => {
                                   store.updateOrder();
                                 }}
                               />
-                              <CalculateOrder store={store} />
+                              <CalculateOrder store={store} /> */}
+                              {/* <CalculateOrder store={store} /> */}
+                              <FinancialAccountingForm store={store} />
                             </>
                           ),
                           width: 170,
@@ -707,63 +900,130 @@ export const Order = observer(() => {
         isOpen={store.isNewReceptModal}
         children={
           <>
-            <div style={{ width: "50vw" }}>
+            <div style={{ width: "75vw" }}>
               <div style={{ display: "flex" }}>
-                <div style={{ fontSize: 20 }}>Новый рецепт</div>
+                <div
+                  style={{
+                    fontSize: 20,
+
+                    margin: "0 0 6px 0",
+                    fontWeight: 600,
+                    color: "#11111",
+                  }}
+                >
+                  Новый рецепт
+                </div>
               </div>
               <div style={{ width: "100%" }}>
-                <div style={{ display: "flex", width: "100%" }}>
-                  <InputV3
-                    style={{ width: "100%" }}
-                    label="Поиск компонента по номеру в картотеке"
-                    onChange={(text) => store.updateComponentsField(text)}
-                  />
-
-                  <Button
-                    text="поиск"
-                    style={{ width: 100 }}
-                    onClick={() => store.findComponents()}
-                  />
-                  {store.newReceptComponents.isEmpty() ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Button
-                        text="начать"
-                        style={{ width: 380, marginRight: 20 }}
-                        onClick={() => store.addBeginComponents()}
+                <div
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    alignItems: "flex-end",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-end",
+                      width: "50%",
+                    }}
+                  >
+                    <div style={{}}>
+                      <div
+                        style={{ fontSize: 14, color: "#718096", margin: 0 }}
+                      >
+                        Поиск компонента по номеру в картотеке
+                      </div>
+                      <InputV3
+                        style={{ width: "100%" }}
+                        // label="введите номер"
+                        onChange={(text) => store.updateComponentsField(text)}
                       />
-                    </>
-                  )}
+                    </div>
+                    <Button
+                      text="поиск"
+                      textStyle={{ position: "relative", top: -3 }}
+                      style={{
+                        width: 100,
+                        // position: "relative",/
+                        height: 40,
+                      }}
+                      onClick={() => store.findComponents()}
+                    />
+                  </div>
+                  <div style={{ width: "50%" }}>
+                    {store.newReceptComponents.isEmpty() ? (
+                      <></>
+                    ) : (
+                      <>
+                        <Button
+                          text="начать"
+                          textStyle={{ position: "relative", top: -3 }}
+                          type={ButtonType.blue}
+                          style={{ width: "100%", marginRight: 20, height: 40 }}
+                          onClick={() => store.addBeginComponents()}
+                        />
+                      </>
+                    )}
+                  </div>
                 </div>
                 <div style={{ width: "100%", display: "flex" }}>
                   <div style={{ width: "50%" }}>
-                    <div>
+                    <div style={{ width: "100%" }}>
                       {store.components.map((el, i) => (
                         <div
                           key={i}
                           style={{
+                            height: 80,
                             display: "flex",
+                            alignItems: "center",
                             justifyContent: "space-between",
+                            background: "#fafafa",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: 8,
+                            width: "100%",
+                            padding: 12,
+                            gap: 12,
+                            marginTop: 3,
+                            marginBottom: 3,
                           }}
                         >
-                          <TextV2
-                            text={`номер: ${el.privateNumber}`}
+                          <div>
+                            <TextV2
+                              text={`номер:  `}
+                              style={{
+                                // border: "1px solid",
+                                fontSize: 11,
+                                textTransform: "uppercase",
+                                color: "#718096",
+                                fontWeight: 600,
+                                letterSpacing: 0.5,
+                              }}
+                            />
+                            <div
+                              style={{
+                                fontSize: 15,
+                                fontWeight: 700,
+                                color: "#1a202c",
+                              }}
+                            >
+                              {el.privateNumber}
+                            </div>
+                          </div>
+                          <div
                             style={{
-                              // border: "1px solid",
-                              textAlign: "center",
-                              alignContent: "center",
-                              backgroundColor: "black",
-                              color: "white",
-                              width: "100%",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
                             }}
-                          />
-                          <div style={{ display: "flex" }}>
+                          >
                             <InputV3
                               label="Вес в рецепте"
-                              style={{ width: "max-content" }}
+                              labelStyle={{ fontSize: 10, color: "#4a5568" }}
+                              style={{ width: "70px " }}
                               validation={Number().isValid}
-                              initialValue={el.privateNumber}
+                              // initialValue={el.privateNumber}
                               value={el.weight
                                 ?.shortToDecimalPlaces(2)
                                 ?.toString()}
@@ -772,11 +1032,29 @@ export const Order = observer(() => {
                               }}
                             />
 
-                            <Button
+                            {/* <Button
                               style={{ width: "150px" }}
-                              onClick={() => store.addComponentsToNewRecept(i)}
                               text="добавить"
-                            />
+                            /> */}
+                            <div
+                              onClick={() => store.addComponentsToNewRecept(i)}
+                              style={{
+                                padding: "8px 12px",
+                                fontSize: 13,
+                                fontWeight: 500,
+                                borderRadius: 6,
+                                backgroundColor: "#f0f2f5",
+                                color: "#4f46e5",
+                                // height: 34,
+                                position: "relative",
+                                top: 8,
+                                height: 40,
+                                cursor: "pointer",
+                                transition: "all 0.2s",
+                              }}
+                            >
+                              добавить
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -786,14 +1064,47 @@ export const Order = observer(() => {
                     {store.newReceptComponents.map((el, i) => {
                       return (
                         <>
-                          <div style={{ border: "1px solid" }}>
+                          <div
+                            style={{
+                              height: 80,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              background: "#fafafa",
+                              border: "1px solid #e2e8f0",
+                              borderRadius: 8,
+                              width: "100%",
+                              padding: 12,
+                              gap: 12,
+                              marginTop: 3,
+                              marginBottom: 3,
+                            }}
+                          >
                             <div>
-                              <div>номер:{el.privateNumber}</div>
-                              <div>вес:{el.weight}</div>
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  textTransform: "uppercase",
+                                  color: "#718096",
+                                  fontWeight: 600,
+                                  letterSpacing: 0.5,
+                                }}
+                              >
+                                номер:{el.privateNumber}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                вес:{el.weight}
+                              </div>
                             </div>
                             <div>
                               <Button
                                 width={150}
+                                type={ButtonType.delete}
                                 text="удалить"
                                 onClick={() => store.deleteReceptComp(i)}
                               />
@@ -809,60 +1120,7 @@ export const Order = observer(() => {
           </>
         }
       />
-      <ModalV2
-        isOpen={store.isOpenComponentsModal}
-        onClose={() => store.closeComponentsModal()}
-        children={
-          <>
-            <div style={{ display: "flex", width: 500 }}>
-              <InputV3
-                style={{ width: "100%" }}
-                label="Поиск компонента по номеру в картотеке"
-                onChange={(text) => store.updateComponentsField(text)}
-              />
-
-              <Button
-                text="поиск"
-                style={{ width: 100 }}
-                onClick={() => store.findComponents()}
-              />
-            </div>
-            <div style={{ height: 10 }}></div>
-            <div>
-              {store.components.map((el, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <TextV2
-                    text={`номер: ${el.privateNumber}`}
-                    style={{ alignContent: "center", width: "100%" }}
-                  />
-                  <div style={{ display: "flex" }}>
-                    <InputV3
-                      label="Вес в рецепте"
-                      style={{ width: "max-content" }}
-                      initialValue={el.id?.toString()}
-                      validation={Number().isValid}
-                      onChange={(val) => {
-                        store.updateWeights(Number(val), i);
-                      }}
-                    />
-                    <Button
-                      width={150}
-                      onClick={() => store.addComponents(i)}
-                      text="добавить"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        }
-      />
+      <M store={store} />
       <ModalV2
         isOpen={store.consumablesModalIsOpen}
         onClose={() => store.consumablesModalClose()}

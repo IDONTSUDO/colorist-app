@@ -161,7 +161,7 @@ export const CrudPage: React.FC<{
                   ) : (
                     <>
                       <InputV3
-                        style={{ width: "100%" }}
+                        style={{ width: "100%", height: 46 }}
                         placeHolderType=""
                         placeholder="Поиск по полю"
                         onChange={(text) => store.findBy(text)}
@@ -172,7 +172,6 @@ export const CrudPage: React.FC<{
                   <Button
                     text="Поиск"
                     type={ButtonType.gray}
-                    // color="cornflowerblue"
                     onClick={() => store.onClickFindButton()}
                   />
                   <Select

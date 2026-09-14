@@ -7,6 +7,15 @@ export const StringExtensions = () => {
       return this.length === 0;
     };
   }
+  if (''.phoneMapper === undefined) {
+
+    String.prototype.phoneMapper = function () {
+      const p = this.split(" ");
+
+      return `+7 (${p.at(0)}) ${p.at(1) ?? ""}`;
+    }
+  }
+
   if ("".isNotEmpty === undefined) {
     String.prototype.isNotEmpty = function () {
       return this.length !== 0;

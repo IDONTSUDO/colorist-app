@@ -516,7 +516,7 @@ export class OrderStore extends FormState<OrderViewModel> {
     const component = this.components.at(i)!;
     const c = JSON.parse(JSON.stringify(component));
     if (c.weight === undefined) {
-      message.error("добавте вес компонента");
+      message.error("добавьте вес компонента");
       return;
     }
     c.weightCalcRecept = c.weight;

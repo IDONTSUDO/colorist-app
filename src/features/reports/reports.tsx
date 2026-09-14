@@ -16,31 +16,34 @@ export const Reports = observer(() => {
       feature={ReportsPath}
       pageName="Отчеты"
       store={store}
+      isEditable={false}
+      isNeedDelete={false}
       editableComponent={
         <>
           <div>
             <div style={{ fontSize: 20 }}>Период</div>
             <Calendar
-            // onChange={(range) =>
-            //   store.update({
-            //     startDate: range.startDate,
-            //     endDate: range.endDate,
-            //   })
-            // }
+              onChange={(range) =>
+                store.updateForm({
+                  endDate: range.endDate,
+                  startDate: range.startDate,
+                })
+              }
             />
 
             <div style={{ height: 10 }}> </div>
             <InputV3 label="Машина" />
             <div style={{ fontSize: 10 }}>Клиент</div>
 
-            <div style={{ display: "flex" }}>
+            <div style={{ display: "flex", alignItems: "flex-end" }}>
               <PhoneInput
                 initialValue={store.numberPhone}
                 onChange={(text) => store.updateNumber(text)}
               />
               <Button
                 text="поиск"
-                style={{ width: 100 }}
+                textStyle={{ position: "relative", top: -3 }}
+                style={{ width: 100, height: 40 }}
                 onClick={() => store.findClients()}
               />
             </div>
@@ -49,7 +52,9 @@ export const Reports = observer(() => {
                 return (
                   <div
                     style={{
-                      margin: 20,
+                      marginTop: 10,
+                      marginBottom: 10,
+
                       border: `1px solid ${el.id === store.viewModel.clientId ? "red" : "black"}`,
                       padding: 20,
                     }}
@@ -58,11 +63,12 @@ export const Reports = observer(() => {
                     <div>имя - {el.name}</div>
                     <div>фамилия - {el.family}</div>
                     <div>отчество - {el.surName}</div>
-                    <div>номер телефона - {el.numberPhone}</div>
+                    <div>номер телефона - {el.numberPhone.phoneMapper()}</div>
                   </div>
                 );
               })}
             </div>
+            <div style={{ height: 10 }}></div>
             <Button text="создать отчет" onClick={() => store.createReport()} />
           </div>
         </>

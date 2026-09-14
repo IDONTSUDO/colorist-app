@@ -61,6 +61,7 @@ declare global {
     hasNoPattern(pattern: string): boolean;
     divideByIndex(index: number): string[];
     isEqualR(str: string): Result<void, string>;
+    phoneMapper(): string
   }
 
   interface Map<K, V> {

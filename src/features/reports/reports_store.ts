@@ -24,12 +24,14 @@ export class ReportsStore extends CrudFormLocalDbStore<
     super();
     makeAutoObservable(this);
   }
-  createReport = (): void => {
-    if (this.viewModel.clientId === undefined) {
-      message.error('нужно указать клиента');
+  createReport = async () => {
+    if (this.viewModel.startDate === undefined || this.viewModel.endDate === undefined) {
+
+      message.error('нужно указать диапозон дат');
       return;
     }
-    this.ordersDbRepository.f(this.viewModel);
+    console.log(await this.ordersDbRepository.getOrdersByPeriod(this.viewModel))
+    // this.ordersDbRepository.f(this.viewModel);
 
   }
   updateNumber(text: string): void {

@@ -3,10 +3,12 @@ import { db } from "../../main";
 import { Result } from "../helper/result";
 import { BaseEntity, newEntity } from "@indexeddb-orm/idb-orm";
 import type { IPagination } from "../model/pagination";
+import MiniSearch from 'minisearch';
 
 export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
     db = db;
     abstract entity: ClassConstructor<M>;
+
 
     addModel = async (model: M) => {
         const n = newEntity(this.entity, model);
@@ -58,8 +60,33 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
 
 
     findModel = async (prop: string, value: string) => {
-        return Result.ok(await this.db.getRepository(this.entity).where(prop).equals(value).toArray());
+        if (prop === 'id') {
+            return Result.ok(await this.db.getRepository(this.entity).where(prop).equals(value).toArray());
+
+        }
+        const documents = await (await this.db.getRepository(this.entity).toArray())
+        const f = documents.map((el) => {
+            // @ts-ignore
+            return { prop: el[prop], id: el.id }
+        })
+        const allFields = Object.keys(f[0]);
+        const miniSearch = new MiniSearch<M>({
+            fields: allFields.filter(key => key !== prop),
+            storeFields: allFields,
+            searchOptions: {
+                fuzzy: 1,
+                prefix: true
+            }
+        });
+
+        miniSearch.addAll(f as any);
+        // this.miniSearch.search(value)
+        const searchResults = miniSearch.search(value);
+        console.log(searchResults)
+        return Result.ok(documents.filter(doc => new Set(searchResults.map(result => result.id)).has((doc as any).id)));
 
     }
 }
+
+
 

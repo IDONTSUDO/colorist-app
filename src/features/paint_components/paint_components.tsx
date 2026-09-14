@@ -34,6 +34,7 @@ export const PaintsComponent = observer(() => {
                 costPrice: text === "" ? undefined : Number(text),
               })
             }
+            placeholder={""}
           />
           <div style={{ height: 10 }} />
           <InputV3
@@ -49,7 +50,10 @@ export const PaintsComponent = observer(() => {
           <Button
             text="Сохранить"
             width={100}
-            onClick={() => store.createOrUpdate()}
+            onClick={() => {
+              store.createOrUpdate();
+              store.viewModel = new PaintComponentViewModel();
+            }}
           />
         </div>
       }
