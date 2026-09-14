@@ -10,7 +10,6 @@ import { ru } from "date-fns/locale";
 import { CrudPage } from "../../core/ui/page/crud_page";
 import { useNavigate } from "react-router-dom";
 import { OrderPath } from "../order/order";
-import { Select } from "../../core/ui/select/select";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { OrderViewModel } from "./orders_db_model";
@@ -19,7 +18,7 @@ export const OrdersPath = "/orders";
 export const Orders = observer(() => {
   const store = useStore(OrdersStore);
   const navigate = useNavigate();
-
+  // console.log(JSON.stringify(store.page?.data[0]));
   return (
     <>
       <CrudPage
@@ -36,32 +35,8 @@ export const Orders = observer(() => {
               />
             </>
           ),
-          financeStatus: () => (
-            <>
-              <Select
-                style={{ width: "100%" }}
-                options={["Ожидает расчета", "Расчет произошел"].map((el) => {
-                  return { value: el, label: el };
-                })}
-                placeholder="Статусы финансовые"
-                onChange={(text) => store.findBy(text)}
-                value={store.searchValue ?? ""}
-              />
-            </>
-          ),
-          statusOrder: () => (
-            <>
-              <Select
-                style={{ width: "100%" }}
-                options={["Начат", "Готов", "На паузе"].map((el) => {
-                  return { value: el, label: el };
-                })}
-                placeholder="Статусы производственные"
-                onChange={(text) => store.findBy(text)}
-                value={store.searchValue ?? ""}
-              />
-            </>
-          ),
+          // financeStatus: () => <>312</>,
+          statusOrder: () => <></>,
         }}
         pageName="Заказы"
         missingKey={[
@@ -83,6 +58,7 @@ export const Orders = observer(() => {
           "selectReceptWeight",
           "selectReceptPaintFinal",
           "orderCreate",
+          // "financeStatus",
         ]}
         isEditable={false}
         addingColumns={[
@@ -108,21 +84,15 @@ export const Orders = observer(() => {
             },
           },
           {
-            name: "orderCharacteristics",
+            name: "financeStatus",
             mapper: (v) => {
-              return (
-                <>
-                  {v === null ? (
-                    <>еще не выбран</>
-                  ) : v === "Recipe_Selected" ? (
-                    <>слив по коду</>
-                  ) : v === "NEW_RECEPT" ? (
-                    <>новый рецепт</>
-                  ) : (
-                    <></>
-                  )}
-                </>
-              );
+              return <>{v}</>;
+            },
+          },
+          {
+            name: "statusOrder",
+            mapper: (v) => {
+              return <>{v}</>;
             },
           },
         ]}
@@ -200,7 +170,13 @@ export const Orders = observer(() => {
               <div style={{ width: 5 }} />
               <Button
                 text="поиск"
-                style={{ width: 100 }}
+                textStyle={{ position: "relative", top: -5 }}
+                style={{
+                  width: 100,
+                  position: "relative",
+                  top: 21,
+                  height: 42,
+                }}
                 onClick={() => store.onClickFindButtonToSearchPhone()}
               />
             </div>
@@ -215,8 +191,11 @@ export const Orders = observer(() => {
                   <div
                     style={{
                       // margin: 5,
+                      marginTop: 5,
+                      marginBottom: 5,
                       padding: 5,
-                      border: "1px solid",
+                      border: "1px solid #e2e8f1",
+                      borderRadius: 6,
                       backgroundColor:
                         store.viewModel.client === el.id
                           ? "#e6e0ea"
@@ -230,7 +209,7 @@ export const Orders = observer(() => {
                     <TextV2 text="отчество" />
                     <div>{el.surName}</div>
                     <TextV2 text="Номер телефона" />
-                    <div>{el.numberPhone}</div>
+                    <div>{el.numberPhone.phoneMapper()}</div>
                     <Button
                       text="Выбрать"
                       style={{ width: 100 }}

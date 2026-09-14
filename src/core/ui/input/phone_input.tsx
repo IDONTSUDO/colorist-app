@@ -50,8 +50,10 @@ const PhoneInput: React.FC<RussianPhoneInputDivProps> = ({
     let input = e.currentTarget.innerText;
     input = cleanInput(input);
     const formatted = formatPhone(input);
+    // console.log(formatted);
+
     setValue(formatted);
-    onChange?.(formatted);
+    onChange?.(formatted.replace("+7 ", "").replace("(", "").replace(")", ""));
   };
 
   useEffect(() => {

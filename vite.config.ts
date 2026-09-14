@@ -30,12 +30,34 @@ export default defineConfig(({ mode }) => {
             theme_color: "#ffffff",
             icons: [
               {
-                src: "/icons/android-chrome-512x512.png",
+                src: "/colorist-app/icons/android-chrome-512x512.png",
                 sizes: "512x512",
                 type: "image/png",
-                purpose: "any maskable",
+                purpose: "any",
+              },
+              {
+                src: "/colorist-app/icons/android-chrome-512x512.png",
+                sizes: "512x512",
+                type: "image/png",
+                purpose: "maskable",
               },
             ],
+            screenshots: [
+              {
+                src: "/colorist-app/icons/screenshot-desktop.png",
+                sizes: "1280x720",
+                type: "image/png",
+                form_factor: "wide",
+                label: "Десктопная версия Colorist calc"
+              },
+              {
+                src: "/colorist-app/icons/screenshot-mobile.png",
+                sizes: "720x1280",
+                type: "image/png",
+                form_factor: "narrow",
+                label: "Мобильная версия Colorist calc"
+              }
+            ]
           },
           workbox: {
             globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
@@ -65,7 +87,7 @@ export default defineConfig(({ mode }) => {
           },
         }),
       ],
-    base: isProduction ? "/colorist-app/" : "",
+    base: isProduction ? '/colorist-app/' : '',
     resolve: {
       dedupe: ["dexie"],
     },

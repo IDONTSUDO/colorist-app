@@ -37,7 +37,7 @@ export class OrderViewModel extends ValidationModel {
     selectReceptIndex?: number | null = undefined;
     markup?: number;
     orderCreate: number;
-    financeStatus: string;
+
     @IsString({ message: "Поле авто является обязательным" })
     auto!: string; //АВТО
     @IsString({ message: "Поле код краски является обязательным" })
@@ -56,10 +56,12 @@ export class OrderViewModel extends ValidationModel {
     recipe?: RecipesViewModel;
     addingComponentsTableJson?: string;
     orderCharacteristics?: string = "NEW_RECEPT";
+    financeStatus = 'Ожидает оплаты';
     consumables?: { consumables: ConsumablesViewModel; count: number }[] = [];
     consumablesJson?: string;
     componentsAddInReceptJson?: string;
     selectReceptPaintFinal: string;
+    createdAt = new Date().getTime()
 }
 // DateRangePicker
 defineEntity(OrderViewModel, {
@@ -83,6 +85,7 @@ defineEntity(OrderViewModel, {
         selectReceptIndex: { indexed: true },
         selectReceptWeight: { indexed: true },
         orderCreate: { indexed: true },
+        createdAt: { indexed: true },
 
     },
 });

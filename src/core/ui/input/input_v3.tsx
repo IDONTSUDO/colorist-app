@@ -9,6 +9,7 @@ export enum CoreInputType {
 export const InputV3 = (props: {
   style?: React.CSSProperties;
   placeholder?: string;
+  labelStyle?: React.CSSProperties;
   initialValue?: string;
   value?: string;
   subLabel?: React.ReactNode;
@@ -52,7 +53,7 @@ export const InputV3 = (props: {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-      {props.label && <div>{props.label}</div>}
+      {props.label && <div style={props.labelStyle}>{props.label}</div>}
       {props.placeHolderType === undefined ? (
         <>
           <div style={{ fontSize: 10 }}>{props.placeholder}</div>
