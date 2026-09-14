@@ -52,7 +52,7 @@ export const PaintsComponent = observer(() => {
             width={100}
             onClick={() => {
               store.createOrUpdate();
-              store.viewModel = new PaintComponentViewModel();
+              // store.viewModel = new PaintComponentViewModel();
             }}
           />
         </div>
