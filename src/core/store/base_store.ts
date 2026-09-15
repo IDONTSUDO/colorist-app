@@ -348,6 +348,7 @@ export abstract class CrudFormLocalDbStore<
       (await this.viewModel.validMessage()).map(async () => {
         await this.create(this.viewModel);
         await this.mapOk("page", this.read());
+        console.log('new')
         this.modalCancel();
       });
     } catch (error) {

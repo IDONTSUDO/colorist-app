@@ -407,6 +407,16 @@ export const Order = observer(() => {
                                                   >
                                                     вес
                                                   </div>
+                                                  <div>
+                                                    {orderMapper.balance.reduce(
+                                                      (el, acc) => {
+                                                        return (
+                                                          el + (acc.weight ?? 0)
+                                                        );
+                                                      },
+                                                      0,
+                                                    )}
+                                                  </div>
                                                 </div>
                                                 <div
                                                   className="3"
@@ -491,12 +501,11 @@ export const Order = observer(() => {
                           })} */}
                                   </>
                                 </div>
-                                <div style={{ display: "flex" }}></div>
                               </div>
-                              <div style={{ display: "flex" }}>
+                              <div style={{}}>
                                 {store.addingComponentsTable.map((el) => {
                                   return (
-                                    <div>
+                                    <div style={{ display: "flex" }}>
                                       <div
                                         style={{
                                           border: "1px solid black  ",
@@ -914,6 +923,7 @@ export const Order = observer(() => {
                   Новый рецепт
                 </div>
               </div>
+
               <div style={{ width: "100%" }}>
                 <div
                   style={{
@@ -968,6 +978,7 @@ export const Order = observer(() => {
                     )}
                   </div>
                 </div>
+
                 <div style={{ width: "100%", display: "flex" }}>
                   <div style={{ width: "50%" }}>
                     <div style={{ width: "100%" }}>
@@ -1060,6 +1071,7 @@ export const Order = observer(() => {
                       ))}
                     </div>
                   </div>
+
                   <div style={{ width: "50%" }}>
                     {store.newReceptComponents.map((el, i) => {
                       return (
@@ -1175,21 +1187,20 @@ const Dust: React.FC<{
   ele: OrderMapper;
 }> = ({ store, index, ele }) => {
   const [s] = useState(ele.dust);
+  const [isNeedEllipses, setIsNeedEllipses] = useState(false);
+
   return (
     <div
       key={index}
+      onClick={() => setIsNeedEllipses(true)}
       suppressContentEditableWarning={true}
       contentEditable={true}
       onInput={(event) => {
-        store.updateDust(
-          // @ts-ignore
-          event.currentTarget.innerText,
-          index,
-        );
+        store.updateDust(event.currentTarget.innerText, index);
       }}
       style={{ border: "1px solid", width: 60 }}
     >
-      {s ?? "..."}
+      {s !== undefined ? s : isNeedEllipses ? "" : "..."}
     </div>
   );
 };

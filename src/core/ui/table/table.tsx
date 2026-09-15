@@ -1,5 +1,6 @@
 import { TextV2 } from "../text/text";
-
+const tdHeight = 20;
+const thHeight = 20;
 export const CoreTable: React.FC<{
   columns: string[];
   source: object[];
@@ -31,6 +32,7 @@ export const CoreTable: React.FC<{
     >
       <table
         style={{
+          // height: "100%",
           width: "100%",
           borderCollapse: "collapse",
           fontFamily: "Roboto, sans-serif",
@@ -43,6 +45,7 @@ export const CoreTable: React.FC<{
               replacedColumns === undefined ? (
                 <th
                   style={{
+                    height: thHeight,
                     textAlign: "justify",
                     backgroundColor: "#000",
                     color: "#fff",
@@ -65,6 +68,7 @@ export const CoreTable: React.FC<{
                       (v) => (
                         <th
                           style={{
+                            height: thHeight,
                             fontSize: 14,
                             fontWeight: 500,
                             backgroundColor: "#000",
@@ -82,6 +86,7 @@ export const CoreTable: React.FC<{
                       () => (
                         <th
                           style={{
+                            height: thHeight,
                             fontSize: 14,
                             fontWeight: 500,
                             backgroundColor: "#000",
@@ -103,6 +108,7 @@ export const CoreTable: React.FC<{
                 {addingColumns?.map((el) => (
                   <th
                     style={{
+                      height: thHeight,
                       width: "min-content",
                       fontSize: 14,
                       fontWeight: 500,
@@ -138,11 +144,13 @@ export const CoreTable: React.FC<{
 
                 return (
                   <td
+                    className="2"
                     style={{
                       fontSize: 14,
                       // borderRight: "1px solid #D0D0D0",
                       padding: "6px 10px",
                       color: "#000",
+                      height: tdHeight,
                     }}
                     onClick={() => onClick?.(i)}
                   >
@@ -161,12 +169,14 @@ export const CoreTable: React.FC<{
                 <>
                   {addingColumns?.map((element) => (
                     <td
+                      className="3"
                       style={{
                         fontSize: 14,
                         // borderRight: "1px solid #D0D0D0",
                         padding: "6px 10px",
                         textAlign: "justify",
                         color: "#000",
+                        height: tdHeight,
                       }}
                     >
                       {element.jsx(el)}

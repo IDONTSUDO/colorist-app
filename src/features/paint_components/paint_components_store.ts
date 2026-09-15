@@ -15,4 +15,8 @@ export class PaintComponentStore extends CrudFormLocalDbStore<
     super();
     makeAutoObservable(this);
   }
+  modalCancel = () => {
+    this.viewModel = new PaintComponentViewModel()
+    this.isModalOpen = false;
+  }
 }

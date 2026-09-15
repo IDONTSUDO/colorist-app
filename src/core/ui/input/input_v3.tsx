@@ -32,6 +32,7 @@ export const InputV3 = (props: {
       setValue(props.value);
     }
   }, [props.value]);
+  const [isFocused, setIsFocused] = React.useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = event.target.value;
@@ -44,13 +45,17 @@ export const InputV3 = (props: {
       return;
     }
 
-    if (props.value === undefined) {
-      setValue(newValue);
-    }
+    // Обновляем локальный стейт ВСЕГДА, чтобы точка не исчезала
+    setValue(newValue);
 
+    // Отправляем в стор (там выполнится ваш Number(text))
     props.onChange?.(newValue);
   };
-
+  React.useEffect(() => {
+    if (props.value !== undefined && !isFocused) {
+      setValue(props.value);
+    }
+  }, [props.value, isFocused]); // добавили isFocused в зависимости
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
       {props.label && <div style={props.labelStyle}>{props.label}</div>}
@@ -63,6 +68,8 @@ export const InputV3 = (props: {
       )}
 
       <input
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         value={value}
         onChange={handleChange}
         placeholder={
@@ -77,7 +84,7 @@ export const InputV3 = (props: {
           },
           props.style,
         )}
-        type="text"
+        // type="text"
       />
 
       {props.error && (

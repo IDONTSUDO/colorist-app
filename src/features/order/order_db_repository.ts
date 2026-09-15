@@ -12,9 +12,10 @@ export class IOrderDbRepository extends OrdersDbRepository {
   consumablesDbRepository = new ConsumablesDbRepository();
 
   paintComponentsDbRepository = new PaintComponentsDbRepository();
-  findComponents = async (componentsField: string) => (await this.paintComponentsDbRepository.findModel('privateNumber', componentsField)).map((el) => {
-    return Result.ok(el)
-  });
+  findComponents = async (componentsField: string) =>
+    (await this.paintComponentsDbRepository.findModel('privateNumber', componentsField, true)).map((el) => {
+      return Result.ok(el)
+    });
   findConsumables = (consumablesField: string) => this.consumablesDbRepository.findModel('description', consumablesField);
   getConsumables = async () =>
     (

@@ -207,6 +207,7 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.componentsAddInRecept.atR(index).map((el) => {
       el.dust = value;
       this.updateOrder();
+      console.log(200);
     });
   };
   addAdditive = (el: PaintComponentViewModel, text: string, index: number) => {
@@ -288,6 +289,7 @@ export class OrderStore extends FormState<OrderViewModel> {
       );
   updateWeightContainers = (text: string): void => {
     this.weightContainers = Number(text);
+    this.updateOrder();
   };
   updateRemainder(text: string): void {
     this.afterDust = Number(text);

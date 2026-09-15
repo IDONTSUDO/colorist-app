@@ -13,11 +13,19 @@ export interface IUser {
   password: string;
   createDate: Date;
 }
-
+export enum Mode {
+  fio,
+  phone
+}
 export class OrdersStore extends CrudFormLocalDbStore<
   OrderViewModel,
   OrdersDbRepository
 > {
+  findClientsMode(mode: Mode): void {
+    this.mode = mode;
+  }
+  mode?: Mode
+  searchFioField?: string;
   repository: OrdersDbRepository = new OrdersDbRepository();
   clientsDbRepository = new ClientsDbRepository();
   viewModel: OrderViewModel = new OrderViewModel();
@@ -35,14 +43,27 @@ export class OrdersStore extends CrudFormLocalDbStore<
     this.repository.edit(order);
   };
   onClickFindButtonToSearchPhone = async () => {
-    if (this.searchPhoneNumberField === undefined) {
-      message.error("введите телефон");
-      return;
+
+
+    if (this.mode === Mode.phone) {
+      if (this.searchPhoneNumberField === undefined) {
+        message.error("введите телефон");
+        return;
+      }
+      await this.mapOk(
+        "clients",
+        this.clientsDbRepository.findModel('numberPhone', this.searchPhoneNumberField),
+      );
     }
-    
-    await this.mapOk(
-      "clients",
-      this.clientsDbRepository.findModel('numberPhone', this.searchPhoneNumberField),
-    );
+    if (this.mode === Mode.fio) {
+      if (this.searchFioField === undefined) {
+        message.error("введите фио");
+        return;
+      }
+      await this.mapOk(
+        "clients",
+        this.clientsDbRepository.findInFio(this.searchFioField ?? ''),
+      );
+    }
   };
 }

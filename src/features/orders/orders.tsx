@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../core/helper/use_store";
-import { OrdersStore } from "./orders_store";
+import { Mode, OrdersStore } from "./orders_store";
 import { TextV2 } from "../../core/ui/text/text";
 import { ModalV2 } from "../../core/ui/modal/modal";
 import { InputV3 } from "../../core/ui/input/input_v3";
@@ -162,23 +162,63 @@ export const Orders = observer(() => {
               }
             />
             <div style={{ height: 5 }} />
-            <TextV2 text="Поиск клиента по номеру телефона" />
-            <div style={{ display: "flex" }}>
-              <PhoneInput
-                onChange={(text) => (store.searchPhoneNumberField = text)}
-              />
+            <TextV2 text="Поиск клиента" />
+            <div style={{ display: "flex", alignItems: "flex-end" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "flex-end" }}>
+                  <div
+                    style={{ textDecoration: "underline", cursor: "pointer" }}
+                    onClick={() => store.findClientsMode(Mode.phone)}
+                  >
+                    По телефону
+                  </div>
+                  <div style={{ width: 5 }}></div>/
+                  <div style={{ width: 5 }}></div>
+                  <div
+                    style={{ textDecoration: "underline", cursor: "pointer" }}
+                    onClick={() => store.findClientsMode(Mode.fio)}
+                  >
+                    По Фио
+                  </div>
+                </div>
+                {store.mode === Mode.fio ? (
+                  <>
+                    <InputV3
+                      placeholder="поиск по ФИО"
+                      onChange={(text) => (store.searchFioField = text)}
+                    />
+                  </>
+                ) : (
+                  <></>
+                )}
+                {store.mode === Mode.phone ? (
+                  <>
+                    <PhoneInput
+                      onChange={(text) => (store.searchPhoneNumberField = text)}
+                    />
+                  </>
+                ) : (
+                  <></>
+                )}
+              </div>
               <div style={{ width: 5 }} />
-              <Button
-                text="поиск"
-                textStyle={{ position: "relative", top: -5 }}
-                style={{
-                  width: 100,
-                  position: "relative",
-                  top: 21,
-                  height: 42,
-                }}
-                onClick={() => store.onClickFindButtonToSearchPhone()}
-              />
+              {store.mode !== undefined ? (
+                <>
+                  <Button
+                    text="поиск"
+                    textStyle={{ position: "relative", top: -5 }}
+                    style={{
+                      width: 100,
+                      position: "relative",
+                      // top: 44,
+                      height: 40,
+                    }}
+                    onClick={() => store.onClickFindButtonToSearchPhone()}
+                  />
+                </>
+              ) : (
+                <></>
+              )}
             </div>
             <div style={{ height: 10 }} />
             <div>

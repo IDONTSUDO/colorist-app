@@ -7,7 +7,6 @@ export const ModalV2: React.FC<{
   style?: React.CSSProperties;
 }> = ({ isOpen, onClose, children, style }) => {
   if (!isOpen) return null;
-
   return (
     <div
       style={{
