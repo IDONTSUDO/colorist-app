@@ -5,4 +5,7 @@ import { PaintComponentViewModel } from "./paint_components_db_model";
 
 export class PaintComponentsDbRepository extends CrudIndexedDbRepository<PaintComponentViewModel> {
     entity: ClassConstructor<PaintComponentViewModel> = PaintComponentViewModel;
+    findR = () => {
+
+    }
 }

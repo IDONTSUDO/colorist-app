@@ -27,7 +27,11 @@ export const NumberExtensions = () => {
   }
   if (Number().isValid === undefined) {
     Number.prototype.isValid = function (str: string) {
-      return !isNaN(Number(str));
+      if (str === "" || str === "-") return true;
+      // return !isNaN(Number(str));
+      const floatRegex = /^-?\d*\.?\d*$/;
+
+      return floatRegex.test(str);
     };
   }
   if (Number().randRange === undefined) {
@@ -47,7 +51,7 @@ export const NumberExtensions = () => {
   }
   if (Number().shortToDecimalPlaces === undefined) {
     Number.prototype.shortToDecimalPlaces = function (n) {
-      return Number.isInteger(this) ? Number(this ) : Number(this.toFixed(n))
+      return Number.isInteger(this) ? Number(this) : Number(this.toFixed(n))
     }
   }
   if (Number().isEven === undefined) {

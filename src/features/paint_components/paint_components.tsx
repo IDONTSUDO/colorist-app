@@ -50,8 +50,8 @@ export const PaintsComponent = observer(() => {
           <Button
             text="Сохранить"
             width={100}
-            onClick={() => {
-              store.createOrUpdate();
+            onClick={async () => {
+              await store.createOrUpdate();
               // store.viewModel = new PaintComponentViewModel();
             }}
           />

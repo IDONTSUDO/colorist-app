@@ -280,7 +280,7 @@ export const CrudPage: React.FC<{
               <>
                 {isNeedTable ? (
                   <>
-                    <div style={{ height: 20 }}></div>
+                    <div style={{ height: 20 }} className="1"></div>
                     <CoreTable
                       addingColumns={addingColumns}
                       replacedJSXColumns={replacedJSXColumns}
@@ -322,6 +322,9 @@ export const CrudPage: React.FC<{
           style={modalStyle}
           isOpen={store.isModalOpen}
           onClose={() => {
+            console.log(200);
+            // @ts-expect-error
+            console.log(new instanceModel());
             // @ts-expect-error
             store.viewModel = new instanceModel();
             store.modalCancel();

@@ -17,7 +17,7 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
 
     getPage = async (page = 1): Promise<Result<string, IPagination<M>>> => {
         try {
-            const pageSize = 10;
+            const pageSize = 25;
             const repo = this.db.getRepository(this.entity);
 
             const [allItems, data] = await Promise.all([
@@ -59,8 +59,12 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
     }
 
 
-    findModel = async (prop: string, value: string) => {
+    findModel = async (prop: string, value: string, isNeedSimple: boolean = false) => {
         if (prop === 'id') {
+            return Result.ok(await this.db.getRepository(this.entity).where(prop).equals(value).toArray());
+
+        }
+        if (isNeedSimple) {
             return Result.ok(await this.db.getRepository(this.entity).where(prop).equals(value).toArray());
 
         }
@@ -82,7 +86,7 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
         miniSearch.addAll(f as any);
         // this.miniSearch.search(value)
         const searchResults = miniSearch.search(value);
-        console.log(searchResults)
+
         return Result.ok(documents.filter(doc => new Set(searchResults.map(result => result.id)).has((doc as any).id)));
 
     }

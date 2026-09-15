@@ -36,7 +36,6 @@ export const Select: React.FC<{
   const isSmall = type !== undefined && type === CoreInputType.small;
 
   const selected = options.find((o) => o.value === value);
-  console.log(value);
   React.useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
