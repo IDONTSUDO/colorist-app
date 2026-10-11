@@ -11,6 +11,7 @@ import {
 } from "../../features/paint_components/paint_components";
 import { RecipesPath, Recipes } from "../../features/recipes/recipes";
 import { ReportsPath, Reports } from "../../features/reports/reports";
+import { Settings, SettingsPath } from "../../features/settings/settings";
 import type { IRouter } from "./routers";
 
 export const publicRouters: IRouter[] = [
@@ -22,6 +23,7 @@ export const publicRouters: IRouter[] = [
     path: PaintsComponentPath,
     element: <PaintsComponent />,
   },
+  { path: SettingsPath, element: <Settings /> },
   {
     path: OrdersPath,
     element: <Orders />,

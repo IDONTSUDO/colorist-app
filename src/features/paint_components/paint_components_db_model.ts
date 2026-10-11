@@ -12,7 +12,7 @@ export class PaintComponentViewModel extends ValidationModel {
     costPrice?: number;
     @IsNotEmpty({ message: "Поле приватный номер не может быть пустым" })
     @IsString({ message: "Поле приватный номер обязательно" })
-    privateNumber: string;
+    privateNumber: string = '';
     constructor() {
         super();
         makeAutoObservable(this);

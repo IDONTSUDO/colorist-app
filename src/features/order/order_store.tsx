@@ -6,12 +6,49 @@ import { PaintComponentViewModel } from "../paint_components/paint_components_db
 import type { ConsumablesViewModel } from "../consumables/consumables_db_model";
 import type { RecipesViewModel } from "../recipes/recipes_db_model";
 import { ClientViewModel } from "../clients/clients_db_model";
-import { plainToClass, type ClassTransformOptions } from "class-transformer";
+import {
+  plainToClass,
+  plainToInstance,
+  type ClassTransformOptions,
+} from "class-transformer";
 import { OrderViewModel } from "../orders/orders_db_model";
 
 export class OrderMapper {
+  getCommonL(store: OrderStore) {
+    return this.balance
+      .map((paint) => {
+        return (
+          ((paint.weightCalcRecept ?? 0) /
+            this.balance
+              .reduce((el, acc) => {
+                return el + (acc.weight ?? 0);
+              }, 0)
+              .shortToDecimalPlaces(2)) *
+          (this.balance
+            .reduce((el, acc) => {
+              return el + (acc.weight ?? 0);
+            }, 0)
+            .shortToDecimalPlaces(2) -
+            this.getBalance(store).shortToDecimalPlaces(2))
+        ).shortToDecimalPlaces(2);
+      })
+      .reduce((acc, el) => {
+        return acc + el;
+      }, 0)
+      .shortToDecimalPlaces(2);
+  }
+  getCommonW() {
+    return this.balance
+      .reduce((acc, el) => {
+        // if(el.weight )
+        acc += el.weightCalcRecept ?? 0;
+        return acc;
+      }, 0)
+      .shortToDecimalPlaces(2);
+  }
   add: PaintComponentViewModel;
   dust?: string;
+  addingComponents: PaintComponentViewModel[] = [];
   balance: PaintComponentViewModel[];
   constructor(
     add: PaintComponentViewModel,
@@ -59,6 +96,78 @@ function isValidJson(str: string): boolean {
 }
 
 export class OrderStore extends FormState<OrderViewModel> {
+  getCostComponentsManufacturePrice() {
+    // console.log(JSON.stringify());
+    const initial =
+      this.componentsAddInRecept
+        .at(0)
+        ?.balance.map((el) => {
+          return (el.weightCalcRecept ?? 1) * (el.costPrice ?? 1);
+        })
+        .reduce((acc, el) => {
+          return acc! + el;
+        }, 0) ?? 0;
+    console.log(initial);
+    return (
+      initial +
+      this.componentsAddInRecept
+        .map((el) =>
+          el.addingComponents.reduce((acc, subEL) => {
+            if (subEL === undefined || subEL === null) {
+              return acc;
+            }
+            return acc + (subEL.weight ?? 1) * (subEL.costPrice ?? 1);
+          }, 0),
+        )
+        .reduce((acc, el) => {
+          return acc! + el;
+        }, 0)
+        .shortToDecimalPlaces(2)
+    );
+  }
+  recalculate = () => {
+    const newComponents: PaintComponentViewModel[] = [];
+    const lastRecept = this.componentsAddInRecept.lastElement()!;
+    lastRecept.addingComponents.forEach((component, i) => {
+      var p = lastRecept.balance.at(i)?.weight ?? 0;
+      var newComponentWeight =
+        ((p ?? 0) /
+          lastRecept.balance
+            .reduce((el, acc) => {
+              return el + (acc.weight ?? 0);
+            }, 0)
+            .shortToDecimalPlaces(2)) *
+        (
+          lastRecept.balance
+            .reduce((el, acc) => {
+              return el + (acc.weight ?? 0);
+            }, 0)
+            .shortToDecimalPlaces(2) -
+          lastRecept.getBalance(this).shortToDecimalPlaces(2)
+        ).shortToDecimalPlaces(2);
+      if (component !== undefined) {
+        newComponentWeight += component.weightCalcRecept ?? 0;
+      }
+      console.log(newComponentWeight);
+      // console.log();
+      const newComponent = plainToInstance(
+        PaintComponentViewModel,
+        JSON.parse(JSON.stringify(lastRecept.balance.at(i))),
+      );
+      newComponent.weightCalcRecept = newComponentWeight;
+      newComponent.weight = newComponentWeight;
+      newComponents.push(newComponent);
+    });
+
+    this.componentsAddInRecept.push(
+      new OrderMapper(newComponents[0], newComponents),
+    );
+
+    this.updateOrder();
+  };
+
+  isNeedSaveButton = false;
+
   insertReceptFromClickBoard = async () => {
     const buff = await navigator.clipboard.readText();
     if (buff === "" && !isValidJson(buff)) {
@@ -74,7 +183,6 @@ export class OrderStore extends FormState<OrderViewModel> {
       message.error("не валидные данные");
       return;
     }
-
     const paintComponentViewModels: PaintComponentViewModel[] = [];
     let lastComponent: any;
     result
@@ -207,7 +315,6 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.componentsAddInRecept.atR(index).map((el) => {
       el.dust = value;
       this.updateOrder();
-      console.log(200);
     });
   };
   addAdditive = (el: PaintComponentViewModel, text: string, index: number) => {
@@ -308,6 +415,9 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.viewModel.addingComponentsTableJson = JSON.stringify(
       this.addingComponentsTable,
     );
+    if (this.weightContainers !== undefined) {
+      this.viewModel.weightContainers = this.weightContainers;
+    }
     this.viewModel.selectReceptIndex =
       this.selectReceptIndex === undefined ? null : this.selectReceptIndex!;
     this.viewModel.componentsAddInReceptJson = JSON.stringify(
@@ -342,7 +452,10 @@ export class OrderStore extends FormState<OrderViewModel> {
       this.selectReceptMode = SelectReceptMode.two;
     }
     // OrderMode.selectRecept
-
+    if (this.viewModel.weightContainers) {
+      console.log(200);
+      this.weightContainers = this.viewModel.weightContainers;
+    }
     if (this.viewModel.selectReceptIndex) {
       this.selectReceptIndex = this.viewModel.selectReceptIndex;
       // this.orderMode = OrderMode.selectRecept;
@@ -455,32 +568,11 @@ export class OrderStore extends FormState<OrderViewModel> {
           (el.weightCalcRecept ?? 0) * (el.costPrice ?? 0),
       };
     });
-  getCostComponents = () => {
-    let cost = 0;
-    if (this.selectReceptPaintFinal === undefined) {
-      return cost;
-    }
-    return this.selectReceptPaintFinal.reduce((acc, el) => {
-      return (acc += (el.weightCalcRecept ?? 0) * (el.costPrice ?? 0));
+  getCostComponents = () =>
+    this.getOrderStatisticComponents().reduce((acc, el) => {
+      return acc + el.finalCostOfTheComponent;
+      // return acc;
     }, 0);
-    // const recipe = JSON.parse(this.viewModel.recipeJSON ?? "");
-    // recipe.components = JSON.parse(recipe.components);
-    // const components = recipe?.components as PaintComponentViewModel[];
-    // const sumAllPigments = components.reduce((acc, el) => {
-    //   return acc + el.weight!;
-    // }, 0);
-
-    // components.map((el) => {
-    //   el.weight =
-    //     (el.weight! / sumAllPigments) *
-    //     this.viewModel.theVolumeOfPainTheCustomerWant;
-    //   return el;
-    // });
-    // components?.map((el) => {
-    //   cost += el.costPrice * (el.weight ?? 1);
-    // });
-    return cost;
-  };
   getCostConsumables = () => {
     let cost = 0;
     this.viewModel.consumables?.map((el) => {
@@ -634,6 +726,7 @@ export class OrderStore extends FormState<OrderViewModel> {
         const component = el;
         const c = JSON.parse(JSON.stringify(component));
         c.weightCalcRecept = c.weight;
+        // todo
         lastComponent = c;
 
         paintComponentViewModels
@@ -671,6 +764,7 @@ export class OrderStore extends FormState<OrderViewModel> {
     if (this.orderMode === OrderMode.selectRecept) {
       if (this.selectReceptIndex === index) {
         this.selectReceptIndex = undefined;
+
         this.updateOrder();
         return;
       }

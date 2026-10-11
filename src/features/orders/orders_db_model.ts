@@ -38,6 +38,7 @@ export class OrderViewModel extends ValidationModel {
     markup?: number;
     orderCreate: number;
 
+    weightContainers?: number;
     @IsString({ message: "Поле авто является обязательным" })
     auto!: string; //АВТО
     @IsString({ message: "Поле код краски является обязательным" })
@@ -86,7 +87,7 @@ defineEntity(OrderViewModel, {
         selectReceptWeight: { indexed: true },
         orderCreate: { indexed: true },
         createdAt: { indexed: true },
-
+        weightContainers: { indexed: true }
     },
 });
 
