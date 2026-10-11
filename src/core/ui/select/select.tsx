@@ -50,7 +50,7 @@ export const Select: React.FC<{
     <div
       ref={ref}
       style={Object.assign(
-        { position: "relative", fontFamily: "system-ui" },
+        { position: "relative", fontFamily: "system-ui", height: 46 },
 
         style,
       )}
@@ -64,6 +64,7 @@ export const Select: React.FC<{
           borderRadius: 6,
           cursor: "pointer",
           paddingLeft: 12,
+          width: "max-content",
           border: "1px solid",
           paddingRight: 12,
           paddingTop: 10,

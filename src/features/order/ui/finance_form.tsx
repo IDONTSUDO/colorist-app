@@ -5,7 +5,7 @@ import { ModalV2 } from "../../../core/ui/modal/modal";
 
 export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
   observer(({ store }) => {
-    console.log(store.viewModel.markup);
+    // console.log(store.viewModel.markup);
     // Состояния для полей формы
     const [financialStatus, __] = useState<string>("");
     const [markup, _] = useState<string>("");
@@ -83,25 +83,58 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
         </div>
 
         {/* Информационная строка себестоимости */}
-        <div
-          style={{
-            fontSize: "14px",
-            color: "#4a5568",
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "12px 14px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #e2e8f0",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-          onClick={() => store.openReportComponentsModal()}
-        >
-          <span>Себестоймость компонентов:</span>
-          <strong style={{ color: "#1a202c" }}>
-            {store.getCostComponents().shortToDecimalPlaces(2)} ₽
-          </strong>
-        </div>
+        {store.selectReceptIndex === undefined ? (
+          <>
+            <div style={{ fontSize: 14, fontWeight: 100 }}>
+              выберите рецепт для расчета себестомости производства
+            </div>
+          </>
+        ) : (
+          <div>
+            <div
+              style={{
+                fontSize: "14px",
+                color: "#4a5568",
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "12px 14px",
+                backgroundColor: "#ffffff",
+                border: "1px solid #e2e8f0",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+              onClick={() => store.openReportComponentsModal()}
+            >
+              <span>Себестоймость слива компонентов:</span>
+              <strong style={{ color: "#1a202c" }}>
+                {store.getCostComponents().shortToDecimalPlaces(2)} ₽
+              </strong>
+            </div>
+            <div style={{ height: 25 }}></div>
+            <div
+              style={{
+                fontSize: "14px",
+                color: "#4a5568",
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "12px 14px",
+                backgroundColor: "#ffffff",
+                border: "1px solid #e2e8f0",
+                borderRadius: "6px",
+                // cursor: "pointer",
+              }}
+              // onClick={() => store.openReportComponentsModal()}
+            >
+              <span>Себестоймость производства:</span>
+              <strong style={{ color: "#1a202c" }}>
+                {store
+                  .getCostComponentsManufacturePrice()
+                  .shortToDecimalPlaces(2)}{" "}
+                ₽
+              </strong>
+            </div>
+          </div>
+        )}
 
         {/* Поле ввода: Наценка */}
         <div>
@@ -182,7 +215,6 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           Сохранить
         </button>
 
-        {/* Итоговый результат */}
         <div
           style={{
             marginTop: "8px",
@@ -200,7 +232,11 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
             style={{ fontSize: "20px", fontWeight: 700, color: "#4f46e5" }}
           >
             {(
-              store.getOrderCost() + (store.viewModel.markup ?? 0)
+              store.getCostComponents().shortToDecimalPlaces(2) +
+              store
+                .getCostComponentsManufacturePrice()
+                .shortToDecimalPlaces(2) +
+              (store.viewModel.markup ?? 0)
             ).shortToDecimalPlaces(2)}
             ₽
           </strong>

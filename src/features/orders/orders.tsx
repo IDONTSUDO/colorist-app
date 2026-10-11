@@ -13,12 +13,12 @@ import { OrderPath } from "../order/order";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { OrderViewModel } from "./orders_db_model";
+import { SelectV2 } from "../../core/ui/select/select_v2";
 export const OrdersPath = "/orders";
 
 export const Orders = observer(() => {
   const store = useStore(OrdersStore);
   const navigate = useNavigate();
-  // console.log(JSON.stringify(store.page?.data[0]));
   return (
     <>
       <CrudPage
@@ -35,8 +35,26 @@ export const Orders = observer(() => {
               />
             </>
           ),
-          // financeStatus: () => <>312</>,
-          statusOrder: () => <></>,
+          financeStatus: () => (
+            <>
+              <div style={{ width: "100%" }}>
+                <SelectV2
+                  options={["Оплачено", "Ожидает оплаты", "Долг"]}
+                  style={{ width: "100%", position: "relative", top: -3 }}
+                  onChange={(text) => (store.searchValue = text)}
+                />
+              </div>
+            </>
+          ),
+          statusOrder: () => (
+            <div style={{ width: "100%" }}>
+              <SelectV2
+                options={["Начат", "Готов", "На паузе"]}
+                style={{ width: "100%", position: "relative", top: -3 }}
+                onChange={(text) => (store.searchValue = text)}
+              />
+            </div>
+          ),
         }}
         pageName="Заказы"
         missingKey={[
@@ -58,6 +76,8 @@ export const Orders = observer(() => {
           "selectReceptWeight",
           "selectReceptPaintFinal",
           "orderCreate",
+
+          "weightContainers",
           // "financeStatus",
         ]}
         isEditable={false}
@@ -80,7 +100,7 @@ export const Orders = observer(() => {
           {
             name: "createdAt",
             mapper: (v) => {
-              return <>{new Date(v).toLocaleString()}</>;
+              return <>{new Date(v).toLocaleDateString()}</>;
             },
           },
           {

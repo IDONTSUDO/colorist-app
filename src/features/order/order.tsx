@@ -20,6 +20,8 @@ import { M } from "./ui/modal_add_components";
 import { OrderForm } from "./ui/order_form";
 import { ClientForm } from "./ui/client";
 import { FinancialAccountingForm } from "./ui/finance_form";
+import { PaintComponentViewModel } from "../paint_components/paint_components_db_model";
+import { plainToClass } from "class-transformer";
 
 export const OrderPath = "/order";
 
@@ -289,9 +291,27 @@ export const Order = observer(() => {
                                 ) : (
                                   <></>
                                 )}
-
+                                {store.isNeedSaveButton === true ? (
+                                  <div
+                                    onClick={() => store.recalculate()}
+                                    style={{
+                                      padding: 10,
+                                      width: "min-content",
+                                      marginBottom: 10,
+                                      borderRadius: 6,
+                                      backgroundColor: "#4f46e5",
+                                      color: "white",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    сохранить
+                                  </div>
+                                ) : (
+                                  <></>
+                                )}
                                 <div style={{ display: "flex" }}>
                                   <div>
+                                    <div>компоненты</div>
                                     {store
                                       .getComponentsReceptUniq()
                                       .map((el) => (
@@ -332,6 +352,17 @@ export const Order = observer(() => {
                                       ))}
                                   </div>
                                   <div style={{ display: "flex" }}>
+                                    {/* {store.componentsAddInRecept.map(
+                                      (orderMapper, index) => {
+                                        return (
+                                          <div style={{ display: "flex" }}>
+                                            {orderMapper.balance.map((el) => (
+                                              <div>321</div>
+                                            ))}
+                                          </div>
+                                        );
+                                      },
+                                    )} */}
                                     {store.componentsAddInRecept.map(
                                       (orderMapper, index) => {
                                         return (
@@ -347,7 +378,34 @@ export const Order = observer(() => {
                                               <></>
                                             ) : (
                                               <>
-                                                <div>
+                                                <div className="55">
+                                                  <div
+                                                    style={{ display: "flex" }}
+                                                  >
+                                                    <div
+                                                      style={{
+                                                        fontSize: 12,
+                                                        width: 60,
+                                                        height: 23,
+                                                        textAlignLast: "center",
+                                                        border: "1px solid",
+                                                      }}
+                                                    >
+                                                      вес комп.
+                                                    </div>
+                                                    <div
+                                                      style={{
+                                                        fontSize: 12,
+                                                        width: 60,
+                                                        border: "1px solid",
+                                                        height: 23,
+
+                                                        textAlignLast: "center",
+                                                      }}
+                                                    >
+                                                      остаток
+                                                    </div>
+                                                  </div>
                                                   {orderMapper.balance.map(
                                                     (paint) => (
                                                       <>
@@ -362,6 +420,7 @@ export const Order = observer(() => {
                                                           }}
                                                         >
                                                           <div
+                                                            className="остаток"
                                                             style={{
                                                               border:
                                                                 "1px solid",
@@ -377,54 +436,191 @@ export const Order = observer(() => {
                                                               2,
                                                             )}
                                                           </div>
+                                                          <div
+                                                            style={{
+                                                              border:
+                                                                "1px solid",
+                                                              width: 60,
+                                                              backgroundColor:
+                                                                store.selectReceptIndex ===
+                                                                index
+                                                                  ? "#d0ff49"
+                                                                  : "",
+                                                            }}
+                                                          >
+                                                            {(
+                                                              ((paint.weightCalcRecept ??
+                                                                0) /
+                                                                orderMapper.balance
+                                                                  .reduce(
+                                                                    (
+                                                                      el,
+                                                                      acc,
+                                                                    ) => {
+                                                                      return (
+                                                                        el +
+                                                                        (acc.weight ??
+                                                                          0)
+                                                                      );
+                                                                    },
+                                                                    0,
+                                                                  )
+                                                                  .shortToDecimalPlaces(
+                                                                    2,
+                                                                  )) *
+                                                              (orderMapper.balance
+                                                                .reduce(
+                                                                  (el, acc) => {
+                                                                    return (
+                                                                      el +
+                                                                      (acc.weight ??
+                                                                        0)
+                                                                    );
+                                                                  },
+                                                                  0,
+                                                                )
+                                                                .shortToDecimalPlaces(
+                                                                  2,
+                                                                ) -
+                                                                orderMapper
+                                                                  .getBalance(
+                                                                    store,
+                                                                  )
+                                                                  .shortToDecimalPlaces(
+                                                                    2,
+                                                                  ))
+                                                            ).shortToDecimalPlaces(
+                                                              2,
+                                                            )}
+                                                            <div></div>
+                                                          </div>
                                                         </div>
                                                       </>
                                                     ),
                                                   )}
-                                                  <div
-                                                    style={{
-                                                      border: "1px solid",
-                                                      width: 60,
-                                                      backgroundColor:
-                                                        store.selectReceptIndex ===
-                                                        index
-                                                          ? "#d0ff49"
-                                                          : "",
-                                                    }}
-                                                  >
-                                                    отпыл
+
+                                                  <div className="общий_вес_комопнентов">
+                                                    <div
+                                                      style={{
+                                                        display: "flex",
+                                                      }}
+                                                    >
+                                                      
+                                                      <div
+                                                        style={{
+                                                          width: 60,
+                                                          border:
+                                                            "1px solid black",
+                                                          background: "black",
+                                                          color: "white",
+                                                        }}
+                                                      >
+                                                        {orderMapper.getCommonW()}
+                                                      </div>
+                                                      <div
+                                                        style={{
+                                                          width: 60,
+                                                          border:
+                                                            "1px solid black",
+                                                          background: "black",
+                                                          color: "white",
+                                                        }}
+                                                      >
+                                                        {orderMapper.getCommonL(
+                                                          store,
+                                                        )}
+                                                      </div>
+                                                    </div>
                                                   </div>
+                                                  <div></div>
                                                   <div
-                                                    style={{
-                                                      border: "1px solid",
-                                                      width: 60,
-                                                      backgroundColor:
-                                                        store.selectReceptIndex ===
-                                                        index
-                                                          ? "#d0ff49"
-                                                          : "",
-                                                    }}
+                                                    style={{ display: "flex" }}
                                                   >
-                                                    вес
+                                                    <div>
+                                                      <div
+                                                        style={{
+                                                          border: "1px solid",
+                                                          width: 60,
+                                                          backgroundColor:
+                                                            store.selectReceptIndex ===
+                                                            index
+                                                              ? "#d0ff49"
+                                                              : "",
+                                                          fontSize: 8,
+                                                          height: 24,
+                                                        }}
+                                                      >
+                                                        <div>вес</div>
+                                                        <div>остатка</div>
+                                                      </div>
+
+                                                      <div
+                                                        style={{
+                                                          border: "1px solid",
+                                                          width: 60,
+                                                          backgroundColor:
+                                                            store.selectReceptIndex ===
+                                                            index
+                                                              ? "#d0ff49"
+                                                              : "",
+                                                          fontSize: 9,
+                                                          height: 24,
+                                                        }}
+                                                      >
+                                                        отпыл расх
+                                                      </div>
+                                                    </div>
+                                                    <div>
+                                                      <Dust
+                                                        store={store}
+                                                        ele={orderMapper}
+                                                        index={index}
+                                                      />
+                                                      <div
+                                                        style={{
+                                                          border:
+                                                            "1px solid black",
+                                                        }}
+                                                        className="оптыл расх"
+                                                      >
+                                                        {orderMapper
+                                                          .getBalance(store)
+                                                          .shortToDecimalPlaces(
+                                                            2,
+                                                          )}{" "}
+                                                      </div>
+                                                    </div>
                                                   </div>
-                                                  <div>
-                                                    {orderMapper.balance.reduce(
-                                                      (el, acc) => {
+
+                                                  {/* <div className="обьем">
+                                                    {orderMapper.balance
+                                                      .reduce((el, acc) => {
                                                         return (
                                                           el + (acc.weight ?? 0)
                                                         );
-                                                      },
-                                                      0,
-                                                    )}
-                                                  </div>
+                                                      }, 0)
+                                                      .shortToDecimalPlaces(2)}
+                                                  </div> */}
                                                 </div>
                                                 <div
                                                   className="3"
                                                   style={{ width: 60 }}
                                                 >
                                                   <div className="2">
+                                                    <div
+                                                      style={{
+                                                        fontSize: 12,
+                                                        width: 60,
+                                                        border: "1px solid",
+                                                        height: 23,
+                                                        textAlignLast: "center",
+                                                      }}
+                                                    >
+                                                      добавка
+                                                    </div>
+
                                                     {orderMapper.balance.map(
-                                                      (paint) => (
+                                                      (paint, indexPaint) => (
                                                         <>
                                                           <div
                                                             style={{
@@ -432,43 +628,27 @@ export const Order = observer(() => {
                                                             }}
                                                             className="1"
                                                           >
-                                                            <div
-                                                              style={{
-                                                                border:
-                                                                  "1px solid",
-                                                                width: 60,
-                                                              }}
-                                                            >
-                                                              {/* todo */}
-                                                              {paint.privateNumber ===
-                                                              orderMapper.add
-                                                                .privateNumber
-                                                                ? orderMapper.add.weight?.shortToDecimalPlaces(
-                                                                    2,
-                                                                  )
-                                                                : "-"}{" "}
-                                                            </div>
+                                                            <PaintMapper
+                                                              index={indexPaint}
+                                                              paint={paint}
+                                                              orderMapper={
+                                                                orderMapper
+                                                              }
+                                                              isLast={
+                                                                store
+                                                                  .componentsAddInRecept
+                                                                  .length -
+                                                                  1 ===
+                                                                index
+                                                              }
+                                                              store={store}
+                                                            />
                                                           </div>
                                                         </>
                                                       ),
                                                     )}
                                                   </div>
-                                                  <Dust
-                                                    store={store}
-                                                    ele={orderMapper}
-                                                    index={index}
-                                                  />
-                                                  <div
-                                                    style={{
-                                                      border: "1px solid",
-                                                    }}
-                                                  >
-                                                    {orderMapper
-                                                      .getBalance(store)
-                                                      .shortToDecimalPlaces(
-                                                        2,
-                                                      )}{" "}
-                                                  </div>
+                                                  {/*todo */}
                                                 </div>
                                               </>
                                             )}
@@ -477,7 +657,6 @@ export const Order = observer(() => {
                                       },
                                     )}
                                   </div>
-
                                   <>
                                     {/* {store.additiveComponents.map((element, _) => {
                             return (
@@ -502,7 +681,7 @@ export const Order = observer(() => {
                                   </>
                                 </div>
                               </div>
-                              <div style={{}}>
+                              {/* <div style={{}}>
                                 {store.addingComponentsTable.map((el) => {
                                   return (
                                     <div style={{ display: "flex" }}>
@@ -527,7 +706,7 @@ export const Order = observer(() => {
                                     </div>
                                   );
                                 })}
-                              </div>
+                              </div> */}
                               <div style={{ height: 10 }}></div>
                               <div
                                 style={{
@@ -567,19 +746,8 @@ export const Order = observer(() => {
                                   }
                                 >
                                   <div style={{ display: "flex" }}>
-                                    <TextV2
-                                      isEditable={true}
-                                      initialValue={store.weightContainers
-                                        .shortToDecimalPlaces(2)
-                                        .toString()}
-                                      onChange={(text) =>
-                                        store.updateWeightContainers(text)
-                                      }
+                                    <div
                                       style={{
-                                        // width: "100%",
-                                        // height: "100%",
-                                        // alignContent: "center",
-                                        // padding: 5,
                                         width: 170,
                                         padding: "11px 36px 11px 14px",
                                         fontSize: 16,
@@ -591,7 +759,62 @@ export const Order = observer(() => {
                                         transition:
                                           "border-color 0.2s, box-shadow 0.2s",
                                       }}
-                                    />
+                                      // onInput={(event) => {
+                                      //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                      //   store.updateWeightContainers(
+                                      //     // @ts-expect-error
+                                      //     event.target.innerText,
+                                      //   );
+                                      // }}
+                                      onKeyDown={(event) => {
+                                        const allowedKeys = [
+                                          "Backspace",
+                                          "Delete",
+                                          "ArrowLeft",
+                                          "ArrowRight",
+                                          "Tab",
+                                          ".",
+                                          ",",
+                                        ];
+                                        const isNumber = /[0-9]/.test(
+                                          event.key,
+                                        );
+
+                                        if (
+                                          !isNumber &&
+                                          !allowedKeys.includes(event.key)
+                                        ) {
+                                          event.preventDefault();
+                                        }
+
+                                        const target =
+                                          event.target as HTMLDivElement;
+                                        if (
+                                          (event.key === "." ||
+                                            event.key === ",") &&
+                                          (target.innerText.includes(".") ||
+                                            target.innerText.includes(","))
+                                        ) {
+                                          event.preventDefault();
+                                        }
+                                      }}
+                                      onBlur={(event) => {
+                                        const target =
+                                          event.target as HTMLDivElement;
+                                        const validValue =
+                                          target.innerText.replace(",", ".");
+                                        store.updateWeightContainers(
+                                          validValue,
+                                        );
+                                      }}
+                                      suppressContentEditableWarning={true}
+                                      contentEditable={true}
+                                    >
+                                      {store.weightContainers
+                                        .shortToDecimalPlaces(2)
+                                        .toString()}
+                                    </div>
+
                                     <div
                                       style={{
                                         position: "relative",
@@ -1204,3 +1427,90 @@ const Dust: React.FC<{
     </div>
   );
 };
+const PaintMapper: React.FC<{
+  paint: PaintComponentViewModel;
+  orderMapper: OrderMapper;
+  store: OrderStore;
+  isLast: boolean;
+  index: number;
+}> = observer(({ orderMapper, paint, store, index }) => {
+  const [isNeedEllipses, setIsNeedEllipses] = useState(true);
+
+  return (
+    <>
+      <div
+        contentEditable={true}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            if (orderMapper.addingComponents.length !== 0) {
+              store.recalculate();
+              store.isNeedSaveButton = false;
+            }
+            // todo
+          }
+        }}
+        onInput={(event) => {
+          // store.addPaintInTable(event.currentTarget.innerText, index);
+          store.isNeedSaveButton = true;
+          if (orderMapper.addingComponents.length === 0) {
+            orderMapper.addingComponents = orderMapper.addingComponents.fill(
+              new PaintComponentViewModel(),
+              0,
+              orderMapper.balance.length,
+            );
+          }
+          const p = plainToClass(
+            PaintComponentViewModel,
+            JSON.parse(JSON.stringify(paint)),
+          );
+          if (Number().isValid(event.currentTarget.innerText)) {
+            p.weight = Number(event.currentTarget.innerText);
+          }
+          orderMapper.addingComponents[index] = p;
+          // console.log(orderMapper.addingComponents);
+          if (
+            orderMapper.addingComponents.length !== orderMapper.balance.length
+          ) {
+            Array.from(
+              {
+                length:
+                  orderMapper.balance.length -
+                  orderMapper.addingComponents.length,
+              },
+              (_, index) => index,
+            ).forEach((_) =>
+              orderMapper.addingComponents.push(new PaintComponentViewModel()),
+            );
+          }
+          // console.log(JSON.stringify(orderMapper.addingComponents));
+        }}
+        style={{
+          border: "1px solid",
+          width: 60,
+          height: 23.81,
+          // backgroundColor:
+          //   paint.privateNumber === orderMapper.add.privateNumber
+          //     ? "#4f46e540"
+          //     : undefined,
+        }}
+        onClick={() => {
+          if (paint.privateNumber !== orderMapper.add.privateNumber)
+            setIsNeedEllipses(false);
+        }}
+      >
+        <div>
+          {isNeedEllipses ? (
+            <>
+              {orderMapper.addingComponents[index]?.weight !== undefined
+                ? orderMapper.addingComponents[index]?.weight
+                : "- "}
+            </>
+          ) : (
+            " "
+          )}
+        </div>
+      </div>
+    </>
+  );
+});

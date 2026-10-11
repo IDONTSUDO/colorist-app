@@ -181,6 +181,10 @@ export abstract class CrudFormStore<
   R extends CrudHttpRepository<V>
 > extends FormState<V> {
   currentMode?: CrudMode;
+  onlyEqual = false;
+  onClickOnlyEqual() {
+    this.onlyEqual = !this.onlyEqual;
+  }
   crudFormLocalStorage = new CrudFormLocalStorage();
   feature?: string;
   page?: IPagination<V>;
@@ -266,6 +270,7 @@ export abstract class CrudFormStore<
     this.searchValue = text;
   };
   onClickFindButton = async (): Promise<void> => {
+
     if (this.searchByField === undefined) {
       message.error("Выберите поле по которому искать");
       return;
@@ -298,6 +303,10 @@ export abstract class CrudFormLocalDbStore<
   abstract repository: R;
   searchByField?: string;
   searchValue?: string;
+  onlyEqual = false;
+  onClickOnlyEqual() {
+    this.onlyEqual = !this.onlyEqual;
+  }
   setMode = (mode: CrudMode) => {
     if (mode === this.currentMode) {
       this.currentMode = undefined;
@@ -346,9 +355,11 @@ export abstract class CrudFormLocalDbStore<
   new = async () => {
     try {
       (await this.viewModel.validMessage()).map(async () => {
-        await this.create(this.viewModel);
+        // this.repository.addModel(model);
+        await (await this.create(this.viewModel)).fold((_) => { }, (error) => {
+          message.error(error);
+        })
         await this.mapOk("page", this.read());
-        console.log('new')
         this.modalCancel();
       });
     } catch (error) {
@@ -379,6 +390,7 @@ export abstract class CrudFormLocalDbStore<
   };
   onClickFindButton = async (): Promise<void> => {
 
+
     if (this.searchByField === undefined) {
       message.error("Выберите поле по которому искать");
       return;
@@ -388,7 +400,7 @@ export abstract class CrudFormLocalDbStore<
       return;
     }
     (
-      await this.repository.findModel(this.searchByField, this.searchValue)
+      await this.repository.findModel(this.searchByField, this.searchValue, this.onlyEqual)
     ).fold(
       (s) => {
         // @ts-ignore

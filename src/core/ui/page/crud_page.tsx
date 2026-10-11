@@ -19,6 +19,7 @@ import { InputV3 } from "../input/input_v3";
 import { OrdersPath } from "../../../features/orders/orders";
 import { PaintsComponentPath } from "../../../features/paint_components/paint_components";
 import { ReportsPath } from "../../../features/reports/reports";
+import { SettingsPath } from "../../../features/settings/settings";
 
 const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
   [
@@ -32,6 +33,7 @@ const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
     },
     // { icon: IconType.recipes, name: "Рецепты", path: RecipesPath },
     { icon: IconType.report, name: "Отчеты", path: ReportsPath },
+    { icon: IconType.settings, name: "Настройки", path: SettingsPath },
   ];
 export const CrudPage: React.FC<{
   feature: string;
@@ -154,7 +156,9 @@ export const CrudPage: React.FC<{
                     display: "flex",
                     gap: "calc(0.25rem * 2)",
                     width: "100%",
+                    alignItems: "center",
                   }}
+                  className="1"
                 >
                   {fieldReplace !== undefined ? (
                     <>{fieldReplace()}</>
@@ -168,13 +172,21 @@ export const CrudPage: React.FC<{
                       />
                     </>
                   )}
-
+                  <Button
+                    text="="
+                    type={
+                      store.onlyEqual ? ButtonType.gray : ButtonType.default
+                    }
+                    onClick={() => store.onClickOnlyEqual()}
+                  />
                   <Button
                     text="Поиск"
                     type={ButtonType.gray}
                     onClick={() => store.onClickFindButton()}
                   />
+
                   <Select
+                    style={{ width: "max-content" }}
                     options={Object.keys(store.models()?.at(0) ?? {})
                       .filter((el) => !missingKey?.includes(el))
                       .map((el) => {
@@ -215,7 +227,14 @@ export const CrudPage: React.FC<{
                     }}
                   ></div>
                 </div>
-                <div style={{ display: "flex", gap: "calc(0.25rem * 2)" }}>
+                <div
+                  className="2"
+                  style={{
+                    display: "flex",
+                    gap: "calc(0.25rem * 2)",
+                    alignItems: "center",
+                  }}
+                >
                   <div
                     onClick={() => {
                       // store.setMode(CrudMode.create);
@@ -322,9 +341,6 @@ export const CrudPage: React.FC<{
           style={modalStyle}
           isOpen={store.isModalOpen}
           onClose={() => {
-            console.log(200);
-            // @ts-expect-error
-            console.log(new instanceModel());
             // @ts-expect-error
             store.viewModel = new instanceModel();
             store.modalCancel();

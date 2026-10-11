@@ -11,8 +11,14 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
 
 
     addModel = async (model: M) => {
-        const n = newEntity(this.entity, model);
-        await this.db.getRepository(this.entity).add(JSON.parse(JSON.stringify(n)));
+        try {
+            const n = newEntity(this.entity, model);
+            await this.db.getRepository(this.entity).add(JSON.parse(JSON.stringify(n)));
+            return Result.ok();
+        } catch (error) {
+            // @ts-ignore
+            return Result.error(error.message);
+        }
     }
 
     getPage = async (page = 1): Promise<Result<string, IPagination<M>>> => {

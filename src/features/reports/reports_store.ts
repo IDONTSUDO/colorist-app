@@ -30,7 +30,7 @@ export class ReportsStore extends CrudFormLocalDbStore<
       message.error('нужно указать диапозон дат');
       return;
     }
-    console.log(await this.ordersDbRepository.getOrdersByPeriod(this.viewModel))
+    // console.log(await this.ordersDbRepository.getOrdersByPeriod(this.viewModel))
     // this.ordersDbRepository.f(this.viewModel);
 
   }

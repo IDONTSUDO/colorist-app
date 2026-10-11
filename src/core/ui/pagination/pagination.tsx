@@ -36,8 +36,6 @@ export const Pagination: React.FC<{
           <NumberPagination
             pagination={store.page}
             selectPage={(page) => {
-              console.log(20);
-              console.log(page);
               store.selectPage(page);
             }}
           />
