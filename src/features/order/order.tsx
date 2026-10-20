@@ -311,7 +311,25 @@ export const Order = observer(() => {
                                 )}
                                 <div style={{ display: "flex" }}>
                                   <div>
-                                    <div>компоненты</div>
+                                    {store
+                                      .getComponentsReceptUniq()
+                                      .isNotEmpty() ? (
+                                      <>
+                                        <div
+                                          style={{
+                                            fontSize: 12,
+                                            height: 23,
+                                            textAlignLast: "center",
+                                            border: "1px solid",
+                                          }}
+                                        >
+                                          компоненты
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <></>
+                                    )}
+
                                     {store
                                       .getComponentsReceptUniq()
                                       .map((el) => (
@@ -437,6 +455,7 @@ export const Order = observer(() => {
                                                             )}
                                                           </div>
                                                           <div
+                                                            className="1"
                                                             style={{
                                                               border:
                                                                 "1px solid",
@@ -505,7 +524,6 @@ export const Order = observer(() => {
                                                         display: "flex",
                                                       }}
                                                     >
-                                                      
                                                       <div
                                                         style={{
                                                           width: 60,
