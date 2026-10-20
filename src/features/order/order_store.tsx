@@ -129,27 +129,27 @@ export class OrderStore extends FormState<OrderViewModel> {
     const newComponents: PaintComponentViewModel[] = [];
     const lastRecept = this.componentsAddInRecept.lastElement()!;
     lastRecept.addingComponents.forEach((component, i) => {
-      var p = lastRecept.balance.at(i)?.weight ?? 0;
-      var newComponentWeight =
-        ((p ?? 0) /
+      const weight = lastRecept.balance.at(i)?.weight ?? 0;
+
+      let newComponentWeight =
+        ((weight ?? 0) /
           lastRecept.balance
             .reduce((el, acc) => {
-              return el + (acc.weight ?? 0);
+              return el + (acc.weightCalcRecept ?? 0);
             }, 0)
             .shortToDecimalPlaces(2)) *
         (
           lastRecept.balance
             .reduce((el, acc) => {
-              return el + (acc.weight ?? 0);
+              return el + (acc.weightCalcRecept ?? 0);
             }, 0)
             .shortToDecimalPlaces(2) -
           lastRecept.getBalance(this).shortToDecimalPlaces(2)
         ).shortToDecimalPlaces(2);
       if (component !== undefined) {
-        newComponentWeight += component.weightCalcRecept ?? 0;
+        newComponentWeight += component.weight ?? 0;
       }
-      console.log(newComponentWeight);
-      // console.log();
+
       const newComponent = plainToInstance(
         PaintComponentViewModel,
         JSON.parse(JSON.stringify(lastRecept.balance.at(i))),

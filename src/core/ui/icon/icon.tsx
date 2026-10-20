@@ -372,8 +372,8 @@ export const Icon: React.FC<{
       case IconType.leftArrow:
         return (
           <svg
-            width="8"
-            height="16"
+            width={size ?? "8"}
+            height={size ?? "16"}
             viewBox="0 0 8 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
