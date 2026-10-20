@@ -4,7 +4,7 @@ import { SettingsStore } from "./settings_store";
 
 export const SettingsPath = "/settings";
 export const Settings: React.FC<{}> = () => {
-  const store = useStore(SettingsStore);
+  useStore(SettingsStore);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center" }}>
