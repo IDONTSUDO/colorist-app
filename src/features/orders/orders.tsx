@@ -135,19 +135,24 @@ export const Orders = observer(() => {
         isOpen={store.isModalOpen}
         onClose={() => {
           store.viewModel = new OrderViewModel();
+          store.autoCompleteChildren = [];
           store.modalCancel();
         }}
         children={
           <>
             <InputV3
               label="Авто"
+              autoCompleteChildren={store.autoCompleteChildren}
               value={store.viewModel.auto?.toString()}
-              onChange={(text) =>
+              onChange={(text) => {
                 store.updateForm({
                   auto: text,
-                })
-              }
+                });
+                store.findAuto();
+              }}
+              onEnter={() => store.addNewAuto()}
             />
+
             <div style={{ height: 5 }} />
 
             <InputV3

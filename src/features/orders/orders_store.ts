@@ -5,6 +5,8 @@ import { OrderViewModel } from "./orders_db_model";
 import { OrdersDbRepository } from "./orders_db_repository";
 import { ClientsDbRepository } from "../clients/clients_db_repository";
 import type { ClientViewModel } from "../clients/clients_db_model";
+import { CarsDbRepository } from "../cars/cars_db_repository";
+import { CarsViewModel } from "../cars/cars_model";
 
 export interface IUser {
   id: number;
@@ -21,9 +23,23 @@ export class OrdersStore extends CrudFormLocalDbStore<
   OrderViewModel,
   OrdersDbRepository
 > {
+  addNewAuto = async () => {
+    const m = new CarsViewModel();
+    m.name = this.viewModel.auto;
+    (await this.carsDbRepository.addModel(m)).fold(() => { }, (err) => message.error(err))
+    this.autoCompleteChildren = [];
+  }
+  findAuto = async () => {
+
+    (await this.carsDbRepository.findModel('name', this.viewModel.auto)).map((el) => {
+      this.autoCompleteChildren = el.map((subEl) => subEl.name);
+    })
+  }
   findClientsMode(mode: Mode): void {
     this.mode = mode;
   }
+  carsDbRepository = new CarsDbRepository()
+  autoCompleteChildren: string[] = []
   mode?: Mode
   searchFioField?: string;
   repository: OrdersDbRepository = new OrdersDbRepository();

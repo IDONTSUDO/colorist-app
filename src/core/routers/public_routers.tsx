@@ -1,3 +1,4 @@
+import { CarsScreen, CarsScreenPath } from "../../features/cars/cars";
 import { ClientsPath, Clients } from "../../features/clients/clients";
 import {
   ConsumablesPath,
@@ -23,6 +24,7 @@ export const publicRouters: IRouter[] = [
     path: PaintsComponentPath,
     element: <PaintsComponent />,
   },
+
   { path: SettingsPath, element: <Settings /> },
   {
     path: OrdersPath,
@@ -39,4 +41,5 @@ export const publicRouters: IRouter[] = [
   },
   { path: ConsumablesPath, element: <Consumables /> },
   { path: ReportsPath, element: <Reports /> },
+  { path: CarsScreenPath, element: <CarsScreen /> },
 ];

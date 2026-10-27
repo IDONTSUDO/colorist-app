@@ -34,6 +34,7 @@ const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
     // { icon: IconType.recipes, name: "Рецепты", path: RecipesPath },
     { icon: IconType.report, name: "Отчеты", path: ReportsPath },
     { icon: IconType.settings, name: "Настройки", path: SettingsPath },
+    { icon: IconType.car, name: "авто", path: "/cars" },
   ];
 export const CrudPage: React.FC<{
   feature: string;
