@@ -19,7 +19,7 @@ import { InputV3 } from "../input/input_v3";
 import { OrdersPath } from "../../../features/orders/orders";
 import { PaintsComponentPath } from "../../../features/paint_components/paint_components";
 import { ReportsPath } from "../../../features/reports/reports";
-import { SettingsPath } from "../../../features/settings/settings";
+// import { SettingsPath } from "../../../features/settings/settings";
 
 const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
   [
@@ -33,7 +33,7 @@ const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
     },
     // { icon: IconType.recipes, name: "Рецепты", path: RecipesPath },
     { icon: IconType.report, name: "Отчеты", path: ReportsPath },
-    { icon: IconType.settings, name: "Настройки", path: SettingsPath },
+    // { icon: IconType.settings, name: "Настройки", path: SettingsPath },
     { icon: IconType.car, name: "авто", path: "/cars" },
   ];
 export const CrudPage: React.FC<{
