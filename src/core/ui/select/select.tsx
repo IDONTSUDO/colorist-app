@@ -42,7 +42,7 @@ export const Select: React.FC<{
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", (e) => handleClick(e));
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
