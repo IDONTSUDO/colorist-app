@@ -150,6 +150,11 @@ export const Orders = observer(() => {
                 });
                 store.findAuto();
               }}
+              onClickAutoCompleteChildren={(index) => {
+                store.updateForm({ auto: store.autoCompleteChildren[index] });
+                store.autoCompleteChildren = [];
+                
+              }}
               onEnter={() => store.addNewAuto()}
             />
 

@@ -65,7 +65,7 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
     }
 
 
-    findModel = async (prop: string, value: string, isNeedSimple: boolean = false) => {
+    findModel = async (prop: string, value: string, isNeedSimple: boolean = false, isNeedIndex = false) => {
         if (prop === 'id') {
             return Result.ok(await this.db.getRepository(this.entity).where(prop).equals(value).toArray());
 
@@ -90,9 +90,10 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
         });
 
         miniSearch.addAll(f as any);
-        // this.miniSearch.search(value)
-        const searchResults = miniSearch.search(value);
-
+        let searchResults = miniSearch.search(value);
+        if (isNeedIndex) {
+            searchResults = searchResults.filter((el) => el.score > 1)
+        }
         return Result.ok(documents.filter(doc => new Set(searchResults.map(result => result.id)).has((doc as any).id)));
 
     }
