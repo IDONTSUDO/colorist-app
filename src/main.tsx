@@ -14,6 +14,7 @@ import { PaintComponentViewModel } from "./features/paint_components/paint_compo
 import { ConsumablesViewModel } from "./features/consumables/consumables_db_model";
 import { OrderViewModel } from "./features/orders/orders_db_model";
 import { ClientViewModel } from "./features/clients/clients_db_model";
+import { CarsViewModel } from "./features/cars/cars_model";
 
 export const db = Database.createDatabase({
   name: "MyApp",
@@ -23,6 +24,7 @@ export const db = Database.createDatabase({
     PaintComponentViewModel,
     ConsumablesViewModel,
     OrderViewModel,
+    CarsViewModel,
   ],
   config: {
     onSchemaChangeStrategy: "selective",

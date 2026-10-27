@@ -1,19 +1,17 @@
 import * as React from "react";
 
-export enum CoreInputType {
-  small = "small",
-  default = "default",
-  big = "big",
-}
-
+type CoreInputType = "text" | "number" | "password";
 export const InputV3 = (props: {
   style?: React.CSSProperties;
+  autoCompleteChildren?: string[];
+  onClickAutoCompleteChildren?: (index: number) => void;
   placeholder?: string;
   labelStyle?: React.CSSProperties;
   initialValue?: string;
   value?: string;
   subLabel?: React.ReactNode;
   onChange?: (value: string) => void;
+  onEnter?: (value: string) => void;
   validation?: (value: string) => boolean;
   error?: string;
   type?: CoreInputType;
@@ -37,6 +35,8 @@ export const InputV3 = (props: {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = event.target.value;
 
+    newValue = newValue.replace(/,/g, ".");
+
     if (props.trim) {
       newValue = newValue.trim();
     }
@@ -46,14 +46,21 @@ export const InputV3 = (props: {
     }
 
     setValue(newValue);
-
     props.onChange?.(newValue);
   };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      props.onEnter?.(value);
+    }
+  };
+
   React.useEffect(() => {
     if (props.value !== undefined && !isFocused) {
       setValue(props.value);
     }
-  }, [props.value, isFocused]); // добавили isFocused в зависимости
+  }, [props.value, isFocused]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
       {props.label && <div style={props.labelStyle}>{props.label}</div>}
@@ -68,8 +75,11 @@ export const InputV3 = (props: {
       <input
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+        onKeyDown={handleKeyDown}
         value={value}
         onChange={handleChange}
+        type={props.type === "number" ? "text" : props.type}
+        inputMode={props.type === "number" ? "decimal" : undefined} // Вызовет правильную клавиатуру на смартфонах
         placeholder={
           props.placeHolderType !== undefined ? props.placeholder : undefined
         }
@@ -79,16 +89,44 @@ export const InputV3 = (props: {
             color: "#8fa1b9",
             borderRadius: 5,
             border: "1px solid oklch(92.9% 0.013 255.508)",
+            padding: "0 10px",
           },
           props.style,
         )}
-        // type="text"
       />
 
       {props.error && (
         <span style={{ color: "red", fontSize: "12px" }}>{props.error}</span>
       )}
       {props.subLabel && <div>{props.subLabel}</div>}
+
+      <div style={{ position: "relative" }}>
+        {props.autoCompleteChildren !== undefined ? (
+          <div
+            style={{
+              position: "absolute",
+              backgroundColor: "white",
+              width: "100%",
+              boxShadow: "#9a9a9a 0px 5px 5px",
+              borderRadius: 5,
+              zIndex: 10,
+            }}
+          >
+            {props.autoCompleteChildren.map((el, i) => (
+              <div
+                key={i}
+                onClick={() => props.onClickAutoCompleteChildren?.(i)}
+                className="hover-box"
+                style={{ padding: 10, cursor: "pointer" }}
+              >
+                {el}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <></>
+        )}
+      </div>
     </div>
   );
 };
