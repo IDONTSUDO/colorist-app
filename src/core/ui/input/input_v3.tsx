@@ -45,10 +45,8 @@ export const InputV3 = (props: {
       return;
     }
 
-    // Обновляем локальный стейт ВСЕГДА, чтобы точка не исчезала
     setValue(newValue);
 
-    // Отправляем в стор (там выполнится ваш Number(text))
     props.onChange?.(newValue);
   };
   React.useEffect(() => {
