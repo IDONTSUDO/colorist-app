@@ -31,7 +31,7 @@ export class OrdersStore extends CrudFormLocalDbStore<
   }
   findAuto = async () => {
 
-    (await this.carsDbRepository.findModel('name', this.viewModel.auto)).map((el) => {
+    (await this.carsDbRepository.findModel('name', this.viewModel.auto, false, true)).map((el) => {
       this.autoCompleteChildren = el.map((subEl) => subEl.name);
     })
   }
