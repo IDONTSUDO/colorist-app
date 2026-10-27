@@ -5,6 +5,7 @@ import { PaintComponentStore } from "./paint_components_store";
 import { Button } from "../../core/ui/button/Button";
 import { PaintComponentViewModel } from "./paint_components_db_model";
 import { InputV3 } from "../../core/ui/input/input_v3";
+import { CoreInputType } from "../../core/ui/select/select";
 
 export const PaintsComponentPath = "/components";
 export const PaintsComponent = observer(() => {
@@ -27,6 +28,7 @@ export const PaintsComponent = observer(() => {
         <div>
           <InputV3
             label="Цена за грамм"
+            type={"number"}
             value={store.viewModel.costPrice?.toString()}
             validation={Number().isValid}
             onChange={(text) =>

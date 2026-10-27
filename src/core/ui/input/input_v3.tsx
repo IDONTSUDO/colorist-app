@@ -1,6 +1,6 @@
 import * as React from "react";
 
-type CoreInputType = "text" | "number" | "password";
+export type CoreInputTypeV2 = "text" | "number" | "password";
 export const InputV3 = (props: {
   style?: React.CSSProperties;
   autoCompleteChildren?: string[];
@@ -14,7 +14,7 @@ export const InputV3 = (props: {
   onEnter?: (value: string) => void;
   validation?: (value: string) => boolean;
   error?: string;
-  type?: CoreInputType;
+  type?: CoreInputTypeV2;
   trim?: boolean;
   styleContentEditable?: React.CSSProperties;
   isFormBuilder?: boolean;
