@@ -307,13 +307,13 @@ export const Orders = observer(() => {
 });
 export const ClientMapper: React.FC<{ clientId: string }> = ({ clientId }) => {
   const [client, setClient] = useState<string | null>(null);
-  const p = async () => {
+  const getClient = async () => {
     (await new ClientsDbRepository().findModel("id", clientId)).map((el) => {
       setClient(el.at(0)?.family ?? el.at(0)?.numberPhone ?? "");
     });
   };
   useEffect(() => {
-    p();
+    getClient();
   }, [clientId]);
   return <div>{client === null ? "загрузка..." : client}</div>;
 };
