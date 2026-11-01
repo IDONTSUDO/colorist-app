@@ -315,5 +315,5 @@ export const ClientMapper: React.FC<{ clientId: string }> = ({ clientId }) => {
   useEffect(() => {
     getClient();
   }, [clientId]);
-  return <div>{client === null ? "загрузка..." : client}</div>;
+  return <div>{client === null ? " - " : client}</div>;
 };
