@@ -96,6 +96,16 @@ function isValidJson(str: string): boolean {
 }
 
 export class OrderStore extends FormState<OrderViewModel> {
+  resetOrder = (): void => {
+    this.resetOrderModalIsShow = false;
+    this.componentsAddInRecept = [];
+    this.components = [];
+    this.updateOrder();
+  };
+  resetOrderModalShow = () => {
+    this.resetOrderModalIsShow = true;
+  };
+  resetOrderModalIsShow = false;
   getCostComponentsManufacturePrice() {
     // console.log(JSON.stringify());
     const initial =
@@ -107,7 +117,6 @@ export class OrderStore extends FormState<OrderViewModel> {
         .reduce((acc, el) => {
           return acc! + el;
         }, 0) ?? 0;
-    console.log(initial);
     return (
       initial +
       this.componentsAddInRecept

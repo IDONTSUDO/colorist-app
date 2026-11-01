@@ -973,6 +973,17 @@ export const Order = observer(() => {
                               />
                                */}
                               <OrderForm orderViewModel={store.viewModel} />
+                              <div style={{ height: 10 }}></div>
+                              <div
+                                onClick={() => store.resetOrderModalShow()}
+                                style={{
+                                  fontSize: 10,
+                                  fontWeight: 100,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Сброс заказа *
+                              </div>
                             </>
                           ),
                         },
@@ -1374,6 +1385,28 @@ export const Order = observer(() => {
         }
       />
       <M store={store} />
+      <ModalV2
+        children={
+          <>
+            <div style={{}}>
+              <div style={{ fontSize: 15, fontWeight: 300 }}>
+                вы уверены что хотите сбросить заказ?
+              </div>
+              <Button text="да" onClick={() => store.resetOrder()} />
+              <Button
+                text="нет"
+                onClick={() => {
+                  store.resetOrderModalIsShow = false;
+                }}
+              />
+            </div>
+          </>
+        }
+        isOpen={store.resetOrderModalIsShow}
+        onClose={() => {
+          store.resetOrderModalIsShow = false;
+        }}
+      />
       <ModalV2
         isOpen={store.consumablesModalIsOpen}
         onClose={() => store.consumablesModalClose()}
