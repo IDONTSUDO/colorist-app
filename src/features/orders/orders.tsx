@@ -14,6 +14,8 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { OrderViewModel } from "./orders_db_model";
 import { SelectV2 } from "../../core/ui/select/select_v2";
+import { useEffect, useState } from "react";
+import { ClientsDbRepository } from "../clients/clients_db_repository";
 export const OrdersPath = "/orders";
 
 export const Orders = observer(() => {
@@ -95,6 +97,14 @@ export const Orders = observer(() => {
               </div>
             ),
           },
+          {
+            name: "клиент",
+            jsx: (el) => (
+              <div>
+                <ClientMapper clientId={el.client} />
+              </div>
+            ),
+          },
         ]}
         mappedColumns={[
           {
@@ -153,7 +163,6 @@ export const Orders = observer(() => {
               onClickAutoCompleteChildren={(index) => {
                 store.updateForm({ auto: store.autoCompleteChildren[index] });
                 store.autoCompleteChildren = [];
-                
               }}
               onEnter={() => store.addNewAuto()}
             />
@@ -296,3 +305,15 @@ export const Orders = observer(() => {
     </>
   );
 });
+export const ClientMapper: React.FC<{ clientId: string }> = ({ clientId }) => {
+  const [client, setClient] = useState<string | null>(null);
+  const p = async () => {
+    (await new ClientsDbRepository().findModel("id", clientId)).map((el) => {
+      setClient(el.at(0)?.family ?? el.at(0)?.numberPhone ?? "");
+    });
+  };
+  useEffect(() => {
+    p();
+  }, [clientId]);
+  return <div>{client === null ? "загрузка..." : client}</div>;
+};
