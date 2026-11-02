@@ -58,12 +58,12 @@ export class OrderMapper {
     this.balance = balance;
     makeAutoObservable(this);
   }
-  getBalance(store: OrderStore) {
+  getBalance(_: OrderStore) {
     return (
       this.balance.reduce((acc, el) => {
         return acc + (el?.weightCalcRecept ?? 0);
-      }, 0) +
-      store.weightContainers -
+      }, 0) -
+      // store.weightContainers -
       Number(this.dust ?? 0)
     );
   }
@@ -96,6 +96,22 @@ function isValidJson(str: string): boolean {
 }
 
 export class OrderStore extends FormState<OrderViewModel> {
+  componenstDefaultReceptUpdate = (str: any, index: number): void => {
+    if (Number().isValid(str)) {
+      this.componentsAddInRecept.at(1)!.balance.at(index)!.weightCalcRecept =
+        Number(str);
+      this.componentsAddInRecept.at(1)!.balance.at(index)!.weight = Number(str);
+      this.updateOrder();
+      // console.log(this.componentsAddInRecept);
+      // this.componentsAddInRecept.at(1)!.balance.forEach((el) => {
+      //   el.weightCalcRecept = 100;
+      // });
+      // this.componentsAddInRecept.at(0)!.balance.at(index)!.weight = 123;
+      // console.log(JSON.stringify(this.componentsAddInRecept.at(1)!.balance));
+      // console.log(JSON.stringify(this.componentsAddInRecept.at(0)!.balance));
+    }
+  };
+
   resetOrder = (): void => {
     this.resetOrderModalIsShow = false;
     this.componentsAddInRecept = [];
@@ -107,7 +123,6 @@ export class OrderStore extends FormState<OrderViewModel> {
   };
   resetOrderModalIsShow = false;
   getCostComponentsManufacturePrice() {
-    // console.log(JSON.stringify());
     const initial =
       this.componentsAddInRecept
         .at(0)
@@ -257,7 +272,6 @@ export class OrderStore extends FormState<OrderViewModel> {
   orderCharacteristics = "NEW_RECEPT";
   isNewReceptModal = false;
   additiveComponents: { componentId: number; additives: number }[][] = [];
-  componentsWeights: { componentId: number; newWeights: number }[][] = [];
   currentRemainder = 0;
   afterDust = 0;
   weightContainers = 0;

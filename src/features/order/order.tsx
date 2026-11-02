@@ -291,6 +291,7 @@ export const Order = observer(() => {
                                 ) : (
                                   <></>
                                 )}
+
                                 {store.isNeedSaveButton === true ? (
                                   <div
                                     onClick={() => store.recalculate()}
@@ -425,7 +426,7 @@ export const Order = observer(() => {
                                                     </div>
                                                   </div>
                                                   {orderMapper.balance.map(
-                                                    (paint) => (
+                                                    (paint, subIndex) => (
                                                       <>
                                                         <div
                                                           style={{
@@ -437,23 +438,12 @@ export const Order = observer(() => {
                                                                 : "",
                                                           }}
                                                         >
-                                                          <div
-                                                            className="остаток"
-                                                            style={{
-                                                              border:
-                                                                "1px solid",
-                                                              width: 60,
-                                                              backgroundColor:
-                                                                store.selectReceptIndex ===
-                                                                index
-                                                                  ? "#d0ff49"
-                                                                  : "",
-                                                            }}
-                                                          >
-                                                            {paint.weightCalcRecept?.shortToDecimalPlaces(
-                                                              2,
-                                                            )}
-                                                          </div>
+                                                          <ComponentWeight
+                                                            store={store}
+                                                            paint={paint}
+                                                            index={index}
+                                                            subIndex={subIndex}
+                                                          />
                                                           <div
                                                             className="1"
                                                             style={{
@@ -1470,6 +1460,21 @@ const Dust: React.FC<{
       suppressContentEditableWarning={true}
       contentEditable={true}
       onInput={(event) => {
+        const target = event.target as HTMLDivElement;
+        let value = target.innerText;
+
+        value = value.replace(/,/g, ".");
+
+        value = value.replace(/[^0-9.]/g, "");
+
+        const parts = value.split(".");
+        if (parts.length > 2) {
+          value = parts[0] + "." + parts.slice(1).join("");
+        }
+
+        if (target.innerText !== value) {
+          target.innerText = value;
+        }
         store.updateDust(event.currentTarget.innerText, index);
       }}
       style={{ border: "1px solid", width: 60 }}
@@ -1484,13 +1489,13 @@ const PaintMapper: React.FC<{
   store: OrderStore;
   isLast: boolean;
   index: number;
-}> = observer(({ orderMapper, paint, store, index }) => {
+}> = observer(({ orderMapper, paint, store, index, isLast }) => {
   const [isNeedEllipses, setIsNeedEllipses] = useState(true);
 
   return (
     <>
       <div
-        contentEditable={true}
+        contentEditable={isLast}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             event.preventDefault();
@@ -1502,7 +1507,21 @@ const PaintMapper: React.FC<{
           }
         }}
         onInput={(event) => {
-          // store.addPaintInTable(event.currentTarget.innerText, index);
+          const target = event.target as HTMLDivElement;
+          let value = target.innerText;
+
+          value = value.replace(/,/g, ".");
+
+          value = value.replace(/[^0-9.]/g, "");
+
+          const parts = value.split(".");
+          if (parts.length > 2) {
+            value = parts[0] + "." + parts.slice(1).join("");
+          }
+
+          if (target.innerText !== value) {
+            target.innerText = value;
+          }
           store.isNeedSaveButton = true;
           if (orderMapper.addingComponents.length === 0) {
             orderMapper.addingComponents = orderMapper.addingComponents.fill(
@@ -1519,7 +1538,6 @@ const PaintMapper: React.FC<{
             p.weight = Number(event.currentTarget.innerText);
           }
           orderMapper.addingComponents[index] = p;
-          // console.log(orderMapper.addingComponents);
           if (
             orderMapper.addingComponents.length !== orderMapper.balance.length
           ) {
@@ -1534,7 +1552,6 @@ const PaintMapper: React.FC<{
               orderMapper.addingComponents.push(new PaintComponentViewModel()),
             );
           }
-          // console.log(JSON.stringify(orderMapper.addingComponents));
         }}
         style={{
           border: "1px solid",
@@ -1546,7 +1563,7 @@ const PaintMapper: React.FC<{
           //     : undefined,
         }}
         onClick={() => {
-          if (paint.privateNumber !== orderMapper.add.privateNumber)
+          if (paint.privateNumber !== orderMapper.add.privateNumber && isLast)
             setIsNeedEllipses(false);
         }}
       >
@@ -1565,3 +1582,43 @@ const PaintMapper: React.FC<{
     </>
   );
 });
+const ComponentWeight: React.FC<{
+  store: OrderStore;
+  paint: PaintComponentViewModel;
+  index: number;
+  subIndex: number;
+}> = ({ store, paint, index, subIndex }) => {
+  return (
+    <div
+      onInput={(e) => {
+        const target = e.target as HTMLDivElement;
+        let value = target.innerText;
+
+        value = value.replace(/,/g, ".");
+
+        value = value.replace(/[^0-9.]/g, "");
+
+        const parts = value.split(".");
+        if (parts.length > 2) {
+          value = parts[0] + "." + parts.slice(1).join("");
+        }
+
+        if (target.innerText !== value) {
+          target.innerText = value;
+        }
+
+        store.componenstDefaultReceptUpdate(value, subIndex);
+      }}
+      suppressContentEditableWarning={true}
+      contentEditable={index === 1 && store.componentsAddInRecept.length === 2}
+      className="остаток"
+      style={{
+        border: "1px solid",
+        width: 60,
+        backgroundColor: store.selectReceptIndex === index ? "#d0ff49" : "",
+      }}
+    >
+      {paint.weightCalcRecept?.shortToDecimalPlaces(2)}
+    </div>
+  );
+};
