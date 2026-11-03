@@ -150,8 +150,14 @@ export class OrderStore extends FormState<OrderViewModel> {
     );
   }
   recalculate = () => {
+    // if()
     const newComponents: PaintComponentViewModel[] = [];
     const lastRecept = this.componentsAddInRecept.lastElement()!;
+    // console.log(JSON.stringify(lastRecept));
+    if (lastRecept.dust === undefined) {
+      message.error("введите вес остатка");
+      return;
+    }
     lastRecept.addingComponents.forEach((component, i) => {
       const weight = lastRecept.balance.at(i)?.weight ?? 0;
 
@@ -476,7 +482,6 @@ export class OrderStore extends FormState<OrderViewModel> {
     }
     // OrderMode.selectRecept
     if (this.viewModel.weightContainers) {
-      console.log(200);
       this.weightContainers = this.viewModel.weightContainers;
     }
     if (this.viewModel.selectReceptIndex) {

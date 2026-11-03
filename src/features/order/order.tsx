@@ -1496,6 +1496,7 @@ const PaintMapper: React.FC<{
     <>
       <div
         contentEditable={isLast}
+        suppressContentEditableWarning={true}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             event.preventDefault();
