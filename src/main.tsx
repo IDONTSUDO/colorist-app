@@ -18,7 +18,7 @@ import { CarsViewModel } from "./features/cars/cars_model";
 import { OrderHistoryViewModel } from "./features/order/order_history_db_model";
 
 export const db = Database.createDatabase({
-  name: "MyApp",
+  name: "Colorist_calc",
   version: 5,
   entities: [
     ClientViewModel,

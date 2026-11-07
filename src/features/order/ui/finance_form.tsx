@@ -189,32 +189,6 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           )}
         </div>
 
-        {/* Кнопка отправки */}
-        <button
-          type="button"
-          disabled={isInvalid}
-          style={{
-            padding: "11px 20px",
-            backgroundColor: isInvalid ? "#cbd5e1" : "#4f46e5",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "14px",
-            fontWeight: 500,
-            cursor: isInvalid ? "not-allowed" : "pointer",
-            transition: "background-color 0.2s",
-            alignSelf: "flex-start",
-          }}
-          onMouseEnter={(e) => {
-            if (!isInvalid) e.currentTarget.style.backgroundColor = "#4338ca";
-          }}
-          onMouseLeave={(e) => {
-            if (!isInvalid) e.currentTarget.style.backgroundColor = "#4f46e5";
-          }}
-        >
-          Сохранить
-        </button>
-
         <div
           style={{
             marginTop: "8px",
@@ -252,7 +226,6 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                     key={i}
                     style={{ border: "1px solid", padding: 10, margin: 10 }}
                   >
-                    {/* <div>{el.privateNumber}</div> */}
                     <TextBar
                       left={el.privateNumber}
                       right="приватный компонент"
