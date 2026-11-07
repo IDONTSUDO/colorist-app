@@ -34,4 +34,21 @@ export class OrdersDbRepository extends CrudIndexedDbRepository<OrderViewModel> 
         return await collection.toArray();
     }
 
-} 
+    // Заказы клиента за период [from, to] включительно, от новых к старым
+    getClientOrdersByPeriod = async (clientId: number, from: Date, to: Date): Promise<OrderViewModel[]> => {
+        const start = new Date(from);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(to);
+        end.setHours(23, 59, 59, 999);
+        const orders = await this.db
+            .getRepository(this.entity)
+            .where('client')
+            .equals(clientId)
+            .filter((order: OrderViewModel) => {
+                const ts = order.createdAt ?? order.orderCreate;
+                return ts >= start.getTime() && ts <= end.getTime();
+            })
+            .toArray();
+        return orders.sort((a, b) => (b.createdAt ?? b.orderCreate) - (a.createdAt ?? a.orderCreate));
+    }
+}
