@@ -1,10 +1,8 @@
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../core/helper/use_store";
-import { Mode, OrdersStore } from "./orders_store";
-import { TextV2 } from "../../core/ui/text/text";
+import { OrdersStore } from "./orders_store";
 import { ModalV2 } from "../../core/ui/modal/modal";
 import { InputV3 } from "../../core/ui/input/input_v3";
-import PhoneInput from "../../core/ui/input/phone_input";
 import { Button } from "../../core/ui/button/Button";
 import { ru } from "date-fns/locale";
 import { CrudPage } from "../../core/ui/page/crud_page";
@@ -16,6 +14,7 @@ import { OrderViewModel } from "./orders_db_model";
 import { SelectV2 } from "../../core/ui/select/select_v2";
 import { useEffect, useState } from "react";
 import { ClientsDbRepository } from "../clients/clients_db_repository";
+import { ClientPicker } from "../clients/client_picker";
 export const OrdersPath = "/orders";
 
 export const Orders = observer(() => {
@@ -201,103 +200,13 @@ export const Orders = observer(() => {
               }
             />
             <div style={{ height: 5 }} />
-            <TextV2 text="Поиск клиента" />
-            <div style={{ display: "flex", alignItems: "flex-end" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "flex-end" }}>
-                  <div
-                    style={{ textDecoration: "underline", cursor: "pointer" }}
-                    onClick={() => store.findClientsMode(Mode.phone)}
-                  >
-                    По телефону
-                  </div>
-                  <div style={{ width: 5 }}></div>/
-                  <div style={{ width: 5 }}></div>
-                  <div
-                    style={{ textDecoration: "underline", cursor: "pointer" }}
-                    onClick={() => store.findClientsMode(Mode.fio)}
-                  >
-                    По Фио
-                  </div>
-                </div>
-                {store.mode === Mode.fio ? (
-                  <>
-                    <InputV3
-                      placeholder="поиск по ФИО"
-                      onChange={(text) => (store.searchFioField = text)}
-                    />
-                  </>
-                ) : (
-                  <></>
-                )}
-                {store.mode === Mode.phone ? (
-                  <>
-                    <PhoneInput
-                      onChange={(text) => (store.searchPhoneNumberField = text)}
-                    />
-                  </>
-                ) : (
-                  <></>
-                )}
-              </div>
-              <div style={{ width: 5 }} />
-              {store.mode !== undefined ? (
-                <>
-                  <Button
-                    text="поиск"
-                    textStyle={{ position: "relative", top: -5 }}
-                    style={{
-                      width: 100,
-                      position: "relative",
-                      // top: 44,
-                      height: 40,
-                    }}
-                    onClick={() => store.onClickFindButtonToSearchPhone()}
-                  />
-                </>
-              ) : (
-                <></>
-              )}
-            </div>
-            <div style={{ height: 10 }} />
-            <div>
-              {store.clients.isEmpty() ? (
-                <>
-                  <TextV2 text={"Не найдено клиентов"} />
-                </>
-              ) : (
-                store.clients.map((el) => (
-                  <div
-                    style={{
-                      // margin: 5,
-                      marginTop: 5,
-                      marginBottom: 5,
-                      padding: 5,
-                      border: "1px solid #e2e8f1",
-                      borderRadius: 6,
-                      backgroundColor:
-                        store.viewModel.client === el.id
-                          ? "#e6e0ea"
-                          : "#ececec",
-                    }}
-                  >
-                    <TextV2 text="Имя" />
-                    <div>{el.name}</div>
-                    <TextV2 text="Фамилия" />
-                    <div>{el.family}</div>
-                    <TextV2 text="отчество" />
-                    <div>{el.surName}</div>
-                    <TextV2 text="Номер телефона" />
-                    <div>{el.numberPhone.phoneMapper()}</div>
-                    <Button
-                      text="Выбрать"
-                      style={{ width: 100 }}
-                      onClick={() => store.updateForm({ client: el.id ?? 0 })}
-                    />
-                  </div>
-                ))
-              )}
-            </div>
+            <ClientPicker
+              value={store.viewModel.client}
+              onChange={(client) =>
+                store.updateForm({ client: client?.id as number })
+              }
+            />
+            <div style={{ height: 16 }} />
             <Button text="Новый заказ" onClick={() => store.createOrUpdate()} />
           </>
         }

@@ -1,18 +1,13 @@
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../core/helper/use_store";
-import {
-  clientFullName,
-  ReportsStore,
-  ReportType,
-  reportTypes,
-} from "./reports_store";
+import { ReportsStore, ReportType, reportTypes } from "./reports_store";
 import { CrudPage } from "../../core/ui/page/crud_page";
 import { Calendar } from "../../core/ui/callendar/callendar";
-import { InputV3 } from "../../core/ui/input/input_v3";
 import { Button, ButtonType } from "../../core/ui/button/Button";
 import { TextV2 } from "../../core/ui/text/text";
 import { OrderPath } from "../order/order";
+import { ClientPicker, clientFullName } from "../clients/client_picker";
 import { orderDate } from "../orders/orders_db_repository";
 
 export const ReportsPath = "/reports";
@@ -130,56 +125,11 @@ const ClientOrdersReportView = observer(({ store }: StoreProps) => {
   return (
     <>
       <div style={{ ...card, maxWidth: 680 }}>
-        <TextV2 color={muted} text="1. Клиент" />
-        <div style={{ height: 6 }} />
-        <div style={{ position: "relative" }}>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <InputV3
-              style={{ width: "100%", height: 46 }}
-              placeHolderType=""
-              placeholder="ФИО или телефон"
-              value={store.clientQuery}
-              onChange={(text) => store.setClientQuery(text)}
-            />
-            {store.clientQuery && (
-              <Button text="✕" onClick={() => store.clearClient()} />
-            )}
-          </div>
-          {store.clientMatches.length > 0 && (
-            <div style={dropdown}>
-              {store.clientMatches.map((client) => (
-                <div
-                  key={client.id}
-                  style={{
-                    padding: "8px 12px",
-                    cursor: "pointer",
-                    borderBottom: border,
-                  }}
-                  onClick={() => store.selectClient(client)}
-                >
-                  <div>{clientFullName(client) || "Без имени"}</div>
-                  <div style={{ color: muted, fontSize: 13 }}>
-                    {formatPhone(client.numberPhone)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {store.clientQuery.trim() &&
-            !store.selectedClient &&
-            store.clientMatches.length === 0 && (
-              <div style={{ color: muted, marginTop: 6 }}>
-                Клиенты не найдены
-              </div>
-            )}
-        </div>
-        {store.selectedClient && (
-          <div style={{ color: muted, marginTop: 6 }}>
-            Выбран: {clientFullName(store.selectedClient)},{" "}
-            {formatPhone(store.selectedClient.numberPhone)}
-          </div>
-        )}
-
+        <ClientPicker
+          label="1. Клиент"
+          value={store.selectedClient?.id}
+          onChange={store.setClient}
+        />
         <div style={{ height: 20 }} />
         <PeriodField store={store} label="2. Период" />
 
@@ -388,21 +338,6 @@ const card: React.CSSProperties = {
   border,
   borderRadius: 8,
   padding: 20,
-};
-
-const dropdown: React.CSSProperties = {
-  position: "absolute",
-  top: "100%",
-  left: 0,
-  right: 0,
-  zIndex: 10,
-  background: "#fff",
-  border,
-  borderRadius: 6,
-  marginTop: 4,
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-  maxHeight: 320,
-  overflowY: "auto",
 };
 
 const th: React.CSSProperties = {

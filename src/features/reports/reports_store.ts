@@ -13,10 +13,7 @@ import {
   type OrderFinance,
 } from "../order/order_finance";
 
-export const clientFullName = (c: ClientViewModel) =>
-  [c.family, c.name, c.surName].filter((el) => el && el.trim()).join(" ");
-
-const digits = (s: string | undefined) => (s ?? "").replace(/\D/g, "");
+import { clientFullName } from "../clients/client_picker";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -72,7 +69,6 @@ export class ReportsStore extends NavigateState {
   reportType?: ReportType;
 
   allClients: ClientViewModel[] = [];
-  clientQuery = "";
   selectedClient?: ClientViewModel;
   range: DateRange = { startDate: null, endDate: null };
   report?: ClientOrdersReport;
@@ -102,42 +98,13 @@ export class ReportsStore extends NavigateState {
   backToReportTypes = () => {
     this.reportType = undefined;
     this.selectedClient = undefined;
-    this.clientQuery = "";
     this.range = { startDate: null, endDate: null };
     this.report = undefined;
     this.revenueReport = undefined;
   };
 
-  // Поиск по ФИО (любая часть) или по цифрам телефона
-  get clientMatches(): ClientViewModel[] {
-    const query = this.clientQuery.trim().toLowerCase();
-    if (!query || this.selectedClient) return [];
-    const queryDigits = digits(query);
-    return this.allClients
-      .filter((c) => {
-        if (clientFullName(c).toLowerCase().includes(query)) return true;
-        return (
-          queryDigits.length > 0 && digits(c.numberPhone).includes(queryDigits)
-        );
-      })
-      .slice(0, 8);
-  }
-
-  setClientQuery = (text: string) => {
-    this.clientQuery = text;
-    if (this.selectedClient && text !== clientFullName(this.selectedClient)) {
-      this.selectedClient = undefined;
-    }
-  };
-
-  selectClient = (client: ClientViewModel) => {
+  setClient = (client: ClientViewModel | undefined) => {
     this.selectedClient = client;
-    this.clientQuery = clientFullName(client);
-  };
-
-  clearClient = () => {
-    this.selectedClient = undefined;
-    this.clientQuery = "";
     this.report = undefined;
   };
 

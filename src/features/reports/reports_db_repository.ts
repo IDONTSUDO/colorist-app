@@ -3,5 +3,5 @@ import { CrudIndexedDbRepository } from "../../core/repository/indexed_db_reposi
 import { ReportsViewModel } from "./reports_db_model";
 
 export class ReportsDbRepository extends CrudIndexedDbRepository<ReportsViewModel> {
-    entity: ClassConstructor<ReportsViewModel> = ReportsViewModel;
+  entity: ClassConstructor<ReportsViewModel> = ReportsViewModel;
 }
