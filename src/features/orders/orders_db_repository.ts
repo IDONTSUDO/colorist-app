@@ -34,21 +34,25 @@ export class OrdersDbRepository extends CrudIndexedDbRepository<OrderViewModel> 
         return await collection.toArray();
     }
 
-    // Заказы клиента за период [from, to] включительно, от новых к старым
-    getClientOrdersByPeriod = async (clientId: number, from: Date, to: Date): Promise<OrderViewModel[]> => {
+    // Заказы за период [from, to] включительно, от новых к старым.
+    // Дата заказа: createdAt, у старых записей — orderCreate.
+    getOrdersInPeriod = async (from: Date, to: Date, clientId?: number): Promise<OrderViewModel[]> => {
         const start = new Date(from);
         start.setHours(0, 0, 0, 0);
         const end = new Date(to);
         end.setHours(23, 59, 59, 999);
-        const orders = await this.db
-            .getRepository(this.entity)
-            .where('client')
-            .equals(clientId)
+        const repo = this.db.getRepository(this.entity);
+        const collection = clientId === undefined
+            ? repo.toCollection()
+            : repo.where('client').equals(clientId);
+        const orders = await collection
             .filter((order: OrderViewModel) => {
-                const ts = order.createdAt ?? order.orderCreate;
+                const ts = orderDate(order);
                 return ts >= start.getTime() && ts <= end.getTime();
             })
             .toArray();
-        return orders.sort((a, b) => (b.createdAt ?? b.orderCreate) - (a.createdAt ?? a.orderCreate));
+        return orders.sort((a, b) => orderDate(b) - orderDate(a));
     }
 }
+
+export const orderDate = (order: OrderViewModel) => order.createdAt ?? order.orderCreate;

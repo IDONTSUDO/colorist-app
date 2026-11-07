@@ -1,13 +1,19 @@
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../core/helper/use_store";
-import { clientFullName, ReportsStore } from "./reports_store";
+import {
+  clientFullName,
+  ReportsStore,
+  ReportType,
+  reportTypes,
+} from "./reports_store";
 import { CrudPage } from "../../core/ui/page/crud_page";
 import { Calendar } from "../../core/ui/callendar/callendar";
 import { InputV3 } from "../../core/ui/input/input_v3";
 import { Button, ButtonType } from "../../core/ui/button/Button";
 import { TextV2 } from "../../core/ui/text/text";
 import { OrderPath } from "../order/order";
+import { orderDate } from "../orders/orders_db_repository";
 
 export const ReportsPath = "/reports";
 
@@ -19,10 +25,14 @@ const formatDate = (d: Date | number) =>
 
 const formatPhone = (phone?: string) => (phone ? phone.phoneMapper() : "");
 
+const formatMoney = (n: number) =>
+  n.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + " ₽";
+
+type StoreProps = { store: ReportsStore };
+
 export const Reports = observer(() => {
   const store = useStore(ReportsStore);
-  const navigate = useNavigate();
-  const report = store.report;
+  const current = reportTypes.find((r) => r.type === store.reportType);
 
   return (
     <CrudPage
@@ -40,157 +50,339 @@ export const Reports = observer(() => {
             paddingBottom: 40,
           }}
         >
-          <div style={{ ...card, maxWidth: 680 }}>
-            <TextV2 style={{ fontSize: 18 }} text="Заказы клиента за период" />
-            <div style={{ height: 16 }} />
-
-            <TextV2 color={muted} text="1. Клиент" />
-            <div style={{ height: 6 }} />
-            <div style={{ position: "relative" }}>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <InputV3
-                  style={{ width: "100%", height: 46 }}
-                  placeHolderType=""
-                  placeholder="ФИО или телефон"
-                  value={store.clientQuery}
-                  onChange={(text) => store.setClientQuery(text)}
+          {current === undefined ? (
+            <ReportTypePicker store={store} />
+          ) : (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <Button
+                  text="← Другой отчет"
+                  style={{ width: "max-content" }}
+                  onClick={() => store.backToReportTypes()}
                 />
-                {store.clientQuery && (
-                  <Button text="✕" onClick={() => store.clearClient()} />
-                )}
+                <TextV2 style={{ fontSize: 18 }} text={current.title} />
               </div>
-              {store.clientMatches.length > 0 && (
-                <div style={dropdown}>
-                  {store.clientMatches.map((client) => (
-                    <div
-                      key={client.id}
-                      style={{
-                        padding: "8px 12px",
-                        cursor: "pointer",
-                        borderBottom: border,
-                      }}
-                      onClick={() => store.selectClient(client)}
-                    >
-                      <div>{clientFullName(client) || "Без имени"}</div>
-                      <div style={{ color: muted, fontSize: 13 }}>
-                        {formatPhone(client.numberPhone)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {store.reportType === ReportType.clientOrders && (
+                <ClientOrdersReportView store={store} />
               )}
-              {store.clientQuery.trim() &&
-                !store.selectedClient &&
-                store.clientMatches.length === 0 && (
-                  <div style={{ color: muted, marginTop: 6 }}>
-                    Клиенты не найдены
-                  </div>
-                )}
-            </div>
-            {store.selectedClient && (
-              <div style={{ color: muted, marginTop: 6 }}>
-                Выбран: {clientFullName(store.selectedClient)},{" "}
-                {formatPhone(store.selectedClient.numberPhone)}
-              </div>
-            )}
-
-            <div style={{ height: 20 }} />
-            <TextV2 color={muted} text="2. Период" />
-            <div style={{ height: 6 }} />
-            <Calendar value={store.range} onChange={store.setRange} />
-
-            <div style={{ height: 20 }} />
-            <Button
-              text={store.isLoading ? "Формирование..." : "Сформировать отчет"}
-              type={
-                store.selectedClient && store.range.startDate
-                  ? ButtonType.gray
-                  : ButtonType.default
-              }
-              style={{ width: "max-content" }}
-              onClick={() => {
-                if (!store.isLoading) store.createReport();
-              }}
-            />
-          </div>
-
-          {report && (
-            <div style={card}>
-              <TextV2
-                style={{ fontSize: 18 }}
-                text={`Отчет: ${clientFullName(report.client)}`}
-              />
-              <div style={{ color: muted, marginTop: 4 }}>
-                {formatPhone(report.client.numberPhone)} · период{" "}
-                {formatDate(report.startDate)} — {formatDate(report.endDate)} ·
-                заказов: {report.orders.length}
-              </div>
-              <div style={{ height: 16 }} />
-              {report.orders.length === 0 ? (
-                <div style={{ color: muted }}>
-                  За выбранный период заказов нет
-                </div>
-              ) : (
-                <div style={{ overflowX: "auto", border, borderRadius: 6 }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                      <tr>
-                        {[
-                          "Дата",
-                          "Авто",
-                          "Код краски",
-                          "Цвет",
-                          "Объем",
-                          "Статус",
-                          "Оплата",
-                          "",
-                        ].map((h) => (
-                          <th key={h} style={th}>
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {report.orders.map((order) => (
-                        <tr key={order.id}>
-                          <td style={td}>
-                            {formatDate(order.createdAt ?? order.orderCreate)}
-                          </td>
-                          <td style={td}>{order.auto || "—"}</td>
-                          <td style={td}>{order.codePaint || "—"}</td>
-                          <td style={td}>{order.color || "—"}</td>
-                          <td style={td}>
-                            {order.theVolumeOfPainTheCustomerWant || "—"}
-                          </td>
-                          <td style={td}>{order.statusOrder}</td>
-                          <td style={td}>{order.financeStatus}</td>
-                          <td style={td}>
-                            <span
-                              style={{
-                                textDecoration: "underline",
-                                cursor: "pointer",
-                              }}
-                              onClick={() =>
-                                navigate(OrderPath + "/" + order.id)
-                              }
-                            >
-                              открыть
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              {store.reportType === ReportType.revenue && (
+                <RevenueReportView store={store} />
               )}
-            </div>
+            </>
           )}
         </div>
       }
     />
   );
 });
+
+const ReportTypePicker = observer(({ store }: StoreProps) => (
+  <>
+    <TextV2 color={muted} text="Выберите вид отчета" />
+    <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+      {reportTypes.map((r) => (
+        <div
+          key={r.type}
+          role="button"
+          tabIndex={0}
+          onClick={() => store.selectReportType(r.type)}
+          onKeyDown={(e) => e.key === "Enter" && store.selectReportType(r.type)}
+          style={{ ...card, width: 300, cursor: "pointer" }}
+        >
+          <TextV2 style={{ fontSize: 18 }} text={r.title} />
+          <div style={{ color: muted, marginTop: 6 }}>{r.description}</div>
+        </div>
+      ))}
+    </div>
+  </>
+));
+
+const PeriodField = observer(
+  ({ store, label }: StoreProps & { label: string }) => (
+    <>
+      <TextV2 color={muted} text={label} />
+      <div style={{ height: 6 }} />
+      <Calendar value={store.range} onChange={store.setRange} />
+    </>
+  ),
+);
+
+const SubmitButton = observer(
+  ({
+    store,
+    ready,
+    onClick,
+  }: StoreProps & { ready: boolean; onClick: () => void }) => (
+    <Button
+      text={store.isLoading ? "Формирование..." : "Сформировать отчет"}
+      type={ready ? ButtonType.gray : ButtonType.default}
+      style={{ width: "max-content" }}
+      onClick={() => {
+        if (!store.isLoading) onClick();
+      }}
+    />
+  ),
+);
+
+const ClientOrdersReportView = observer(({ store }: StoreProps) => {
+  const navigate = useNavigate();
+  const report = store.report;
+  return (
+    <>
+      <div style={{ ...card, maxWidth: 680 }}>
+        <TextV2 color={muted} text="1. Клиент" />
+        <div style={{ height: 6 }} />
+        <div style={{ position: "relative" }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <InputV3
+              style={{ width: "100%", height: 46 }}
+              placeHolderType=""
+              placeholder="ФИО или телефон"
+              value={store.clientQuery}
+              onChange={(text) => store.setClientQuery(text)}
+            />
+            {store.clientQuery && (
+              <Button text="✕" onClick={() => store.clearClient()} />
+            )}
+          </div>
+          {store.clientMatches.length > 0 && (
+            <div style={dropdown}>
+              {store.clientMatches.map((client) => (
+                <div
+                  key={client.id}
+                  style={{
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    borderBottom: border,
+                  }}
+                  onClick={() => store.selectClient(client)}
+                >
+                  <div>{clientFullName(client) || "Без имени"}</div>
+                  <div style={{ color: muted, fontSize: 13 }}>
+                    {formatPhone(client.numberPhone)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {store.clientQuery.trim() &&
+            !store.selectedClient &&
+            store.clientMatches.length === 0 && (
+              <div style={{ color: muted, marginTop: 6 }}>
+                Клиенты не найдены
+              </div>
+            )}
+        </div>
+        {store.selectedClient && (
+          <div style={{ color: muted, marginTop: 6 }}>
+            Выбран: {clientFullName(store.selectedClient)},{" "}
+            {formatPhone(store.selectedClient.numberPhone)}
+          </div>
+        )}
+
+        <div style={{ height: 20 }} />
+        <PeriodField store={store} label="2. Период" />
+
+        <div style={{ height: 20 }} />
+        <SubmitButton
+          store={store}
+          ready={!!store.selectedClient && !!store.range.startDate}
+          onClick={() => store.createReport()}
+        />
+      </div>
+
+      {report && (
+        <div style={card}>
+          <TextV2
+            style={{ fontSize: 18 }}
+            text={`Отчет: ${clientFullName(report.client)}`}
+          />
+          <div style={{ color: muted, marginTop: 4 }}>
+            {formatPhone(report.client.numberPhone)} · период{" "}
+            {formatDate(report.startDate)} — {formatDate(report.endDate)} ·
+            заказов: {report.orders.length}
+          </div>
+          <div style={{ height: 16 }} />
+          {report.orders.length === 0 ? (
+            <div style={{ color: muted }}>За выбранный период заказов нет</div>
+          ) : (
+            <Table
+              headers={[
+                "Дата",
+                "Авто",
+                "Код краски",
+                "Цвет",
+                "Объем",
+                "Статус",
+                "Оплата",
+                "",
+              ]}
+            >
+              {report.orders.map((order) => (
+                <tr key={order.id}>
+                  <td style={td}>{formatDate(orderDate(order))}</td>
+                  <td style={td}>{order.auto || "—"}</td>
+                  <td style={td}>{order.codePaint || "—"}</td>
+                  <td style={td}>{order.color || "—"}</td>
+                  <td style={td}>
+                    {order.theVolumeOfPainTheCustomerWant || "—"}
+                  </td>
+                  <td style={td}>{order.statusOrder}</td>
+                  <td style={td}>{order.financeStatus}</td>
+                  <td style={td}>
+                    <OpenOrderLink
+                      onClick={() => navigate(OrderPath + "/" + order.id)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </Table>
+          )}
+        </div>
+      )}
+    </>
+  );
+});
+
+const RevenueReportView = observer(({ store }: StoreProps) => {
+  const navigate = useNavigate();
+  const report = store.revenueReport;
+  return (
+    <>
+      <div style={{ ...card, maxWidth: 680 }}>
+        <PeriodField store={store} label="Период" />
+        <div style={{ height: 20 }} />
+        <SubmitButton
+          store={store}
+          ready={!!store.range.startDate}
+          onClick={() => store.createRevenueReport()}
+        />
+      </div>
+
+      {report && (
+        <div style={card}>
+          <TextV2 style={{ fontSize: 18 }} text="Отчет по выручке" />
+          <div style={{ color: muted, marginTop: 4 }}>
+            период {formatDate(report.startDate)} — {formatDate(report.endDate)}{" "}
+            · заказов: {report.rows.length}
+          </div>
+          <div style={{ height: 16 }} />
+
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Stat label="Выручка" value={formatMoney(report.total)} accent />
+            <Stat label="Себестоимость" value={formatMoney(report.cost)} />
+            <Stat label="Наценка" value={formatMoney(report.markup)} />
+          </div>
+
+          {report.byStatus.length > 0 && (
+            <>
+              <div style={{ height: 16 }} />
+              <TextV2 color={muted} text="По статусу оплаты" />
+              <div style={{ height: 6 }} />
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                {report.byStatus.map((s) => (
+                  <Stat
+                    key={s.status}
+                    label={`${s.status} · ${s.count}`}
+                    value={formatMoney(s.total)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          <div style={{ height: 16 }} />
+          {report.rows.length === 0 ? (
+            <div style={{ color: muted }}>За выбранный период заказов нет</div>
+          ) : (
+            <Table
+              headers={[
+                "Дата",
+                "Клиент",
+                "Авто",
+                "Оплата",
+                "Себестоимость",
+                "Наценка",
+                "Итого",
+                "",
+              ]}
+            >
+              {report.rows.map(({ order, clientName, finance }) => (
+                <tr key={order.id}>
+                  <td style={td}>{formatDate(orderDate(order))}</td>
+                  <td style={td}>{clientName || "—"}</td>
+                  <td style={td}>{order.auto || "—"}</td>
+                  <td style={td}>{order.financeStatus}</td>
+                  <td style={tdNum}>
+                    {formatMoney(
+                      finance.componentsCost + finance.manufactureCost,
+                    )}
+                  </td>
+                  <td style={tdNum}>{formatMoney(finance.markup)}</td>
+                  <td style={{ ...tdNum, fontWeight: 600 }}>
+                    {formatMoney(finance.total)}
+                  </td>
+                  <td style={td}>
+                    <OpenOrderLink
+                      onClick={() => navigate(OrderPath + "/" + order.id)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </Table>
+          )}
+        </div>
+      )}
+    </>
+  );
+});
+
+const Stat = ({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) => (
+  <div style={{ border, borderRadius: 8, padding: "10px 14px", minWidth: 160 }}>
+    <div style={{ color: muted, fontSize: 13 }}>{label}</div>
+    <div style={{ fontSize: accent ? 22 : 18, fontWeight: 600 }}>{value}</div>
+  </div>
+);
+
+const Table = ({
+  headers,
+  children,
+}: {
+  headers: string[];
+  children: React.ReactNode;
+}) => (
+  <div style={{ overflowX: "auto", border, borderRadius: 6 }}>
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead>
+        <tr>
+          {headers.map((h, i) => (
+            <th key={i} style={th}>
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>{children}</tbody>
+    </table>
+  </div>
+);
+
+const OpenOrderLink = ({ onClick }: { onClick: () => void }) => (
+  <span
+    style={{ textDecoration: "underline", cursor: "pointer" }}
+    onClick={onClick}
+  >
+    открыть
+  </span>
+);
 
 const card: React.CSSProperties = {
   border,
@@ -227,4 +419,10 @@ const td: React.CSSProperties = {
   padding: "8px 10px",
   borderBottom: border,
   fontSize: 14,
+};
+
+const tdNum: React.CSSProperties = {
+  ...td,
+  textAlign: "right",
+  whiteSpace: "nowrap",
 };
