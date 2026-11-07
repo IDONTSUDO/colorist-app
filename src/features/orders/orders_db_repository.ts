@@ -2,9 +2,17 @@ import type { ClassConstructor } from "class-transformer";
 import { CrudIndexedDbRepository } from "../../core/repository/indexed_db_repository";
 import { OrderViewModel } from "./orders_db_model";
 import type { ReportsViewModel } from "../reports/reports_db_model";
+import { OrderHistoryDbRepository } from "../order/order_history_db_repository";
 
 export class OrdersDbRepository extends CrudIndexedDbRepository<OrderViewModel> {
     entity: ClassConstructor<OrderViewModel> = OrderViewModel;
+
+    // при удалении заказа удаляем и его историю изменений
+    private deleteOrderOnly: CrudIndexedDbRepository<OrderViewModel>["deleteModel"] = this.deleteModel;
+    deleteModel: CrudIndexedDbRepository<OrderViewModel>["deleteModel"] = async (id: number) => {
+        await new OrderHistoryDbRepository().delete(id);
+        return this.deleteOrderOnly(id);
+    };
     getOrdersByPeriod = async (viewModel: ReportsViewModel): Promise<OrderViewModel[]> => {
         const repo = this.db.getRepository(this.entity);
 

@@ -18,6 +18,7 @@ const tableLabels: Record<string, string> = {
   consumables: "Расходники",
   cars: "Авто",
   "recipes-model": "Рецепты",
+  "order-history": "История изменений заказов",
 };
 
 // служебные таблицы ORM — не выгружаем и не импортируем

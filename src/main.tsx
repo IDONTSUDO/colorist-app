@@ -15,6 +15,7 @@ import { ConsumablesViewModel } from "./features/consumables/consumables_db_mode
 import { OrderViewModel } from "./features/orders/orders_db_model";
 import { ClientViewModel } from "./features/clients/clients_db_model";
 import { CarsViewModel } from "./features/cars/cars_model";
+import { OrderHistoryViewModel } from "./features/order/order_history_db_model";
 
 export const db = Database.createDatabase({
   name: "MyApp",
@@ -25,6 +26,7 @@ export const db = Database.createDatabase({
     ConsumablesViewModel,
     OrderViewModel,
     CarsViewModel,
+    OrderHistoryViewModel,
   ],
   config: {
     onSchemaChangeStrategy: "selective",

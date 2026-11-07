@@ -12,6 +12,8 @@ import {
   type ClassTransformOptions,
 } from "class-transformer";
 import { OrderViewModel } from "../orders/orders_db_model";
+import { SnapshotHistory } from "./snapshot_history";
+import { OrderHistoryDbRepository } from "./order_history_db_repository";
 
 export class OrderMapper {
   getCommonL(store: OrderStore) {
@@ -85,15 +87,14 @@ export enum OrderMode {
 }
 function isValidJson(str: string): boolean {
   try {
-    // Попытка распарсить строку
     JSON.parse(str);
-    // Если ошибки не возникло, строка валидна
     return true;
   } catch (e) {
-    // Если возникла ошибка, строка не является валидным JSON
     return false;
   }
 }
+
+const HISTORY_DEBOUNCE_MS = 600;
 
 export class OrderStore extends FormState<OrderViewModel> {
   componenstDefaultReceptUpdate = (str: any, index: number): void => {
@@ -102,13 +103,6 @@ export class OrderStore extends FormState<OrderViewModel> {
         Number(str);
       this.componentsAddInRecept.at(1)!.balance.at(index)!.weight = Number(str);
       this.updateOrder();
-      // console.log(this.componentsAddInRecept);
-      // this.componentsAddInRecept.at(1)!.balance.forEach((el) => {
-      //   el.weightCalcRecept = 100;
-      // });
-      // this.componentsAddInRecept.at(0)!.balance.at(index)!.weight = 123;
-      // console.log(JSON.stringify(this.componentsAddInRecept.at(1)!.balance));
-      // console.log(JSON.stringify(this.componentsAddInRecept.at(0)!.balance));
     }
   };
 
@@ -194,6 +188,7 @@ export class OrderStore extends FormState<OrderViewModel> {
     );
 
     this.updateOrder();
+    this.isNeedSaveButton = false;
   };
 
   isNeedSaveButton = false;
@@ -439,7 +434,87 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.updateOrder();
     this.repository.edit(this.viewModel);
   };
+
+  // История хранится в таблице order-history и переживает перезагрузку.
+  history = new SnapshotHistory();
+  historyRepository = new OrderHistoryDbRepository();
+  historyVersion = 0;
+  private historyTimer?: ReturnType<typeof setTimeout>;
+
+  private takeSnapshot = () =>
+    JSON.stringify({
+      componentsAddInRecept: this.componentsAddInRecept,
+      addingComponentsTable: this.addingComponentsTable,
+      selectReceptIndex: this.selectReceptIndex ?? null,
+      selectReceptWeight: this.selectReceptWeight ?? null,
+      selectReceptPaintFinal: this.selectReceptPaintFinal,
+      weightContainers: this.weightContainers,
+    });
+
+  private scheduleHistoryCommit = () => {
+    clearTimeout(this.historyTimer);
+    this.historyTimer = setTimeout(this.commitHistory, HISTORY_DEBOUNCE_MS);
+  };
+
+  private commitHistory = () => {
+    clearTimeout(this.historyTimer);
+    this.historyTimer = undefined;
+    if (this.history.record(this.takeSnapshot())) this.persistHistory();
+  };
+
+  private persistHistory = () => {
+    const orderId = this.viewModel.id;
+    if (orderId === undefined) return;
+    this.historyRepository.save(orderId, this.history.state);
+  };
+
+  private applySnapshot = async (snapshot: string) => {
+    const s = JSON.parse(snapshot);
+    this.componentsAddInRecept = (s.componentsAddInRecept as any[]).map((el) =>
+      plainToClass(OrderMapper, el),
+    ) as any;
+    this.addingComponentsTable = s.addingComponentsTable;
+    this.selectReceptIndex = s.selectReceptIndex ?? undefined;
+    this.selectReceptWeight = s.selectReceptWeight ?? undefined;
+    this.selectReceptMode =
+      this.selectReceptWeight !== undefined
+        ? SelectReceptMode.two
+        : SelectReceptMode.one;
+    this.selectReceptPaintFinal = (s.selectReceptPaintFinal as any[]).map(
+      (el) => plainToClass(PaintComponentViewModel, el),
+    );
+    this.weightContainers = s.weightContainers;
+    this.isNeedSaveButton = false;
+    this.historyVersion += 1;
+    await this.saveOrder();
+  };
+
+  undo = async () => {
+    if (this.historyTimer !== undefined) this.commitHistory();
+    const snapshot = this.history.undo();
+    if (snapshot === undefined) return;
+    this.persistHistory();
+    await this.applySnapshot(snapshot);
+  };
+
+  redo = async () => {
+    if (this.historyTimer !== undefined) this.commitHistory();
+    const snapshot = this.history.redo();
+    if (snapshot === undefined) return;
+    this.persistHistory();
+    await this.applySnapshot(snapshot);
+  };
+
+  dispose() {
+    if (this.historyTimer !== undefined) this.commitHistory();
+  }
+
   updateOrder = async () => {
+    this.scheduleHistoryCommit();
+    await this.saveOrder();
+  };
+
+  private saveOrder = async () => {
     this.viewModel.consumablesJson = JSON.stringify(this.viewModel.consumables);
     this.viewModel.addingComponentsTableJson = JSON.stringify(
       this.addingComponentsTable,
@@ -505,6 +580,17 @@ export class OrderStore extends FormState<OrderViewModel> {
     (await this.repository.getConsumables()).map((el) => {
       this.consumables = el;
     });
+    const actual = this.takeSnapshot();
+    const saved =
+      this.viewModel.id !== undefined
+        ? await this.historyRepository.load(this.viewModel.id)
+        : undefined;
+    if (saved) {
+      this.history.load(saved, actual);
+    } else {
+      this.history.reset(actual);
+    }
+    this.persistHistory();
   };
 
   findRecipes = async (): Promise<void> => {

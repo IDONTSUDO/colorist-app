@@ -32,6 +32,30 @@ export const Order = observer(() => {
   useEffect(() => {
     store.initParams(id as string);
   }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.isContentEditable ||
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA")
+      )
+        return;
+      const key = e.key.toLowerCase();
+      if (key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        store.undo();
+      } else if ((key === "z" && e.shiftKey) || key === "y") {
+        e.preventDefault();
+        store.redo();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
   return (
     <>
       {store.isLoading ? (
@@ -42,6 +66,20 @@ export const Order = observer(() => {
             right={
               <>
                 <div style={{ display: "flex", width: "max-content" }}>
+                  <HistoryButton
+                    text="↶ Отменить"
+                    title="Отменить (Cmd/Ctrl+Z)"
+                    disabled={!store.history.canUndo}
+                    onClick={() => store.undo()}
+                  />
+                  <div style={{ width: 6 }}></div>
+                  <HistoryButton
+                    text="↷ Повторить"
+                    title="Повторить (Cmd/Ctrl+Shift+Z)"
+                    disabled={!store.history.canRedo}
+                    onClick={() => store.redo()}
+                  />
+                  <div style={{ width: 20 }}></div>
                   {store.componentsAddInRecept.isEmpty() ? (
                     <>
                       <div
@@ -386,6 +424,9 @@ export const Order = observer(() => {
                                       (orderMapper, index) => {
                                         return (
                                           <div
+                                            // после undo/redo пересоздаем ячейки:
+                                            // contentEditable не перечитывает значения сам
+                                            key={`${store.historyVersion}-${index}`}
                                             onClick={() =>
                                               store.setSelectRecept(index)
                                             }
@@ -755,6 +796,7 @@ export const Order = observer(() => {
                                 >
                                   <div style={{ display: "flex" }}>
                                     <div
+                                      key={store.historyVersion}
                                       style={{
                                         width: 170,
                                         padding: "11px 36px 11px 14px",
@@ -1623,3 +1665,31 @@ const ComponentWeight: React.FC<{
     </div>
   );
 };
+
+const HistoryButton: React.FC<{
+  text: string;
+  title: string;
+  disabled: boolean;
+  onClick: () => void;
+}> = ({ text, title, disabled, onClick }) => (
+  <button
+    type="button"
+    title={title}
+    disabled={disabled}
+    onClick={onClick}
+    style={{
+      padding: "10px 14px",
+      borderRadius: "8px",
+      fontSize: 14,
+      fontWeight: 500,
+      border: "none",
+      backgroundColor: "rgb(240, 242, 245)",
+      color: "rgb(74, 85, 104)",
+      cursor: disabled ? "default" : "pointer",
+      opacity: disabled ? 0.4 : 1,
+      transition: "opacity 0.2s",
+    }}
+  >
+    {text}
+  </button>
+);
