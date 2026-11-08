@@ -14,6 +14,7 @@ import {
 import { OrderViewModel } from "../orders/orders_db_model";
 import { SnapshotHistory } from "./snapshot_history";
 import { OrderHistoryDbRepository } from "./order_history_db_repository";
+import { calculateManufactureCost } from "./order_finance";
 
 export class OrderMapper {
   getCommonL(store: OrderStore) {
@@ -51,6 +52,8 @@ export class OrderMapper {
   add: PaintComponentViewModel;
   dust?: string;
   addingComponents: PaintComponentViewModel[] = [];
+  // шаг создан добавлением компонента (add — добавленная краска)
+  isAdding?: boolean;
   balance: PaintComponentViewModel[];
   constructor(
     add: PaintComponentViewModel,
@@ -117,31 +120,7 @@ export class OrderStore extends FormState<OrderViewModel> {
   };
   resetOrderModalIsShow = false;
   getCostComponentsManufacturePrice() {
-    const initial =
-      this.componentsAddInRecept
-        .at(0)
-        ?.balance.map((el) => {
-          return (el.weightCalcRecept ?? 1) * (el.costPrice ?? 1);
-        })
-        .reduce((acc, el) => {
-          return acc! + el;
-        }, 0) ?? 0;
-    return (
-      initial +
-      this.componentsAddInRecept
-        .map((el) =>
-          el.addingComponents.reduce((acc, subEL) => {
-            if (subEL === undefined || subEL === null) {
-              return acc;
-            }
-            return acc + (subEL.weight ?? 1) * (subEL.costPrice ?? 1);
-          }, 0),
-        )
-        .reduce((acc, el) => {
-          return acc! + el;
-        }, 0)
-        .shortToDecimalPlaces(2)
-    );
+    return calculateManufactureCost(this.componentsAddInRecept);
   }
   recalculate = () => {
     // if()
@@ -183,9 +162,9 @@ export class OrderStore extends FormState<OrderViewModel> {
       newComponents.push(newComponent);
     });
 
-    this.componentsAddInRecept.push(
-      new OrderMapper(newComponents[0], newComponents),
-    );
+    const step = new OrderMapper(newComponents[0], newComponents);
+    step.isAdding = false;
+    this.componentsAddInRecept.push(step);
 
     this.updateOrder();
     this.isNeedSaveButton = false;
@@ -821,9 +800,9 @@ export class OrderStore extends FormState<OrderViewModel> {
       });
     }
     c.weight = addWeight;
-    this.componentsAddInRecept.push(
-      new OrderMapper(c, paintComponentViewModels),
-    );
+    const step = new OrderMapper(c, paintComponentViewModels);
+    step.isAdding = true;
+    this.componentsAddInRecept.push(step);
     this.components = [];
     this.closeComponentsModal();
     this.updateOrder();
