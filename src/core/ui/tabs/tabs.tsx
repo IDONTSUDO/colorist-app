@@ -15,6 +15,7 @@ export const Tabs: React.FC<{
           borderRadius: 8,
           marginBottom: 28,
           overflowX: "auto",
+          width: "min-content",
         }}
       >
         {tabs.map((el, i) => (
