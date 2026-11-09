@@ -93,14 +93,15 @@ export class OrderMapper {
     this.balance = balance;
     makeAutoObservable(this);
   }
+  // отпыл/расход = вес компонентов + вес тары − вес остатка
+  // (остаток взвешивается вместе с тарой). Пока остаток не введён — тару
+  // не учитываем, иначе остаток по компонентам уйдёт в минус.
   getBalance(store: OrderStore) {
-    return (
-      this.balance.reduce((acc, el) => {
-        return acc + (el?.weightCalcRecept ?? 0);
-      }, 0) -
-      store.weightContainers -
-      Number(this.dust ?? 0)
-    );
+    const components = this.balance.reduce((acc, el) => {
+      return acc + (el?.weightCalcRecept ?? 0);
+    }, 0);
+    if (this.dust === undefined || this.dust === "") return components;
+    return components + store.weightContainers - Number(this.dust);
   }
 }
 export enum OrderProcessType {
