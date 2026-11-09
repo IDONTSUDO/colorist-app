@@ -356,7 +356,7 @@ export abstract class CrudFormLocalDbStore<
         const result = await this.create(this.viewModel);
         if (result.isFailure()) {
           // модалку не закрываем — пользователь исправит данные
-          result.fold(() => {}, (error) => message.error(error));
+          result.fold(() => { }, (error) => message.error(error as any));
           return;
         }
         await this.mapOk("page", this.read());
@@ -371,7 +371,7 @@ export abstract class CrudFormLocalDbStore<
       (await this.viewModel.validMessage()).map(async () => {
         const result = await this.update(this.viewModel);
         if (result.isFailure()) {
-          result.fold(() => {}, (error) => message.error(error));
+          result.fold(() => { }, (error) => message.error(error));
           return;
         }
         await this.mapOk("page", this.read());

@@ -65,17 +65,19 @@ export const CarPicker: React.FC<{
     if (!q) return [];
     const words = q.split(" ");
     const unique = [...new Set(cars)];
-    return unique
-      .map((name) => ({ name, n: normalizeCarName(name) }))
-      .filter(({ n }) => words.every((w) => n.includes(w)))
-      // сначала начинающиеся с запроса, потом по алфавиту
-      .sort(
-        (a, b) =>
-          Number(b.n.startsWith(q)) - Number(a.n.startsWith(q)) ||
-          a.name.localeCompare(b.name, "ru"),
-      )
-      .slice(0, 8)
-      .map((el) => el.name);
+    return (
+      unique
+        .map((name) => ({ name, n: normalizeCarName(name) }))
+        .filter(({ n }) => words.every((w) => n.includes(w)))
+        // сначала начинающиеся с запроса, потом по алфавиту
+        .sort(
+          (a, b) =>
+            Number(b.n.startsWith(q)) - Number(a.n.startsWith(q)) ||
+            a.name.localeCompare(b.name, "ru"),
+        )
+        .slice(0, 8)
+        .map((el) => el.name)
+    );
   }, [cars, q]);
 
   const exact = cars.some((name) => normalizeCarName(name) === q);
@@ -95,7 +97,7 @@ export const CarPicker: React.FC<{
         message.success(`«${name}» добавлено в справочник авто`);
         reload();
       },
-      (err) => message.error(err),
+      (err) => message.error(err as any),
     );
     setIsOpen(false);
   };
@@ -144,7 +146,8 @@ export const CarPicker: React.FC<{
                 tabIndex={0}
                 style={item}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "var(--bg-oklch-97-0-01-255)")
+                  (e.currentTarget.style.background =
+                    "var(--bg-oklch-97-0-01-255)")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = "transparent")
@@ -162,7 +165,8 @@ export const CarPicker: React.FC<{
                 tabIndex={0}
                 style={{ ...item, color: "var(--tx-4f46e5)" }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "var(--bg-oklch-97-0-01-255)")
+                  (e.currentTarget.style.background =
+                    "var(--bg-oklch-97-0-01-255)")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = "transparent")

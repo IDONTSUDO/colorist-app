@@ -27,7 +27,7 @@ export class OrdersStore extends CrudFormLocalDbStore<
   addNewAuto = async () => {
     const m = new CarsViewModel();
     m.name = this.viewModel.auto;
-    (await this.carsDbRepository.addModel(m)).fold(() => { }, (err) => message.error(err))
+    (await this.carsDbRepository.addModel(m)).fold(() => { }, (err) => message.error(err as any))
     this.autoCompleteChildren = [];
   }
   findAuto = async () => {
