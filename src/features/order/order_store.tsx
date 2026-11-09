@@ -816,6 +816,22 @@ export class OrderStore extends FormState<OrderViewModel> {
           (el.weightCalcRecept ?? 0) * (el.costPrice ?? 0),
       };
     });
+  // себестоимость каждого слива: вес компонента слива × цена за грамм
+  getDrainsCost = () =>
+    this.componentsAddInRecept
+      .map((mapper, index) => {
+        const drain = mapper.getDrain();
+        return {
+          number: index,
+          weight: mapper.drainWeight ?? 0,
+          cost: mapper.balance.reduce(
+            (acc, paint, i) =>
+              acc + (drain[i]?.weight ?? 0) * (paint.costPrice ?? 0),
+            0,
+          ),
+        };
+      })
+      .filter((el) => el.number !== 0 && el.weight > 0);
   getCostComponents = () =>
     this.getOrderStatisticComponents().reduce((acc, el) => {
       return acc + el.finalCostOfTheComponent;

@@ -82,56 +82,77 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           </select>
         </div>
 
-        {/* Информационная строка себестоимости */}
-        {store.selectReceptIndex === undefined ? (
-          <>
-            <div style={{ fontSize: 14, fontWeight: 100 }}>
-              выберите рецепт для расчета себестомости производства
-            </div>
-          </>
+        {/* Себестоимость производства и сливов */}
+        {store.componentsAddInRecept.isEmpty() ? (
+          <></>
         ) : (
-          <div>
-            <div
-              style={{
-                fontSize: "14px",
-                color: "#4a5568",
-                display: "flex",
-                justifyContent: "space-between",
-                padding: "12px 14px",
-                backgroundColor: "#ffffff",
-                border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
-              onClick={() => store.openReportComponentsModal()}
-            >
-              <span>Себестоймость слива компонентов:</span>
-              <strong style={{ color: "#1a202c" }}>
-                {store.getCostComponents().shortToDecimalPlaces(2)} ₽
-              </strong>
-            </div>
-            <div style={{ height: 25 }}></div>
-            <div
-              style={{
-                fontSize: "14px",
-                color: "#4a5568",
-                display: "flex",
-                justifyContent: "space-between",
-                padding: "12px 14px",
-                backgroundColor: "#ffffff",
-                border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                // cursor: "pointer",
-              }}
-              // onClick={() => store.openReportComponentsModal()}
-            >
-              <span>Себестоймость производства:</span>
-              <strong style={{ color: "#1a202c" }}>
-                {store
-                  .getCostComponentsManufacturePrice()
-                  .shortToDecimalPlaces(2)}{" "}
-                ₽
-              </strong>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <CostRow
+              label="Себестоймость производства:"
+              value={store.getCostComponentsManufacturePrice()}
+            />
+
+            <div>
+              <label style={labelStyle}>Себестоймость сливов</label>
+              <div
+                style={{
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                  overflow: "hidden",
+                }}
+              >
+                {store.getDrainsCost().isEmpty() ? (
+                  <div
+                    style={{
+                      padding: "12px 14px",
+                      fontSize: "14px",
+                      color: "#718096",
+                    }}
+                  >
+                    сливы не заданы — введите граммы в таблицах слива
+                  </div>
+                ) : (
+                  store.getDrainsCost().map((el) => (
+                    <div
+                      key={el.number}
+                      style={{
+                        fontSize: "14px",
+                        color: "#4a5568",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "10px 14px",
+                        borderBottom: "1px solid #e2e8f0",
+                      }}
+                    >
+                      <span>
+                        {el.number} слив · {el.weight.shortToDecimalPlaces(2)} г
+                      </span>
+                      <strong style={{ color: "#1a202c" }}>
+                        {el.cost.shortToDecimalPlaces(2)} ₽
+                      </strong>
+                    </div>
+                  ))
+                )}
+                <div
+                  onClick={() => store.openReportComponentsModal()}
+                  title="подробно по компонентам"
+                  style={{
+                    fontSize: "14px",
+                    color: "#4a5568",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "12px 14px",
+                    backgroundColor: "#f8fafc",
+                    cursor: "pointer",
+                  }}
+                >
+                  <span>Итого себестоймость сливов:</span>
+                  <strong style={{ color: "#1a202c" }}>
+                    {store.getCostComponents().shortToDecimalPlaces(2)} ₽
+                  </strong>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -251,6 +272,28 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
       </div>
     );
   });
+const CostRow: React.FC<{ label: string; value: number }> = ({
+  label,
+  value,
+}) => (
+  <div
+    style={{
+      fontSize: "14px",
+      color: "#4a5568",
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "12px 14px",
+      backgroundColor: "#ffffff",
+      border: "1px solid #e2e8f0",
+      borderRadius: "6px",
+    }}
+  >
+    <span>{label}</span>
+    <strong style={{ color: "#1a202c" }}>
+      {value.shortToDecimalPlaces(2)} ₽
+    </strong>
+  </div>
+);
 const TextBar: React.FC<{ left: string | number; right: string | number }> = ({
   left,
   right,
