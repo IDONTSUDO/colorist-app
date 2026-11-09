@@ -51,6 +51,36 @@ export class OrderMapper {
   }
   add: PaintComponentViewModel;
   dust?: string;
+  // сколько грамм краски слить по этому рецепту
+  drainWeight?: number = undefined;
+  // ручная граммовка компонентов слива (если правили вручную)
+  drainComponents?: number[] = undefined;
+  // какие компоненты слива зафиксированы ручным вводом
+  drainEdited?: boolean[] = undefined;
+  hasDrainOverrides(): boolean {
+    return (
+      this.drainComponents !== undefined &&
+      this.drainComponents.length === this.balance.length
+    );
+  }
+  // раскладка слива по компонентам: ручная, иначе пропорционально рецепту
+  getDrain(): { privateNumber: string; weight: number; edited: boolean }[] {
+    const total = this.balance.reduce(
+      (acc, el) => acc + (el.weightCalcRecept ?? 0),
+      0,
+    );
+    const drain = this.drainWeight ?? 0;
+    const overrides = this.hasDrainOverrides();
+    return this.balance.map((el, i) => ({
+      privateNumber: el.privateNumber,
+      weight: overrides
+        ? this.drainComponents![i]
+        : total === 0
+          ? 0
+          : ((el.weightCalcRecept ?? 0) / total) * drain,
+      edited: overrides && (this.drainEdited?.[i] ?? false),
+    }));
+  }
   addingComponents: PaintComponentViewModel[] = [];
   // шаг создан добавлением компонента (add — добавленная краска)
   isAdding?: boolean;
@@ -301,6 +331,131 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.selectReceptMode = SelectReceptMode.two;
     this.updateOrder();
   }
+  // слив по конкретному рецепту (колонке)
+  updateDrainWeight = (index: number, text: string): void => {
+    const mapper = this.componentsAddInRecept.at(index);
+    if (mapper === undefined) return;
+    const value = Number(text);
+    const newTotal =
+      text.trim() === "" || isNaN(value) || value <= 0 ? undefined : value;
+    if (newTotal === undefined) {
+      mapper.drainWeight = undefined;
+      mapper.drainComponents = undefined;
+      mapper.drainEdited = undefined;
+    } else {
+      // ручную раскладку масштабируем под новый общий вес
+      if (mapper.hasDrainOverrides() && (mapper.drainWeight ?? 0) > 0) {
+        const k = newTotal / mapper.drainWeight!;
+        mapper.drainComponents = mapper.drainComponents!.map((w) => w * k);
+      }
+      mapper.drainWeight = newTotal;
+    }
+    this.recalculateDrainTotal();
+    this.updateOrder();
+  };
+  // ввели вес одного компонента: общий вес слива не меняется,
+  // компонент фиксируется, остаток делится между незафиксированными по рецепту
+  updateDrainByComponent = (
+    index: number,
+    subIndex: number,
+    text: string,
+  ): void => {
+    const mapper = this.componentsAddInRecept.at(index);
+    if (mapper === undefined) return;
+    const value = Number(text);
+    if (text.trim() === "" || isNaN(value) || value < 0) return;
+    const recipe = mapper.balance.map((el) => el.weightCalcRecept ?? 0);
+    const recipeTotal = recipe.reduce((acc, w) => acc + w, 0);
+
+    // слив ещё не задан — считаем общий вес от компонента по пропорции рецепта
+    if (!mapper.drainWeight) {
+      const part = recipe[subIndex] ?? 0;
+      if (recipeTotal === 0 || part === 0 || value === 0) {
+        message.error("сначала введите граммы по рецепту");
+        return;
+      }
+      mapper.drainWeight = (value * recipeTotal) / part;
+      mapper.drainComponents = undefined;
+      mapper.drainEdited = undefined;
+      this.recalculateDrainTotal();
+      this.updateOrder();
+      return;
+    }
+
+    const total = mapper.drainWeight;
+    const current = mapper.getDrain().map((el) => el.weight);
+    const edited = mapper.balance.map(
+      (_, i) => mapper.hasDrainOverrides() && (mapper.drainEdited?.[i] ?? false),
+    );
+    edited[subIndex] = true;
+    const others = mapper.balance.map((_, i) => i).filter((i) => i !== subIndex);
+    let free = others.filter((i) => !edited[i]);
+    // все остальные уже зафиксированы — снимаем с них фиксацию
+    if (free.length === 0) {
+      free = others;
+      free.forEach((i) => (edited[i] = false));
+    }
+    const lockedSum = others
+      .filter((i) => !free.includes(i))
+      .reduce((acc, i) => acc + current[i], 0);
+    const rest = total - value - lockedSum;
+    if (rest < 0) {
+      message.error(
+        `компонентов больше, чем ${total.shortToDecimalPlaces(2)} г слива`,
+      );
+      return;
+    }
+    const freeRecipe = free.reduce((acc, i) => acc + recipe[i], 0);
+    const next = [...current];
+    next[subIndex] = value;
+    free.forEach((i) => {
+      next[i] =
+        freeRecipe === 0 ? rest / free.length : (recipe[i] / freeRecipe) * rest;
+    });
+    mapper.drainComponents = next;
+    mapper.drainEdited = edited;
+    this.recalculateDrainTotal();
+    this.updateOrder();
+  };
+  // сброс ручной граммовки — снова по рецепту
+  resetDrainComponents = (index: number): void => {
+    const mapper = this.componentsAddInRecept.at(index);
+    if (mapper === undefined) return;
+    mapper.drainComponents = undefined;
+    mapper.drainEdited = undefined;
+    this.recalculateDrainTotal();
+    this.updateOrder();
+  };
+  // итог всех сливов по компонентам — используется в финансах
+  private recalculateDrainTotal = (): void => {
+    const result: PaintComponentViewModel[] = [];
+    let total = 0;
+    this.componentsAddInRecept.forEach((mapper, index) => {
+      if (index === 0 || !mapper.drainWeight) return;
+      total += mapper.drainWeight;
+      const drain = mapper.getDrain();
+      mapper.balance.forEach((paint, i) => {
+        const weight = drain[i]?.weight ?? 0;
+        const existing = result.find(
+          (el) => el.privateNumber === paint.privateNumber,
+        );
+        if (existing) {
+          existing.weightCalcRecept = (existing.weightCalcRecept ?? 0) + weight;
+          return;
+        }
+        const copy = plainToInstance(
+          PaintComponentViewModel,
+          JSON.parse(JSON.stringify(paint)),
+        );
+        copy.weightCalcRecept = weight;
+        result.push(copy);
+      });
+    });
+    this.selectReceptPaintFinal = result;
+    this.selectReceptWeight = total === 0 ? undefined : total;
+    this.selectReceptMode =
+      total === 0 ? SelectReceptMode.one : SelectReceptMode.two;
+  };
   updateSelectReceptWeight = (weight: number): void => {
     this.selectReceptWeight = weight;
   };

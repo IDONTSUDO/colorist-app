@@ -4,7 +4,6 @@ import {
   OrderMapper,
   OrderMode,
   OrderStore,
-  SelectReceptMode,
 } from "./order_store";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -641,6 +640,13 @@ export const Order = observer(() => {
                                                     </div>
                                                   </div>
 
+                                                  <DrainTable
+                                                    store={store}
+                                                    orderMapper={orderMapper}
+                                                    index={index}
+                                                    number={index}
+                                                  />
+
                                                   {/* <div className="обьем">
                                                     {orderMapper.balance
                                                       .reduce((el, acc) => {
@@ -877,107 +883,6 @@ export const Order = observer(() => {
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div>
-                                {store.selectReceptIndex !== undefined &&
-                                store.selectReceptMode ===
-                                  SelectReceptMode.one ? (
-                                  <>
-                                    <div style={{ height: 10 }}></div>
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "flex-end",
-                                      }}
-                                    >
-                                      <InputV3
-                                        labelStyle={{
-                                          fontSize: 10,
-                                          fontWeight: 800,
-                                        }}
-                                        validation={Number().isValid}
-                                        // error="только цифры"
-                                        onChange={(text) =>
-                                          store.updateSelectReceptWeight(
-                                            Number(text),
-                                          )
-                                        }
-                                        // value="0"
-                                        label={"обьем краски для слива"}
-                                      />
-                                      <Button
-                                        text="Готово"
-                                        style={{ height: 40 }}
-                                        textStyle={{
-                                          position: "relative",
-                                          top: -3,
-                                        }}
-                                        onClick={() =>
-                                          store.setTheInkVolumeForDraining()
-                                        }
-                                      />
-                                    </div>
-                                  </>
-                                ) : (
-                                  <>
-                                    {store.selectReceptMode ===
-                                    SelectReceptMode.two ? (
-                                      <>
-                                        <div style={{ display: "flex" }}>
-                                          <div
-                                            style={{
-                                              fontSize: 20,
-                                              fontWeight: 100,
-                                            }}
-                                          >
-                                            Слив по рецепту{" "}
-                                            {store.selectReceptWeight} грамм
-                                          </div>
-                                          <div style={{ width: 20 }} />
-                                          <div
-                                            style={{
-                                              fontSize: 20,
-                                              textDecoration: "underline",
-                                            }}
-                                            onClick={() => store.cancelLeak()}
-                                          >
-                                            отменить
-                                          </div>
-                                        </div>
-                                        {store.selectReceptPaintFinal.map(
-                                          (el) => {
-                                            return (
-                                              <div style={{ display: "flex" }}>
-                                                <div
-                                                  style={{
-                                                    border: "1px solid black  ",
-                                                    width: 60,
-                                                    backgroundColor: "black",
-                                                    color: "white",
-                                                  }}
-                                                >
-                                                  {el.privateNumber}
-                                                </div>
-                                                <div
-                                                  style={{
-                                                    border: "1px solid black  ",
-                                                    width: 60,
-                                                  }}
-                                                >
-                                                  {Number(
-                                                    el.weightCalcRecept,
-                                                  ).shortToDecimalPlaces(2)}
-                                                </div>
-                                              </div>
-                                            );
-                                          },
-                                        )}
-                                      </>
-                                    ) : (
-                                      <></>
-                                    )}
-                                  </>
-                                )}
                               </div>
                             </>
                           ),
@@ -1693,3 +1598,150 @@ const HistoryButton: React.FC<{
     {text}
   </button>
 );
+
+// ячейка-поле: пока в фокусе — показывает то, что вводят, иначе — текущее значение из стора
+const DrainCell: React.FC<{
+  value?: number;
+  onChange: (text: string) => void;
+  style: React.CSSProperties;
+  title?: string;
+}> = observer(({ value, onChange, style, title }) => {
+  const [text, setText] = useState<string | null>(null);
+  const shown =
+    text ?? (value !== undefined ? String(value.shortToDecimalPlaces(2)) : "");
+  return (
+    <input
+      title={title}
+      value={shown}
+      inputMode="decimal"
+      onFocus={() => setText(shown)}
+      onBlur={() => setText(null)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") event.currentTarget.blur();
+      }}
+      onChange={(event) => {
+        let v = event.target.value.replace(/,/g, ".").replace(/[^0-9.]/g, "");
+        const parts = v.split(".");
+        if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
+        setText(v);
+        onChange(v);
+      }}
+      style={{
+        ...style,
+        font: "inherit",
+        padding: 0,
+        borderRadius: 0,
+        backgroundColor: "#fff",
+        color: "inherit",
+        outline: "none",
+      }}
+    />
+  );
+});
+
+// таблица слива под каждым рецептом: ввод веса слива + раскладка по компонентам
+const DrainTable: React.FC<{
+  store: OrderStore;
+  orderMapper: OrderMapper;
+  index: number;
+  number: number;
+}> = observer(({ store, orderMapper, index, number }) => {
+  const isSelected = store.selectReceptIndex === index;
+  const cell: React.CSSProperties = {
+    border: "1px solid",
+    width: 60,
+    minHeight: 24,
+    boxSizing: "border-box",
+  };
+
+  return (
+    <div style={{ marginTop: 10 }} onClick={(e) => e.stopPropagation()}>
+      <div
+        style={{
+          ...cell,
+          width: 120,
+          fontSize: 12,
+          textAlign: "center",
+          backgroundColor: isSelected ? "#d0ff49" : "",
+        }}
+      >
+        {number} слив
+      </div>
+      <div style={{ display: "flex" }}>
+        <div style={{ ...cell, fontSize: 9, lineHeight: "11px" }}>
+          грамм по рецепту
+        </div>
+        <DrainCell
+          title="сколько грамм слить по рецепту"
+          style={cell}
+          value={orderMapper.drainWeight}
+          onChange={(text) => store.updateDrainWeight(index, text)}
+        />
+      </div>
+      {orderMapper.getDrain().map((el, i) => (
+        <div key={i} style={{ display: "flex" }}>
+          <div
+            style={{
+              ...cell,
+              border: "1px solid black",
+              backgroundColor: "black",
+              color: "white",
+            }}
+          >
+            {el.privateNumber}
+          </div>
+          <DrainCell
+            title="вес компонента — общий вес слива не меняется, остальные пересчитаются по рецепту"
+            style={{
+              ...cell,
+              fontWeight: el.edited ? 700 : undefined,
+              boxShadow: el.edited ? "inset 0 0 0 2px #4f46e5" : undefined,
+            }}
+            value={orderMapper.drainWeight ? el.weight : undefined}
+            onChange={(text) => store.updateDrainByComponent(index, i, text)}
+          />
+        </div>
+      ))}
+      <div style={{ display: "flex" }}>
+        <div
+          style={{
+            ...cell,
+            border: "1px solid black",
+            background: "black",
+            color: "white",
+            fontSize: 11,
+          }}
+        >
+          итого
+        </div>
+        <div
+          style={{
+            ...cell,
+            border: "1px solid black",
+            background: "black",
+            color: "white",
+          }}
+        >
+          {orderMapper.drainWeight
+            ? orderMapper.drainWeight.shortToDecimalPlaces(2)
+            : "-"}
+        </div>
+      </div>
+      {orderMapper.hasDrainOverrides() ? (
+        <div
+          onClick={() => store.resetDrainComponents(index)}
+          style={{
+            fontSize: 11,
+            marginTop: 4,
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}
+        >
+          сбросить по рецепту
+        </div>
+      ) : (
+        <></>
+      )}
+    </div>
+  );
+});
