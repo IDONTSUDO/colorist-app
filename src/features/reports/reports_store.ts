@@ -27,17 +27,17 @@ export const reportTypes: {
   title: string;
   description: string;
 }[] = [
-  {
-    type: ReportType.clientOrders,
-    title: "Заказы клиента",
-    description: "Какие заказы были у выбранного клиента за период",
-  },
-  {
-    type: ReportType.revenue,
-    title: "Выручка",
-    description: "Сумма по всем заказам за период с разбивкой по оплате",
-  },
-];
+    {
+      type: ReportType.clientOrders,
+      title: "Заказы клиента",
+      description: "Какие заказы были у выбранного клиента за период",
+    },
+    {
+      type: ReportType.revenue,
+      title: "Выручка",
+      description: "Сумма по всем заказам за период с разбивкой по оплате",
+    },
+  ];
 
 export interface ClientOrdersReport {
   client: ClientViewModel;
@@ -58,7 +58,7 @@ export interface RevenueReport {
   rows: RevenueRow[];
   total: number; // выручка
   cost: number; // себестоимость (компоненты + производство)
-  markup: number; // наценка
+  markup: number; // стоймость работ
   byStatus: { status: string; count: number; total: number }[];
 }
 

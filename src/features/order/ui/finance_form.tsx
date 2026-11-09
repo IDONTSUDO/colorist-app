@@ -246,9 +246,9 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           </div>
         )}
 
-        {/* Поле ввода: Наценка */}
+        {/* Поле ввода: стоймость работ */}
         <div>
-          <label style={labelStyle}>Наценка</label>
+          <label style={labelStyle}>стоймость работ</label>
           <div style={{ position: "relative" }}>
             <input
               type="text"

@@ -221,7 +221,7 @@ const RevenueReportView = observer(({ store }: StoreProps) => {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Stat label="Выручка" value={formatMoney(report.total)} accent />
             <Stat label="Себестоимость" value={formatMoney(report.cost)} />
-            <Stat label="Наценка" value={formatMoney(report.markup)} />
+            <Stat label="стоймость работ" value={formatMoney(report.markup)} />
           </div>
 
           {report.byStatus.length > 0 && (
@@ -252,7 +252,7 @@ const RevenueReportView = observer(({ store }: StoreProps) => {
                 "Авто",
                 "Оплата",
                 "Себестоимость",
-                "Наценка",
+                "стоймость работ",
                 "Итого",
                 "",
               ]}

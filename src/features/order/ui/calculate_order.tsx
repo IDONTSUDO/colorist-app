@@ -54,7 +54,7 @@ export const CalculateOrder: React.FC<{ store: OrderStore }> = observer(
         <div style={{ height: 10 }}></div>
         <div style={{ width: 500 }}>
           <InputV3
-            label={"Наценка"}
+            label={"стоймость работ"}
             validation={(e) => Number(e).isPositive()}
             error="только числа"
             value={store.viewModel.markup?.toString()}

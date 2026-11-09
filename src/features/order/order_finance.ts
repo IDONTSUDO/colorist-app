@@ -7,7 +7,7 @@ import type { OrderViewModel } from "../orders/orders_db_model";
 export interface OrderFinance {
   componentsCost: number; // себестоимость слива компонентов
   manufactureCost: number; // себестоимость производства
-  markup: number; // наценка
+  markup: number; // стоймость работ
   total: number; // итоговая стоимость для клиента
 }
 
