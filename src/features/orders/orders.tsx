@@ -15,9 +15,10 @@ import ruLocale from "antd/es/date-picker/locale/ru_RU";
 import moment from "moment";
 import { OrderViewModel } from "./orders_db_model";
 import { SelectV2 } from "../../core/ui/select/select_v2";
-import { useEffect, useState } from "react";
-import { ClientsDbRepository } from "../clients/clients_db_repository";
+import { useState } from "react";
 import { ClientPicker } from "../clients/client_picker";
+import { STATUSES } from "../order/ui/order_details";
+import { ClientHoverCard } from "../clients/client_hover_card";
 export const OrdersPath = "/orders";
 
 export const Orders = observer(() => {
@@ -114,33 +115,36 @@ export const Orders = observer(() => {
           {
             name: "Работа",
             jsx: (el) => (
-              <div>
-                <div
-                  onClick={(e) => {
-                    orderTabsStore.open(el.id);
-                    if (!isBackgroundOpen(e)) navigate(OrderPath + "/" + el.id);
-                  }}
-                  onAuxClick={(e) =>
-                    e.button === 1 && orderTabsStore.open(el.id)
-                  }
-                  title="Ctrl/Cmd+клик или колёсико — открыть в новой вкладке"
-                  style={{ textDecoration: "underline", cursor: "pointer" }}
-                >
-                  перейти в заказ
-                </div>
-              </div>
+              <OpenOrderButton
+                id={el.id}
+                onClick={(e) => {
+                  orderTabsStore.open(el.id);
+                  if (!isBackgroundOpen(e)) navigate(OrderPath + "/" + el.id);
+                }}
+                onAuxClick={(e) =>
+                  e.button === 1 && orderTabsStore.open(el.id)
+                }
+              />
             ),
           },
           {
             name: "клиент",
             jsx: (el) => (
               <div>
-                <ClientMapper clientId={el.client} />
+                <ClientHoverCard clientId={el.client} />
               </div>
             ),
           },
         ]}
         mappedColumns={[
+          {
+            name: "statusOrder",
+            mapper: (v) => <StatusBadge value={v} palette={STATUSES} />,
+          },
+          {
+            name: "financeStatus",
+            mapper: (v) => <StatusBadge value={v} palette={FINANCE_STATUSES} />,
+          },
           {
             name: "createdAt",
             mapper: (v) => {
@@ -258,15 +262,110 @@ export const Orders = observer(() => {
     </>
   );
 });
-export const ClientMapper: React.FC<{ clientId: string }> = ({ clientId }) => {
-  const [client, setClient] = useState<string | null>(null);
-  const getClient = async () => {
-    (await new ClientsDbRepository().findModel("id", clientId)).map((el) => {
-      setClient(el.at(0)?.family ?? el.at(0)?.numberPhone ?? "");
-    });
+// кнопка «Открыть №…» в колонке «Работа»
+const OpenOrderButton: React.FC<{
+  id: number;
+  onClick: (e: React.MouseEvent) => void;
+  onAuxClick: (e: React.MouseEvent) => void;
+}> = ({ id, onClick, onAuxClick }) => {
+  const [isHover, setIsHover] = useState(false);
+  return (
+    <div
+      role="button"
+      onClick={onClick}
+      onAuxClick={onAuxClick}
+      onMouseDown={(e) => e.button === 1 && e.preventDefault()}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+      title="Ctrl/Cmd+клик или колёсико — открыть в новой вкладке"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "5px 12px",
+        borderRadius: 999,
+        whiteSpace: "nowrap",
+        cursor: "pointer",
+        userSelect: "none",
+        fontFamily: "system-ui",
+        fontSize: 13,
+        fontWeight: 600,
+        color: isHover ? "var(--open-btn-hover-fg)" : "var(--open-btn-fg)",
+        background: isHover ? "var(--open-btn-hover-bg)" : "var(--open-btn-bg)",
+        border: `1px solid ${isHover ? "var(--open-btn-hover-bg)" : "var(--open-btn-bd)"}`,
+        boxShadow: isHover ? "0 2px 6px rgba(79, 70, 229, 0.25)" : "none",
+        transition:
+          "background 0.12s, border-color 0.12s, color 0.12s, box-shadow 0.12s",
+      }}
+    >
+      Открыть №{id}
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{
+          transform: isHover ? "translateX(2px)" : "none",
+          transition: "transform 0.12s",
+        }}
+      >
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </svg>
+    </div>
+  );
+};
+
+type StatusColor = { value: string; color: string; bg: string };
+
+const FINANCE_STATUSES: StatusColor[] = [
+  { value: "Оплачено", color: "var(--tx-15803d)", bg: "var(--bg-dcfce7)" },
+  { value: "Ожидает оплаты", color: "var(--tx-b45309)", bg: "var(--bg-fef3c7)" },
+  { value: "Долг", color: "var(--tx-dc2626)", bg: "var(--bg-fff1f2)" },
+  // старые значения
+  { value: "Ожидает расчета", color: "var(--tx-b45309)", bg: "var(--bg-fef3c7)" },
+  { value: "Расчет произошел", color: "var(--tx-15803d)", bg: "var(--bg-dcfce7)" },
+];
+
+// цветной бейдж статуса: точка + подпись на подложке своего цвета
+const StatusBadge: React.FC<{ value?: string; palette: StatusColor[] }> = ({
+  value,
+  palette,
+}) => {
+  if (!value) return <span style={{ color: "var(--tx-8fa1b9)" }}>—</span>;
+  const c = palette.find((p) => p.value === value) ?? {
+    color: "var(--tx-64748b)",
+    bg: "var(--bg-f1f5f9)",
   };
-  useEffect(() => {
-    getClient();
-  }, [clientId]);
-  return <div>{client === null ? " - " : client}</div>;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "3px 10px",
+        borderRadius: 999,
+        whiteSpace: "nowrap",
+        fontFamily: "system-ui",
+        fontSize: 13,
+        fontWeight: 600,
+        color: c.color,
+        background: c.bg,
+      }}
+    >
+      <span
+        style={{
+          width: 7,
+          height: 7,
+          borderRadius: "50%",
+          background: "currentColor",
+          flexShrink: 0,
+        }}
+      />
+      {value}
+    </span>
+  );
 };

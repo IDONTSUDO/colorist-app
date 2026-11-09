@@ -7,7 +7,7 @@ import { OrderForm } from "./order_form";
 
 // Вкладка «Заказ»: карточки «Автомобиль и краска», «Клиент», «Производство»
 
-const STATUSES: { value: string; color: string; bg: string }[] = [
+export const STATUSES: { value: string; color: string; bg: string }[] = [
   { value: "Начат", color: "var(--tx-4f46e5)", bg: "var(--bg-eef2ff)" },
   { value: "На паузе", color: "var(--tx-b45309)", bg: "var(--bg-fef3c7)" },
   { value: "Готов", color: "var(--tx-15803d)", bg: "var(--bg-dcfce7)" },

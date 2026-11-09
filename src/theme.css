@@ -197,3 +197,19 @@ body {
   background: var(--popup-bg);
   --antd-arrow-background-color: var(--popup-bg);
 }
+
+/* ---------- кнопка «Открыть №…» в списке заказов ---------- */
+:root {
+  --open-btn-bg: #eef2ff;
+  --open-btn-fg: #4338ca;
+  --open-btn-bd: #c7d2fe;
+  --open-btn-hover-bg: #4f46e5;
+  --open-btn-hover-fg: #ffffff;
+}
+:root[data-theme="dark"] {
+  --open-btn-bg: #1e1b4b;
+  --open-btn-fg: #a5b4fc;
+  --open-btn-bd: #3730a3;
+  --open-btn-hover-bg: #4f46e5;
+  --open-btn-hover-fg: #ffffff;
+}
