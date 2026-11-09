@@ -5,11 +5,13 @@ import { TextV2 } from "../text/text";
 export const Menu: React.FC<{
   child: React.ReactNode;
   right: React.ReactNode;
-}> = ({ child, right }) => {
+  // содержимое полосы над карточкой (например, вкладки заказов)
+  top?: React.ReactNode;
+}> = ({ child, right, top }) => {
   const n = useNavigate();
   return (
     <div style={{ height: "100vh", backgroundColor: "var(--bg-secondary)" }}>
-      <div style={{ height: 48 }}></div>
+      {top ?? <div style={{ height: 48 }}></div>}
       <div
         className="app"
         style={{

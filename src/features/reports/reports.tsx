@@ -7,6 +7,7 @@ import { Calendar } from "../../core/ui/callendar/callendar";
 import { Button, ButtonType } from "../../core/ui/button/Button";
 import { TextV2 } from "../../core/ui/text/text";
 import { OrderPath } from "../order/order";
+import { isBackgroundOpen, orderTabsStore } from "../order/order_tabs_store";
 import { ClientPicker, clientFullName } from "../clients/client_picker";
 import { orderDate } from "../orders/orders_db_repository";
 
@@ -120,7 +121,6 @@ const SubmitButton = observer(
 );
 
 const ClientOrdersReportView = observer(({ store }: StoreProps) => {
-  const navigate = useNavigate();
   const report = store.report;
   return (
     <>
@@ -180,9 +180,7 @@ const ClientOrdersReportView = observer(({ store }: StoreProps) => {
                   <td style={td}>{order.statusOrder}</td>
                   <td style={td}>{order.financeStatus}</td>
                   <td style={td}>
-                    <OpenOrderLink
-                      onClick={() => navigate(OrderPath + "/" + order.id)}
-                    />
+                    <OpenOrderLink id={order.id!} />
                   </td>
                 </tr>
               ))}
@@ -195,7 +193,6 @@ const ClientOrdersReportView = observer(({ store }: StoreProps) => {
 });
 
 const RevenueReportView = observer(({ store }: StoreProps) => {
-  const navigate = useNavigate();
   const report = store.revenueReport;
   return (
     <>
@@ -273,9 +270,7 @@ const RevenueReportView = observer(({ store }: StoreProps) => {
                     {formatMoney(finance.total)}
                   </td>
                   <td style={td}>
-                    <OpenOrderLink
-                      onClick={() => navigate(OrderPath + "/" + order.id)}
-                    />
+                    <OpenOrderLink id={order.id!} />
                   </td>
                 </tr>
               ))}
@@ -325,14 +320,23 @@ const Table = ({
   </div>
 );
 
-const OpenOrderLink = ({ onClick }: { onClick: () => void }) => (
-  <span
-    style={{ textDecoration: "underline", cursor: "pointer" }}
-    onClick={onClick}
-  >
-    открыть
-  </span>
-);
+// Ctrl/Cmd+клик или колёсико — открыть заказ во вкладке в фоне
+const OpenOrderLink = ({ id }: { id: number }) => {
+  const navigate = useNavigate();
+  return (
+    <span
+      title="Ctrl/Cmd+клик или колёсико — открыть в новой вкладке"
+      style={{ textDecoration: "underline", cursor: "pointer" }}
+      onClick={(e) => {
+        orderTabsStore.open(id);
+        if (!isBackgroundOpen(e)) navigate(OrderPath + "/" + id);
+      }}
+      onAuxClick={(e) => e.button === 1 && orderTabsStore.open(id)}
+    >
+      открыть
+    </span>
+  );
+};
 
 const card: React.CSSProperties = {
   border,

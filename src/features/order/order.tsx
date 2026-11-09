@@ -21,12 +21,18 @@ import { plainToClass } from "class-transformer";
 import { Popover } from "antd";
 import { downloadOrderDoc } from "./order_print";
 import { PaintConsistencyPicker } from "../orders/paint_consistency";
+import { orderTabsStore } from "./order_tabs_store";
+import { OrderTabs } from "./ui/order_tabs";
 
 export const OrderPath = "/order";
 
 // key={id}: при переходе на другой номер заказа экран и стор создаются заново
 export const Order = () => {
   const { id } = useParams();
+  // открытый заказ всегда попадает во вкладки
+  useEffect(() => {
+    orderTabsStore.open(Number(id));
+  }, [id]);
   return <OrderScreen key={id} />;
 };
 
@@ -154,6 +160,18 @@ const OrderScreen = observer(() => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+  useEffect(() => {
+    // несуществующий заказ не держим во вкладках
+    if (store.notFound) orderTabsStore.close(Number(id));
+  }, [store.notFound]);
+  const vm = store.viewModel;
+  const tabTitle = [`№${id}`, vm?.auto, vm?.codePaint]
+    .filter((s) => s !== undefined && s !== null && String(s).trim() !== "")
+    .join(" · ");
+  useEffect(() => {
+    if (!store.isLoading && !store.notFound && vm?.id !== undefined)
+      orderTabsStore.setTitle(Number(id), tabTitle);
+  }, [tabTitle, store.isLoading]);
   if (store.notFound) return <OrderNotFound id={id} />;
   return (
     <>
@@ -162,6 +180,7 @@ const OrderScreen = observer(() => {
       ) : (
         <>
           <Menu
+            top={<OrderTabs activeId={Number(id)} />}
             right={
               <>
                 <div style={{ display: "flex", width: "max-content" }}>

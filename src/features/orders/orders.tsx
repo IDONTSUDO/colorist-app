@@ -10,6 +10,7 @@ import { ru } from "date-fns/locale";
 import { CrudPage } from "../../core/ui/page/crud_page";
 import { useNavigate } from "react-router-dom";
 import { OrderPath } from "../order/order";
+import { isBackgroundOpen, orderTabsStore } from "../order/order_tabs_store";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
 import { OrderViewModel } from "./orders_db_model";
@@ -92,7 +93,14 @@ export const Orders = observer(() => {
             jsx: (el) => (
               <div>
                 <div
-                  onClick={() => navigate(OrderPath + "/" + el.id)}
+                  onClick={(e) => {
+                    orderTabsStore.open(el.id);
+                    if (!isBackgroundOpen(e)) navigate(OrderPath + "/" + el.id);
+                  }}
+                  onAuxClick={(e) =>
+                    e.button === 1 && orderTabsStore.open(el.id)
+                  }
+                  title="Ctrl/Cmd+клик или колёсико — открыть в новой вкладке"
                   style={{ textDecoration: "underline", cursor: "pointer" }}
                 >
                   перейти в заказ
