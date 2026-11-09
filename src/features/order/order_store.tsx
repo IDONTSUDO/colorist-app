@@ -53,6 +53,10 @@ export class OrderMapper {
   dust?: string;
   // сколько грамм краски слить по этому рецепту
   drainWeight?: number = undefined;
+  // номер колонки рецепта, в которую перенесён этот слив
+  drainAppliedTo?: number | null = undefined;
+  // этот шаг рецепта создан из слива колонки №
+  fromDrain?: number | null = undefined;
   // ручная граммовка компонентов слива (если правили вручную)
   drainComponents?: number[] = undefined;
   // какие компоненты слива зафиксированы ручным вводом
@@ -447,7 +451,9 @@ export class OrderStore extends FormState<OrderViewModel> {
     });
     const step = new OrderMapper(newComponents[0], newComponents);
     step.isAdding = false;
+    step.fromDrain = index;
     this.componentsAddInRecept.push(step);
+    mapper.drainAppliedTo = this.componentsAddInRecept.length - 1;
     this.isDrainSelectMode = false;
     this.isNeedSaveButton = false;
     this.historyVersion += 1;

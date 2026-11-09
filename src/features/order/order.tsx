@@ -568,7 +568,13 @@ const OrderScreen = observer(() => {
                                                         height: 23,
                                                         textAlignLast: "center",
                                                         border: "1px solid",
+                                                        ...fromDrainHeaderStyle(
+                                                          orderMapper,
+                                                        ),
                                                       }}
+                                                      title={fromDrainTitle(
+                                                        orderMapper,
+                                                      )}
                                                     >
                                                       вес комп.
                                                     </div>
@@ -580,7 +586,13 @@ const OrderScreen = observer(() => {
                                                         height: 23,
 
                                                         textAlignLast: "center",
+                                                        ...fromDrainHeaderStyle(
+                                                          orderMapper,
+                                                        ),
                                                       }}
+                                                      title={fromDrainTitle(
+                                                        orderMapper,
+                                                      )}
                                                     >
                                                       остаток
                                                     </div>
@@ -789,7 +801,13 @@ const OrderScreen = observer(() => {
                                                         border: "1px solid",
                                                         height: 23,
                                                         textAlignLast: "center",
+                                                        ...fromDrainHeaderStyle(
+                                                          orderMapper,
+                                                        ),
                                                       }}
+                                                      title={fromDrainTitle(
+                                                        orderMapper,
+                                                      )}
                                                     >
                                                       добавка
                                                     </div>
@@ -1702,6 +1720,17 @@ const HistoryButton: React.FC<{
 );
 
 // ячейка-поле: пока в фокусе — показывает то, что вводят, иначе — текущее значение из стора
+// колонка рецепта, созданная из слива, — зелёная шапка
+const DRAIN_APPLIED_BG = "#bbf7d0";
+const fromDrainHeaderStyle = (m: OrderMapper): React.CSSProperties =>
+  m.fromDrain !== undefined && m.fromDrain !== null
+    ? { backgroundColor: DRAIN_APPLIED_BG, fontWeight: 600 }
+    : {};
+const fromDrainTitle = (m: OrderMapper): string | undefined =>
+  m.fromDrain !== undefined && m.fromDrain !== null
+    ? `шаг создан из ${m.fromDrain} слива`
+    : undefined;
+
 // дробное число из ввода. На Windows с русской раскладкой точка вводится как
 // «,» (Num Del), а клавиша «.» английской раскладки даёт «ю» (Shift — «Ю»),
 // соседняя «,» — «б». Всё это считаем десятичной точкой.
@@ -1759,6 +1788,12 @@ const DrainTable: React.FC<{
   number: number;
 }> = observer(({ store, orderMapper, index, number }) => {
   const isSelected = store.selectReceptIndex === index;
+  // слив уже перенесён в рецепт (и та колонка ещё существует)
+  const isApplied =
+    orderMapper.drainAppliedTo !== undefined &&
+    orderMapper.drainAppliedTo !== null &&
+    store.componentsAddInRecept.at(orderMapper.drainAppliedTo)?.fromDrain ===
+      index;
   const cell: React.CSSProperties = {
     border: "1px solid",
     width: 60,
@@ -1790,7 +1825,9 @@ const DrainTable: React.FC<{
           ? orderMapper.drainWeight
             ? "3px solid #4f46e5"
             : "3px dashed #cbd5e1"
-          : undefined,
+          : isApplied
+            ? "3px solid #22c55e"
+            : undefined,
         outlineOffset: 2,
         opacity: store.isDrainSelectMode && !orderMapper.drainWeight ? 0.6 : 1,
       }}
@@ -1801,10 +1838,21 @@ const DrainTable: React.FC<{
           width: 120,
           fontSize: 12,
           textAlign: "center",
-          backgroundColor: isSelected ? "#d0ff49" : "",
+          fontWeight: isApplied ? 600 : undefined,
+          backgroundColor: isApplied
+            ? DRAIN_APPLIED_BG
+            : isSelected
+              ? "#d0ff49"
+              : "",
         }}
+        title={
+          isApplied
+            ? `слив перенесён в рецепт — колонка ${orderMapper.drainAppliedTo}`
+            : undefined
+        }
       >
         {number} слив
+        {isApplied ? " ✓ в рецепте" : ""}
       </div>
       <div style={{ display: "flex" }}>
         <div style={{ ...cell, fontSize: 9, lineHeight: "11px" }}>
