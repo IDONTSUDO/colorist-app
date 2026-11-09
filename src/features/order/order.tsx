@@ -571,6 +571,12 @@ const OrderScreen = observer(() => {
                                           </div>
                                         </>
                                       ))}
+                                    <SpacerRows
+                                      count={
+                                        maxComponentRows(store) -
+                                        store.getComponentsReceptUniq().length
+                                      }
+                                    />
                                     <ComponentsUsageTable store={store} />
                                   </div>
                                   <div style={{ display: "flex" }}>
@@ -748,6 +754,15 @@ const OrderScreen = observer(() => {
                                                         </>
                                                       ),
                                                     )}
+                                                    <SpacerRows
+                                                      count={
+                                                        maxComponentRows(
+                                                          store,
+                                                        ) -
+                                                        orderMapper.balance
+                                                          .length
+                                                      }
+                                                    />
 
                                                     <div className="общий_вес_комопнентов">
                                                       <div
@@ -1829,6 +1844,28 @@ const HistoryButton: React.FC<{
 // ячейка-поле: пока в фокусе — показывает то, что вводят, иначе — текущее значение из стора
 // высота строки в таблицах сливов и «общий расход пигментов»
 const DRAIN_ROW_H = 26;
+
+// наибольшее число строк компонентов среди колонки «компоненты» и всех отпылов
+const maxComponentRows = (store: OrderStore) =>
+  Math.max(
+    store.getComponentsReceptUniq().length,
+    ...store.componentsAddInRecept.slice(1).map((el) => el.balance.length),
+  );
+
+// невидимые строки той же высоты, что строка компонента: короткие колонки
+// добиваются до самой длинной, чтобы итоги и таблицы сливов шли по одной линии
+const SpacerRows: React.FC<{ count: number }> = ({ count }) =>
+  count > 0 ? (
+    <div style={{ visibility: "hidden" }} aria-hidden>
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} style={{ border: "1px solid", width: 60 }}>
+          0
+        </div>
+      ))}
+    </div>
+  ) : (
+    <></>
+  );
 
 // таблица «общий расход пигментов» под столбцом «компоненты»
 const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
