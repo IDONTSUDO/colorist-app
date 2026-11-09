@@ -83,6 +83,7 @@ export const Orders = observer(() => {
           "ignoreManufactureCost",
           "manufactureExcludedSteps",
           "readyAt",
+          "paintConsistency",
           // "financeStatus",
         ]}
         isEditable={false}
