@@ -87,10 +87,41 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           <></>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <CostRow
-              label="Себестоймость производства:"
-              value={store.getCostComponentsManufacturePrice()}
-            />
+            <div
+              style={{
+                opacity: store.viewModel.ignoreManufactureCost ? 0.5 : 1,
+                textDecoration: store.viewModel.ignoreManufactureCost
+                  ? "line-through"
+                  : undefined,
+              }}
+            >
+              <CostRow
+                label="Себестоймость производства:"
+                value={store.getCostComponentsManufacturePrice()}
+              />
+            </div>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: "14px",
+                color: "#4a5568",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={!!store.viewModel.ignoreManufactureCost}
+                onChange={(e) =>
+                  store.setIgnoreManufactureCost(e.target.checked)
+                }
+                style={{ width: 16, height: 16, cursor: "pointer" }}
+              />
+              Не учитывать себестоймость производства — считать итог только по
+              сливам
+            </label>
 
             <div>
               <label style={labelStyle}>Себестоймость сливов</label>
@@ -228,9 +259,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           >
             {(
               store.getCostComponents().shortToDecimalPlaces(2) +
-              store
-                .getCostComponentsManufacturePrice()
-                .shortToDecimalPlaces(2) +
+              store.getManufactureCostInTotal().shortToDecimalPlaces(2) +
               (store.viewModel.markup ?? 0)
             ).shortToDecimalPlaces(2)}
             ₽

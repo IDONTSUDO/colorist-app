@@ -79,6 +79,7 @@ export const Orders = observer(() => {
           "orderCreate",
 
           "weightContainers",
+          "ignoreManufactureCost",
           "readyAt",
           // "financeStatus",
         ]}

@@ -56,6 +56,9 @@ export class OrderViewModel extends ValidationModel {
     // Без индекса специально: новая колонка в columns при selective-стратегии
     // сбросила бы всю таблицу orders.
     readyAt?: number | null = undefined;
+    // не учитывать себестоимость производства в итоговой стоимости —
+    // считать только по сливам (без индекса, см. readyAt)
+    ignoreManufactureCost?: boolean = false;
     orderProcess?: string;
     recipeJSON?: string;
     recipe?: RecipesViewModel;

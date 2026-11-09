@@ -102,9 +102,12 @@ export const calculateOrderFinance = (order: OrderViewModel): OrderFinance => {
     0,
   );
 
-  const manufactureCost = calculateManufactureCost(
-    parseArray<ReceptStep>(order.componentsAddInReceptJson),
-  );
+  // галочка «не учитывать себестоимость производства» — итог только по сливам
+  const manufactureCost = order.ignoreManufactureCost
+    ? 0
+    : calculateManufactureCost(
+        parseArray<ReceptStep>(order.componentsAddInReceptJson),
+      );
 
   const markup = Number(order.markup) || 0;
   const total = round2(

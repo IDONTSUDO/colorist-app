@@ -154,6 +154,16 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.resetOrderModalIsShow = true;
   };
   resetOrderModalIsShow = false;
+  // себестоимость производства, которая идёт в итог (0, если отключена галочкой)
+  getManufactureCostInTotal() {
+    return this.viewModel.ignoreManufactureCost
+      ? 0
+      : this.getCostComponentsManufacturePrice();
+  }
+  setIgnoreManufactureCost = (value: boolean): void => {
+    this.viewModel.ignoreManufactureCost = value;
+    this.updateOrder();
+  };
   getCostComponentsManufacturePrice() {
     return calculateManufactureCost(this.componentsAddInRecept);
   }
