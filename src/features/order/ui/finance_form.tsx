@@ -87,41 +87,99 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           <></>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div
-              style={{
-                opacity: store.viewModel.ignoreManufactureCost ? 0.5 : 1,
-                textDecoration: store.viewModel.ignoreManufactureCost
-                  ? "line-through"
-                  : undefined,
-              }}
-            >
-              <CostRow
-                label="Себестоймость производства:"
-                value={store.getCostComponentsManufacturePrice()}
-              />
+            <div>
+              <label style={labelStyle}>Себестоймость производства</label>
+              <div
+                style={{
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                  overflow: "hidden",
+                }}
+              >
+                {store.getManufactureCostBySteps().map((el) => (
+                  <label
+                    key={el.step}
+                    title="отметьте, чтобы не учитывать себестоимость производства этого рецепта"
+                    style={{
+                      fontSize: "14px",
+                      color: "#4a5568",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 14px",
+                      borderBottom: "1px solid #e2e8f0",
+                      cursor: "pointer",
+                      userSelect: "none",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={el.excluded}
+                      onChange={(e) =>
+                        store.toggleManufactureStep(el.step, e.target.checked)
+                      }
+                      style={{ width: 16, height: 16, cursor: "pointer" }}
+                    />
+                    <span
+                      style={{
+                        flex: 1,
+                        opacity: el.excluded ? 0.5 : 1,
+                        textDecoration: el.excluded
+                          ? "line-through"
+                          : undefined,
+                      }}
+                    >
+                      Рецепт {el.step}
+                    </span>
+                    <strong
+                      style={{
+                        color: "#1a202c",
+                        opacity: el.excluded ? 0.5 : 1,
+                        textDecoration: el.excluded
+                          ? "line-through"
+                          : undefined,
+                      }}
+                    >
+                      {el.cost.shortToDecimalPlaces(2)} ₽
+                    </strong>
+                  </label>
+                ))}
+                <label
+                  style={{
+                    fontSize: "14px",
+                    color: "#4a5568",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "12px 14px",
+                    backgroundColor: "#f8fafc",
+                    cursor: "pointer",
+                    userSelect: "none",
+                  }}
+                  title="не учитывать все рецепты — итог только по сливам"
+                >
+                  <input
+                    type="checkbox"
+                    checked={store.isAllManufactureExcluded()}
+                    onChange={(e) =>
+                      store.setIgnoreManufactureCost(e.target.checked)
+                    }
+                    style={{ width: 16, height: 16, cursor: "pointer" }}
+                  />
+                  <span style={{ flex: 1 }}>Итого в расчёт:</span>
+                  <strong style={{ color: "#1a202c" }}>
+                    {store.getManufactureCostInTotal().shortToDecimalPlaces(2)}{" "}
+                    ₽
+                  </strong>
+                </label>
+              </div>
+              <div style={{ fontSize: 12, color: "#718096", marginTop: 6 }}>
+                Отметьте рецепты, себестоймость производства которых не
+                учитывать. Галочка у «Итого» — не учитывать все (считать только
+                по сливам).
+              </div>
             </div>
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontSize: "14px",
-                color: "#4a5568",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={!!store.viewModel.ignoreManufactureCost}
-                onChange={(e) =>
-                  store.setIgnoreManufactureCost(e.target.checked)
-                }
-                style={{ width: 16, height: 16, cursor: "pointer" }}
-              />
-              Не учитывать себестоймость производства — считать итог только по
-              сливам
-            </label>
 
             <div>
               <label style={labelStyle}>Себестоймость сливов</label>
@@ -301,28 +359,6 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
       </div>
     );
   });
-const CostRow: React.FC<{ label: string; value: number }> = ({
-  label,
-  value,
-}) => (
-  <div
-    style={{
-      fontSize: "14px",
-      color: "#4a5568",
-      display: "flex",
-      justifyContent: "space-between",
-      padding: "12px 14px",
-      backgroundColor: "#ffffff",
-      border: "1px solid #e2e8f0",
-      borderRadius: "6px",
-    }}
-  >
-    <span>{label}</span>
-    <strong style={{ color: "#1a202c" }}>
-      {value.shortToDecimalPlaces(2)} ₽
-    </strong>
-  </div>
-);
 const TextBar: React.FC<{ left: string | number; right: string | number }> = ({
   left,
   right,

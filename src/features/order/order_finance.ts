@@ -45,7 +45,9 @@ const isAddingStep = (step: ReceptStep, prev?: ReceptStep) => {
   if (!add || !prev) return false;
   const balance = step.balance ?? [];
   if (balance.length > (prev.balance ?? []).length) return true;
-  const inBalance = balance.find((el) => el?.privateNumber === add.privateNumber);
+  const inBalance = balance.find(
+    (el) => el?.privateNumber === add.privateNumber,
+  );
   return (
     inBalance !== undefined &&
     inBalance !== null &&
@@ -53,37 +55,62 @@ const isAddingStep = (step: ReceptStep, prev?: ReceptStep) => {
   );
 };
 
-// Себестоимость производства: стоимость всей краски, которая ушла в работу —
-// исходный рецепт + все последующие добавки (через таблицу добавок
-// и через «добавить компонент»).
-export const calculateManufactureCost = (steps: ReceptStep[]): number => {
-  if (steps.length === 0) return 0;
-
-  // Шаги 0 и 1 — исходный рецепт; вес правится в шаге 1.
-  const base = steps[1] ?? steps[0];
-  const initial = (base?.balance ?? []).reduce(
-    (acc, el) => acc + itemCost(el?.weightCalcRecept, el),
-    0,
-  );
-
-  let adding = 0;
-  steps.forEach((step, i) => {
-    if (i < 2) return;
-    if (isAddingStep(step, steps[i - 1])) {
-      adding += itemCost(step.add?.weight, step.add);
+// Себестоимость производства по рецептам (шагам).
+// Рецепт 1 — исходный рецепт + его добавки; рецепт N (N ≥ 2) — компонент,
+// добавленный через «добавить компонент» (создал этот шаг), + добавки из
+// колонки «добавка» этого рецепта. Добавки последнего шага еще не применены
+// (применяются по Enter/«сохранить» и создают новый шаг) — их не считаем.
+export const calculateManufactureCostBySteps = (
+  steps: ReceptStep[],
+): { step: number; cost: number }[] => {
+  if (steps.length === 0) return [];
+  const result: { step: number; cost: number }[] = [];
+  const last = steps.length - 1;
+  for (let i = 1; i < Math.max(steps.length, 2); i++) {
+    const step = steps[i] ?? steps[0];
+    let cost = 0;
+    if (i === 1) {
+      // шаги 0 и 1 — исходный рецепт; вес правится в шаге 1
+      cost += (step?.balance ?? []).reduce(
+        (acc, el) => acc + itemCost(el?.weightCalcRecept, el),
+        0,
+      );
+    } else if (isAddingStep(step, steps[i - 1])) {
+      cost += itemCost(step.add?.weight, step.add);
     }
-  });
-  // Добавки из таблицы применяются по Enter (recalculate), после чего
-  // появляется новый шаг. У последнего шага они еще не применены.
-  steps.forEach((step, i) => {
-    if (i === 0 || i === steps.length - 1) return;
-    (step.addingComponents ?? []).forEach((el) => {
-      adding += itemCost(el?.weight, el);
-    });
-  });
-
-  return round2(initial + adding);
+    if (i !== last && steps[i] !== undefined) {
+      (step?.addingComponents ?? []).forEach((el) => {
+        cost += itemCost(el?.weight, el);
+      });
+    }
+    result.push({ step: i, cost: round2(cost) });
+  }
+  return result;
 };
+
+// рецепт исключен из себестоимости производства (галочки в «Финансовом учете»).
+// Старый флаг ignoreManufactureCost = исключены все рецепты.
+export const isManufactureStepExcluded = (
+  order: Pick<
+    OrderViewModel,
+    "ignoreManufactureCost" | "manufactureExcludedSteps"
+  >,
+  step: number,
+) =>
+  !!order.ignoreManufactureCost ||
+  (order.manufactureExcludedSteps ?? []).includes(step);
+
+// Себестоимость производства: стоимость всей краски, которая ушла в работу —
+// исходный рецепт + все последующие добавки, кроме исключенных рецептов.
+export const calculateManufactureCost = (
+  steps: ReceptStep[],
+  isExcluded: (step: number) => boolean = () => false,
+): number =>
+  round2(
+    calculateManufactureCostBySteps(steps)
+      .filter((el) => !isExcluded(el.step))
+      .reduce((acc, el) => acc + el.cost, 0),
+  );
 
 const parseArray = <T>(json?: string | null): T[] => {
   if (!json) return [];
@@ -102,12 +129,11 @@ export const calculateOrderFinance = (order: OrderViewModel): OrderFinance => {
     0,
   );
 
-  // галочка «не учитывать себестоимость производства» — итог только по сливам
-  const manufactureCost = order.ignoreManufactureCost
-    ? 0
-    : calculateManufactureCost(
-        parseArray<ReceptStep>(order.componentsAddInReceptJson),
-      );
+  // рецепты, отмеченные «не учитывать», в себестоимость производства не идут
+  const manufactureCost = calculateManufactureCost(
+    parseArray<ReceptStep>(order.componentsAddInReceptJson),
+    (step) => isManufactureStepExcluded(order, step),
+  );
 
   const markup = Number(order.markup) || 0;
   const total = round2(

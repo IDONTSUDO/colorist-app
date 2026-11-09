@@ -14,7 +14,11 @@ import {
 import { OrderViewModel, applyOrderStatus } from "../orders/orders_db_model";
 import { SnapshotHistory } from "./snapshot_history";
 import { OrderHistoryDbRepository } from "./order_history_db_repository";
-import { calculateManufactureCost } from "./order_finance";
+import {
+  calculateManufactureCost,
+  calculateManufactureCostBySteps,
+  isManufactureStepExcluded,
+} from "./order_finance";
 
 export class OrderMapper {
   getCommonL(store: OrderStore) {
@@ -154,14 +158,39 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.resetOrderModalIsShow = true;
   };
   resetOrderModalIsShow = false;
-  // себестоимость производства, которая идёт в итог (0, если отключена галочкой)
+  // себестоимость производства по рецептам + исключён ли рецепт галочкой
+  getManufactureCostBySteps = () =>
+    calculateManufactureCostBySteps(this.componentsAddInRecept).map((el) => ({
+      ...el,
+      excluded: isManufactureStepExcluded(this.viewModel, el.step),
+    }));
+  // себестоимость производства, которая идёт в итог (без исключённых рецептов)
   getManufactureCostInTotal() {
-    return this.viewModel.ignoreManufactureCost
-      ? 0
-      : this.getCostComponentsManufacturePrice();
+    return calculateManufactureCost(this.componentsAddInRecept, (step) =>
+      isManufactureStepExcluded(this.viewModel, step),
+    );
   }
+  isAllManufactureExcluded = () => {
+    const steps = this.getManufactureCostBySteps();
+    return steps.isNotEmpty() && steps.every((el) => el.excluded);
+  };
+  // старый флаг «не учитывать всё» переводим в список рецептов
+  private getExcludedSteps = (): number[] =>
+    this.getManufactureCostBySteps()
+      .filter((el) => el.excluded)
+      .map((el) => el.step);
+  toggleManufactureStep = (step: number, excluded: boolean): void => {
+    const steps = this.getExcludedSteps().filter((el) => el !== step);
+    if (excluded) steps.push(step);
+    this.viewModel.ignoreManufactureCost = false;
+    this.viewModel.manufactureExcludedSteps = steps.sort((a, b) => a - b);
+    this.updateOrder();
+  };
   setIgnoreManufactureCost = (value: boolean): void => {
-    this.viewModel.ignoreManufactureCost = value;
+    this.viewModel.ignoreManufactureCost = false;
+    this.viewModel.manufactureExcludedSteps = value
+      ? this.getManufactureCostBySteps().map((el) => el.step)
+      : [];
     this.updateOrder();
   };
   getCostComponentsManufacturePrice() {

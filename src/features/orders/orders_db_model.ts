@@ -59,6 +59,8 @@ export class OrderViewModel extends ValidationModel {
     // не учитывать себестоимость производства в итоговой стоимости —
     // считать только по сливам (без индекса, см. readyAt)
     ignoreManufactureCost?: boolean = false;
+    // номера рецептов (шагов), себестоимость производства которых не учитывается
+    manufactureExcludedSteps?: number[] = [];
     orderProcess?: string;
     recipeJSON?: string;
     recipe?: RecipesViewModel;
