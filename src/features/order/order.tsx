@@ -287,6 +287,29 @@ const OrderScreen = observer(() => {
                       >
                         выбрать рецепт
                       </div>
+                      <div style={{ width: 10 }}></div>
+                      <div
+                        title="нажмите на таблицу слива — его граммовка станет новым шагом рецепта"
+                        style={{
+                          padding: "10px 18px",
+                          borderRadius: "8px",
+                          fontSize: 14,
+                          fontWeight: 500,
+                          alignContent: "center",
+                          cursor: "pointer",
+                          border: "none",
+                          backgroundColor: store.isDrainSelectMode
+                            ? "rgb(79, 70, 229)"
+                            : "rgb(240, 242, 245)",
+                          color: store.isDrainSelectMode
+                            ? "white"
+                            : "rgb(74, 85, 104)",
+                          transition: "all 0.2s",
+                        }}
+                        onClick={() => store.toggleDrainSelectMode()}
+                      >
+                        выбрать слив
+                      </div>
                       {/* <Button
                         text="выбрать рецепт"
                         color={
@@ -1744,7 +1767,34 @@ const DrainTable: React.FC<{
   };
 
   return (
-    <div style={{ marginTop: 10 }} onClick={(e) => e.stopPropagation()}>
+    <div
+      title={
+        store.isDrainSelectMode
+          ? orderMapper.drainWeight
+            ? "нажмите, чтобы перенести слив в рецепт"
+            : "сначала введите грамм по рецепту"
+          : undefined
+      }
+      onClick={(e) => {
+        e.stopPropagation();
+        if (store.isDrainSelectMode) store.applyDrainToRecept(index);
+      }}
+      style={{
+        marginTop: 10,
+        cursor: store.isDrainSelectMode
+          ? orderMapper.drainWeight
+            ? "pointer"
+            : "not-allowed"
+          : undefined,
+        outline: store.isDrainSelectMode
+          ? orderMapper.drainWeight
+            ? "3px solid #4f46e5"
+            : "3px dashed #cbd5e1"
+          : undefined,
+        outlineOffset: 2,
+        opacity: store.isDrainSelectMode && !orderMapper.drainWeight ? 0.6 : 1,
+      }}
+    >
       <div
         style={{
           ...cell,

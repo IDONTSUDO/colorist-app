@@ -421,6 +421,39 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.recalculateDrainTotal();
     this.updateOrder();
   };
+  // режим «выбрать слив»: клик по таблице слива переносит его в рецепт
+  isDrainSelectMode = false;
+  toggleDrainSelectMode = (): void => {
+    this.isDrainSelectMode = !this.isDrainSelectMode;
+  };
+  // граммовка слива становится новым шагом (колонкой) рецепта
+  applyDrainToRecept = (index: number): void => {
+    const mapper = this.componentsAddInRecept.at(index);
+    if (mapper === undefined) return;
+    if (!mapper.drainWeight) {
+      message.error("введите грамм по рецепту в этом сливе");
+      return;
+    }
+    const drain = mapper.getDrain();
+    const newComponents = mapper.balance.map((paint, i) => {
+      const c = plainToInstance(
+        PaintComponentViewModel,
+        JSON.parse(JSON.stringify(paint)),
+      );
+      const weight = Number((drain[i]?.weight ?? 0).toFixed(2));
+      c.weightCalcRecept = weight;
+      c.weight = weight;
+      return c;
+    });
+    const step = new OrderMapper(newComponents[0], newComponents);
+    step.isAdding = false;
+    this.componentsAddInRecept.push(step);
+    this.isDrainSelectMode = false;
+    this.isNeedSaveButton = false;
+    this.historyVersion += 1;
+    this.updateOrder();
+    message.success("слив перенесён в рецепт новым шагом");
+  };
   // сброс ручной граммовки — снова по рецепту
   resetDrainComponents = (index: number): void => {
     const mapper = this.componentsAddInRecept.at(index);
