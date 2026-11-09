@@ -66,6 +66,17 @@ export class OrderMapper {
   drainComponents?: number[] = undefined;
   // какие компоненты слива зафиксированы ручным вводом
   drainEdited?: boolean[] = undefined;
+  // таблица слива открыта кнопкой «+ слив» (по умолчанию скрыта)
+  showDrain?: boolean = undefined;
+  // таблицу слива показываем, если её открыли или в ней уже есть данные
+  isDrainVisible(): boolean {
+    return (
+      this.showDrain === true ||
+      !!this.drainWeight ||
+      (this.drainAppliedTo !== undefined && this.drainAppliedTo !== null) ||
+      this.hasDrainOverrides()
+    );
+  }
   hasDrainOverrides(): boolean {
     return (
       this.drainComponents !== undefined &&

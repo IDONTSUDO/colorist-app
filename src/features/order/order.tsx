@@ -2108,6 +2108,39 @@ const DrainTable: React.FC<{
   // перенести можно слив с введёнными граммами
   const canApply = !!orderMapper.drainWeight;
 
+  // слив не всегда нужен — таблица появляется по кнопке
+  if (!orderMapper.isDrainVisible()) {
+    return (
+      <div
+        role="button"
+        title="добавить таблицу слива для этого отпыла"
+        onClick={(e) => {
+          e.stopPropagation();
+          orderMapper.showDrain = true;
+          store.updateOrder();
+        }}
+        style={{
+          marginTop: 10,
+          width: 120,
+          height: DRAIN_ROW_H,
+          lineHeight: `${DRAIN_ROW_H - 2}px`,
+          boxSizing: "border-box",
+          border: "1px dashed #94a3b8",
+          borderRadius: 4,
+          textAlign: "center",
+          fontSize: 12,
+          color: "#4a5568",
+          cursor: "pointer",
+          userSelect: "none",
+        }}
+      >
+        + слив
+      </div>
+    );
+  }
+  // пустую таблицу можно снова скрыть
+  const canHide = !orderMapper.drainWeight && !isApplied;
+
   return (
     <div
       title={
@@ -2160,6 +2193,23 @@ const DrainTable: React.FC<{
       >
         {number} слив
         {isApplied ? " ✓ в рецепте" : ""}
+        {canHide ? (
+          <span
+            role="button"
+            title="скрыть слив"
+            onClick={(e) => {
+              e.stopPropagation();
+              orderMapper.showDrain = false;
+              // сбрасывает ручную граммовку, пересчитывает итог и сохраняет
+              store.resetDrainComponents(index);
+            }}
+            style={{ marginLeft: 6, cursor: "pointer", color: "#718096" }}
+          >
+            ×
+          </span>
+        ) : (
+          <></>
+        )}
       </div>
       <div style={{ display: "flex" }}>
         <div style={{ ...cell, fontSize: 9, lineHeight: "11px" }}>
