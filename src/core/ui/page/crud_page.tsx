@@ -161,10 +161,15 @@ export const CrudPage: React.FC<{
                   n(el.path);
                 }
               }}
+              key={el.name}
               style={{
-                paddingLeft: 10,
-                paddingRight: 10,
+                // одинаковая ширина у всех вкладок — по самой длинной подписи
+                width: 120,
+                flexShrink: 0,
                 paddingTop: 10,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
                 textAlign: "center",
                 cursor: "pointer",
               }}
@@ -181,6 +186,7 @@ export const CrudPage: React.FC<{
               <div style={{ height: 5 }}></div>
               <div
                 style={{
+                  alignSelf: "stretch",
                   borderBottom:
                     pageName !== el.name
                       ? undefined
