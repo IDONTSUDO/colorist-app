@@ -294,7 +294,7 @@ const OrderScreen = observer(() => {
 
                       <div
                         style={{
-                          // padding: "10px 18px",
+                          // padding:  "10px 18px",
                           // borderRadius: "8px",
                           // fontSize: 14,
                           // fontWeight: 500,
@@ -1646,16 +1646,24 @@ const Dust: React.FC<{
   store: OrderStore;
   index: number;
   ele: OrderMapper;
-}> = observer(({ store, index, ele }) => (
-  <DrainCell
-    style={{ border: "1px solid", width: 60, boxSizing: "border-box" }}
-    value={
-      ele.dust !== undefined && ele.dust !== "" ? Number(ele.dust) : undefined
-    }
-    placeholder="..."
-    onChange={(text) => store.updateDust(text, index)}
-  />
-));
+}> = observer(({ store, index, ele }) => {
+  // вес остатка правим только у последнего отпыла
+  const isLast = index === store.componentsAddInRecept.length - 1;
+  return (
+    <DrainCell
+      style={{ border: "1px solid", width: 60, boxSizing: "border-box" }}
+      value={
+        ele.dust !== undefined && ele.dust !== "" ? Number(ele.dust) : undefined
+      }
+      placeholder={isLast ? "..." : ""}
+      disabled={!isLast}
+      title={
+        isLast ? undefined : "Вес остатка редактируется только на последнем отпыле"
+      }
+      onChange={(text) => store.updateDust(text, index)}
+    />
+  );
+});
 const PaintMapper: React.FC<{
   paint: PaintComponentViewModel;
   orderMapper: OrderMapper;

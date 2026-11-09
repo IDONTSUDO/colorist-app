@@ -1053,6 +1053,25 @@ export class OrderStore extends FormState<OrderViewModel> {
     }
     c.weightCalcRecept = c.weight;
 
+    // вес остатка у последнего отпыла не введён — считаем, что расхода не было:
+    // остаток = вес компонентов (+ тара, т.к. остаток взвешивается с тарой),
+    // отпыл расход = 0, граммовка переносится в новый отпыл без изменений
+    const lastStep = this.componentsAddInRecept.at(-1);
+    const isAutoDust =
+      lastStep !== undefined &&
+      (lastStep.dust === undefined || lastStep.dust.trim() === "");
+    if (isAutoDust) {
+      const componentsWeight = lastStep!.balance.reduce(
+        (acc, el) => acc + (el.weightCalcRecept ?? 0),
+        0,
+      );
+      lastStep!.dust = String(
+        (componentsWeight + (this.weightContainers ?? 0)).shortToDecimalPlaces(
+          2,
+        ),
+      );
+    }
+
     let oldPaintComponentViewModels = JSON.parse(
       JSON.stringify(
         this.componentsAddInRecept.length === 0
@@ -1104,7 +1123,7 @@ export class OrderStore extends FormState<OrderViewModel> {
       this.componentsAddInRecept.at(this.componentsAddInRecept.length - 1)
         ?.dust,
     );
-    if (!isNaN(dust)) {
+    if (!isAutoDust && !isNaN(dust)) {
       paintComponentViewModels.forEach((el) => {
         if (el.privateNumber === c.privateNumber) {
           return;
