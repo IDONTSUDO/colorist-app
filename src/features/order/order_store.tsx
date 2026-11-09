@@ -483,6 +483,9 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.isDrainSelectMode = !this.isDrainSelectMode;
   };
   // граммовка слива становится новым шагом (колонкой) рецепта
+  // слив → новый отпыл: граммовка слива записывается в «добавку» этого отпыла,
+  // а новый отпыл (в конце) = остаток этого отпыла + слив — та же формула,
+  // что у «сохранить»/Enter (recalculate).
   applyDrainToRecept = (index: number): void => {
     const mapper = this.componentsAddInRecept.at(index);
     if (mapper === undefined) return;
@@ -490,17 +493,47 @@ export class OrderStore extends FormState<OrderViewModel> {
       message.error("введите грамм по рецепту в этом сливе");
       return;
     }
-    const drain = mapper.getDrain();
+    if (mapper.dust === undefined || mapper.dust === "") {
+      message.error("введите вес остатка у этого отпыла");
+      return;
+    }
+    const isLast = index === this.componentsAddInRecept.length - 1;
+    const drain = mapper.getDrain().map((el) => Number(el.weight.toFixed(2)));
+    const existing = mapper.balance.map(
+      (_, i) => Number(mapper.addingComponents[i]?.weight ?? 0) || 0,
+    );
+
+    // остаток по компоненту (как в колонке «остаток»)
+    const sum = mapper.balance
+      .reduce((acc, el) => acc + (el.weightCalcRecept ?? 0), 0)
+      .shortToDecimalPlaces(2);
+    const used = (
+      sum - mapper.getBalance(this).shortToDecimalPlaces(2)
+    ).shortToDecimalPlaces(2);
     const newComponents = mapper.balance.map((paint, i) => {
+      const remainder = sum === 0 ? 0 : ((paint.weight ?? 0) / sum) * used;
+      // у последнего отпыла ручные добавки ещё не применены — идут в новый
+      // отпыл вместе со сливом; у остальных они уже ушли в следующий отпыл
+      const add = drain[i] + (isLast ? existing[i] : 0);
       const c = plainToInstance(
         PaintComponentViewModel,
         JSON.parse(JSON.stringify(paint)),
       );
-      const weight = Number((drain[i]?.weight ?? 0).toFixed(2));
-      c.weightCalcRecept = weight;
-      c.weight = weight;
+      c.weightCalcRecept = remainder + add;
+      c.weight = remainder + add;
       return c;
     });
+
+    // «добавка» отпыла: уже введённое + слив
+    mapper.addingComponents = mapper.balance.map((paint, i) => {
+      const c = plainToInstance(
+        PaintComponentViewModel,
+        JSON.parse(JSON.stringify(paint)),
+      );
+      c.weight = Number((existing[i] + drain[i]).toFixed(2));
+      return c;
+    });
+
     const step = new OrderMapper(newComponents[0], newComponents);
     step.isAdding = false;
     step.fromDrain = index;
@@ -510,7 +543,7 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.isNeedSaveButton = false;
     this.historyVersion += 1;
     this.updateOrder();
-    message.success("слив перенесён в рецепт новым шагом");
+    message.success("слив добавлен в добавку, создан новый отпыл");
   };
   // сброс ручной граммовки — снова по рецепту
   resetDrainComponents = (index: number): void => {

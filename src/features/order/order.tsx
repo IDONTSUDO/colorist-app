@@ -2039,12 +2039,15 @@ const DrainTable: React.FC<{
     overflow: "hidden",
   };
 
+  // перенести можно слив с введёнными граммами
+  const canApply = !!orderMapper.drainWeight;
+
   return (
     <div
       title={
         store.isDrainSelectMode
-          ? orderMapper.drainWeight
-            ? "нажмите, чтобы перенести слив в рецепт"
+          ? canApply
+            ? "нажмите, чтобы добавить слив в добавку и создать новый отпыл"
             : "сначала введите грамм по рецепту"
           : undefined
       }
@@ -2055,19 +2058,19 @@ const DrainTable: React.FC<{
       style={{
         marginTop: 10,
         cursor: store.isDrainSelectMode
-          ? orderMapper.drainWeight
+          ? canApply
             ? "pointer"
             : "not-allowed"
           : undefined,
         outline: store.isDrainSelectMode
-          ? orderMapper.drainWeight
+          ? canApply
             ? "3px solid #4f46e5"
             : "3px dashed #cbd5e1"
           : isApplied
             ? "3px solid #22c55e"
             : undefined,
         outlineOffset: 2,
-        opacity: store.isDrainSelectMode && !orderMapper.drainWeight ? 0.6 : 1,
+        opacity: store.isDrainSelectMode && !canApply ? 0.6 : 1,
       }}
     >
       <div
