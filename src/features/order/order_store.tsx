@@ -91,6 +91,10 @@ export class OrderMapper {
     }));
   }
   addingComponents: PaintComponentViewModel[] = [];
+  // часть «добавки» (по индексам balance), уже включённая в вес компонентов
+  // этого отпыла (компонент добавлен через «компоненты»): при пересчёте и
+  // в финансах её не считаем второй раз
+  includedAdding?: number[] = undefined;
   // шаг создан добавлением компонента (add — добавленная краска)
   isAdding?: boolean;
   balance: PaintComponentViewModel[];
@@ -237,7 +241,8 @@ export class OrderStore extends FormState<OrderViewModel> {
           lastRecept.getBalance(this).shortToDecimalPlaces(2)
         ).shortToDecimalPlaces(2);
       if (component !== undefined) {
-        newComponentWeight += component.weight ?? 0;
+        newComponentWeight +=
+          (component.weight ?? 0) - (lastRecept.includedAdding?.[i] ?? 0);
       }
 
       const newComponent = plainToInstance(
@@ -1053,24 +1058,10 @@ export class OrderStore extends FormState<OrderViewModel> {
     }
     c.weightCalcRecept = c.weight;
 
-    // вес остатка у последнего отпыла не введён — считаем, что расхода не было:
-    // остаток = вес компонентов (+ тара, т.к. остаток взвешивается с тарой),
-    // отпыл расход = 0, граммовка переносится в новый отпыл без изменений
+    // компонент всегда кладём в последний отпыл (вес комп. + «добавка»),
+    // новый отпыл не создаём
     const lastStep = this.componentsAddInRecept.at(-1);
-    const isAutoDust =
-      lastStep !== undefined &&
-      (lastStep.dust === undefined || lastStep.dust.trim() === "");
-    if (isAutoDust) {
-      const componentsWeight = lastStep!.balance.reduce(
-        (acc, el) => acc + (el.weightCalcRecept ?? 0),
-        0,
-      );
-      lastStep!.dust = String(
-        (componentsWeight + (this.weightContainers ?? 0)).shortToDecimalPlaces(
-          2,
-        ),
-      );
-    }
+    const isMergeIntoLast = lastStep !== undefined;
 
     let oldPaintComponentViewModels = JSON.parse(
       JSON.stringify(
@@ -1123,7 +1114,54 @@ export class OrderStore extends FormState<OrderViewModel> {
       this.componentsAddInRecept.at(this.componentsAddInRecept.length - 1)
         ?.dust,
     );
-    if (!isAutoDust && !isNaN(dust)) {
+    if (isMergeIntoLast) {
+      // добавленный вес сразу входит в вес компонентов последнего отпыла
+      // и показывается в его «добавке» (addingComponents идёт по индексам
+      // balance); в includedAdding помечаем, что эта добавка уже учтена
+      const step = lastStep!;
+      const w = Number(addWeight);
+      let row = step.balance.findIndex(
+        (el) => el.privateNumber === c.privateNumber,
+      );
+      if (row === -1) {
+        const p = plainToClass(PaintComponentViewModel, c);
+        p.weight = 0;
+        p.weightCalcRecept = 0;
+        step.balance.push(p);
+        row = step.balance.length - 1;
+      }
+      const target = step.balance[row];
+      target.weightCalcRecept = Number(
+        ((target.weightCalcRecept ?? 0) + w).toFixed(2),
+      );
+      target.weight = target.weightCalcRecept;
+      const adding = step.balance.map(
+        (_, i) => step.addingComponents[i] ?? new PaintComponentViewModel(),
+      );
+      const a = plainToClass(
+        PaintComponentViewModel,
+        JSON.parse(JSON.stringify(target)),
+      );
+      a.weight = Number(((adding[row]?.weight ?? 0) + w).toFixed(2));
+      adding[row] = a;
+      step.addingComponents = adding;
+      const included = step.balance.map((_, i) => step.includedAdding?.[i] ?? 0);
+      included[row] = Number((included[row] + w).toFixed(2));
+      step.includedAdding = included;
+      // остаток уже взвешен — добавленный компонент тоже в банке, поэтому
+      // вес остатка растёт на столько же и «отпыл расход» не меняется
+      if (step.dust !== undefined && step.dust.trim() !== "") {
+        const d = Number(step.dust);
+        if (!isNaN(d)) step.dust = String(Number((d + w).toFixed(2)));
+      }
+      this.isNeedSaveButton = true;
+      this.historyVersion += 1;
+      this.components = [];
+      this.closeComponentsModal();
+      this.updateOrder();
+      return;
+    }
+    if (!isNaN(dust)) {
       paintComponentViewModels.forEach((el) => {
         if (el.privateNumber === c.privateNumber) {
           return;

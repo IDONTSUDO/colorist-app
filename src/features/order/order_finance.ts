@@ -23,7 +23,15 @@ export interface ReceptStep {
   isAdding?: boolean;
   balance?: (CostItem | null | undefined)[];
   addingComponents?: (CostItem | null | undefined)[];
+  // часть добавки, уже входящая в balance этого шага (см. OrderMapper)
+  includedAdding?: number[] | null;
 }
+
+// вес компонента шага без добавки, которая уже в него включена. У последнего
+// шага добавки не считаются отдельно — там включённую часть не вычитаем
+const ownWeight = (step: ReceptStep, j: number, isLast: boolean) =>
+  num(step.balance?.[j]?.weightCalcRecept) -
+  (isLast ? 0 : num(step.includedAdding?.[j]));
 
 const round2 = (n: number) => (Number.isInteger(n) ? n : Number(n.toFixed(2)));
 
@@ -71,8 +79,9 @@ export const calculateManufactureCostBySteps = (
     let cost = 0;
     if (i === 1) {
       // шаги 0 и 1 — исходный рецепт; вес правится в шаге 1
+      // добавку, уже включённую в вес, считаем ниже как добавку
       cost += (step?.balance ?? []).reduce(
-        (acc, el) => acc + itemCost(el?.weightCalcRecept, el),
+        (acc, el, j) => acc + itemCost(ownWeight(step, j, i === last), el),
         0,
       );
     } else if (isAddingStep(step, steps[i - 1])) {
@@ -108,8 +117,8 @@ export const calculateComponentsUsage = (
   for (let i = 1; i < Math.max(steps.length, 2); i++) {
     const step = steps[i] ?? steps[0];
     if (i === 1) {
-      (step?.balance ?? []).forEach((el) =>
-        add(el?.privateNumber, el?.weightCalcRecept),
+      (step?.balance ?? []).forEach((el, j) =>
+        add(el?.privateNumber, ownWeight(step, j, i === last)),
       );
     } else if (isAddingStep(step, steps[i - 1])) {
       add(step.add?.privateNumber, step.add?.weight);

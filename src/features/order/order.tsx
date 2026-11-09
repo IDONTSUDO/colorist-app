@@ -1716,7 +1716,10 @@ const PaintMapper: React.FC<{
             PaintComponentViewModel,
             JSON.parse(JSON.stringify(paint)),
           );
-          if (Number().isValid(event.currentTarget.innerText)) {
+          if (event.currentTarget.innerText.trim() === "") {
+            // ячейку очистили — добавки нет (иначе осталась бы копия веса)
+            p.weight = undefined;
+          } else if (Number().isValid(event.currentTarget.innerText)) {
             p.weight = Number(event.currentTarget.innerText);
           }
           orderMapper.addingComponents[index] = p;
@@ -1734,6 +1737,8 @@ const PaintMapper: React.FC<{
               orderMapper.addingComponents.push(new PaintComponentViewModel()),
             );
           }
+          // сохраняем введённую добавку в базу сразу, не дожидаясь пересчёта
+          store.updateOrder();
         }}
         style={{
           border: "1px solid",
