@@ -473,6 +473,12 @@ const OrderScreen = observer(() => {
                                       .getComponentsReceptUniq()
                                       .isNotEmpty() ? (
                                       <>
+                                        {/* пустая ячейка над «компоненты» под строку номеров рецептов */}
+                                        <div
+                                          style={{
+                                            height: RECEPT_NUMBER_HEIGHT,
+                                          }}
+                                        />
                                         <div
                                           style={{
                                             fontSize: 12,
@@ -551,77 +557,74 @@ const OrderScreen = observer(() => {
                                             }
                                             style={{
                                               display: "flex",
+                                              flexDirection: "column",
                                             }}
                                           >
                                             {index === 0 ? (
                                               <></>
                                             ) : (
                                               <>
-                                                <div className="55">
-                                                  <div
-                                                    style={{ display: "flex" }}
-                                                  >
+                                                <ReceptNumber
+                                                  number={index}
+                                                  orderMapper={orderMapper}
+                                                  isSelected={
+                                                    store.selectReceptIndex ===
+                                                    index
+                                                  }
+                                                />
+                                                <div
+                                                  style={{ display: "flex" }}
+                                                >
+                                                  <div className="55">
                                                     <div
                                                       style={{
-                                                        fontSize: 11,
-                                                        width: 60,
-                                                        height: 23,
-                                                        textAlignLast: "center",
-                                                        border: "1px solid",
-                                                        ...fromDrainHeaderStyle(
-                                                          orderMapper,
-                                                        ),
+                                                        display: "flex",
                                                       }}
-                                                      title={fromDrainTitle(
-                                                        orderMapper,
-                                                      )}
                                                     >
-                                                      вес комп.
-                                                    </div>
-                                                    <div
-                                                      style={{
-                                                        fontSize: 12,
-                                                        width: 60,
-                                                        border: "1px solid",
-                                                        height: 23,
+                                                      <div
+                                                        style={{
+                                                          fontSize: 11,
+                                                          width: 60,
+                                                          height: 23,
+                                                          textAlignLast:
+                                                            "center",
+                                                          border: "1px solid",
+                                                          ...fromDrainHeaderStyle(
+                                                            orderMapper,
+                                                          ),
+                                                        }}
+                                                        title={fromDrainTitle(
+                                                          orderMapper,
+                                                        )}
+                                                      >
+                                                        вес комп.
+                                                      </div>
+                                                      <div
+                                                        style={{
+                                                          fontSize: 12,
+                                                          width: 60,
+                                                          border: "1px solid",
+                                                          height: 23,
 
-                                                        textAlignLast: "center",
-                                                        ...fromDrainHeaderStyle(
+                                                          textAlignLast:
+                                                            "center",
+                                                          ...fromDrainHeaderStyle(
+                                                            orderMapper,
+                                                          ),
+                                                        }}
+                                                        title={fromDrainTitle(
                                                           orderMapper,
-                                                        ),
-                                                      }}
-                                                      title={fromDrainTitle(
-                                                        orderMapper,
-                                                      )}
-                                                    >
-                                                      остаток
+                                                        )}
+                                                      >
+                                                        остаток
+                                                      </div>
                                                     </div>
-                                                  </div>
-                                                  {orderMapper.balance.map(
-                                                    (paint, subIndex) => (
-                                                      <>
-                                                        <div
-                                                          style={{
-                                                            display: "flex",
-                                                            backgroundColor:
-                                                              store.selectReceptIndex ===
-                                                              index
-                                                                ? "#d0ff49"
-                                                                : "",
-                                                          }}
-                                                        >
-                                                          <ComponentWeight
-                                                            store={store}
-                                                            paint={paint}
-                                                            index={index}
-                                                            subIndex={subIndex}
-                                                          />
+                                                    {orderMapper.balance.map(
+                                                      (paint, subIndex) => (
+                                                        <>
                                                           <div
-                                                            className="1"
                                                             style={{
-                                                              border:
-                                                                "1px solid",
-                                                              width: 60,
+                                                              display: "flex",
                                                               backgroundColor:
                                                                 store.selectReceptIndex ===
                                                                 index
@@ -629,10 +632,48 @@ const OrderScreen = observer(() => {
                                                                   : "",
                                                             }}
                                                           >
-                                                            {(
-                                                              ((paint.weightCalcRecept ??
-                                                                0) /
-                                                                orderMapper.balance
+                                                            <ComponentWeight
+                                                              store={store}
+                                                              paint={paint}
+                                                              index={index}
+                                                              subIndex={
+                                                                subIndex
+                                                              }
+                                                            />
+                                                            <div
+                                                              className="1"
+                                                              style={{
+                                                                border:
+                                                                  "1px solid",
+                                                                width: 60,
+                                                                backgroundColor:
+                                                                  store.selectReceptIndex ===
+                                                                  index
+                                                                    ? "#d0ff49"
+                                                                    : "",
+                                                              }}
+                                                            >
+                                                              {(
+                                                                ((paint.weightCalcRecept ??
+                                                                  0) /
+                                                                  orderMapper.balance
+                                                                    .reduce(
+                                                                      (
+                                                                        el,
+                                                                        acc,
+                                                                      ) => {
+                                                                        return (
+                                                                          el +
+                                                                          (acc.weight ??
+                                                                            0)
+                                                                        );
+                                                                      },
+                                                                      0,
+                                                                    )
+                                                                    .shortToDecimalPlaces(
+                                                                      2,
+                                                                    )) *
+                                                                (orderMapper.balance
                                                                   .reduce(
                                                                     (
                                                                       el,
@@ -648,138 +689,126 @@ const OrderScreen = observer(() => {
                                                                   )
                                                                   .shortToDecimalPlaces(
                                                                     2,
-                                                                  )) *
-                                                              (orderMapper.balance
-                                                                .reduce(
-                                                                  (el, acc) => {
-                                                                    return (
-                                                                      el +
-                                                                      (acc.weight ??
-                                                                        0)
-                                                                    );
-                                                                  },
-                                                                  0,
-                                                                )
-                                                                .shortToDecimalPlaces(
-                                                                  2,
-                                                                ) -
-                                                                orderMapper
-                                                                  .getBalance(
-                                                                    store,
-                                                                  )
-                                                                  .shortToDecimalPlaces(
-                                                                    2,
-                                                                  ))
-                                                            ).shortToDecimalPlaces(
-                                                              2,
-                                                            )}
-                                                            <div></div>
+                                                                  ) -
+                                                                  orderMapper
+                                                                    .getBalance(
+                                                                      store,
+                                                                    )
+                                                                    .shortToDecimalPlaces(
+                                                                      2,
+                                                                    ))
+                                                              ).shortToDecimalPlaces(
+                                                                2,
+                                                              )}
+                                                              <div></div>
+                                                            </div>
                                                           </div>
-                                                        </div>
-                                                      </>
-                                                    ),
-                                                  )}
+                                                        </>
+                                                      ),
+                                                    )}
 
-                                                  <div className="общий_вес_комопнентов">
+                                                    <div className="общий_вес_комопнентов">
+                                                      <div
+                                                        style={{
+                                                          display: "flex",
+                                                        }}
+                                                      >
+                                                        <div
+                                                          style={{
+                                                            width: 60,
+                                                            border:
+                                                              "1px solid black",
+                                                            background: "black",
+                                                            color: "white",
+                                                          }}
+                                                        >
+                                                          {orderMapper.getCommonW()}
+                                                        </div>
+                                                        <div
+                                                          style={{
+                                                            width: 60,
+                                                            border:
+                                                              "1px solid black",
+                                                            background: "black",
+                                                            color: "white",
+                                                          }}
+                                                        >
+                                                          {orderMapper.getCommonL(
+                                                            store,
+                                                          )}
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                    <div></div>
                                                     <div
                                                       style={{
                                                         display: "flex",
                                                       }}
                                                     >
-                                                      <div
-                                                        style={{
-                                                          width: 60,
-                                                          border:
-                                                            "1px solid black",
-                                                          background: "black",
-                                                          color: "white",
-                                                        }}
-                                                      >
-                                                        {orderMapper.getCommonW()}
+                                                      <div>
+                                                        <div
+                                                          style={{
+                                                            border: "1px solid",
+                                                            width: 60,
+                                                            backgroundColor:
+                                                              store.selectReceptIndex ===
+                                                              index
+                                                                ? "#d0ff49"
+                                                                : "",
+                                                            fontSize: 8,
+                                                            height: 24,
+                                                          }}
+                                                        >
+                                                          <div>вес</div>
+                                                          <div>остатка</div>
+                                                        </div>
+
+                                                        <div
+                                                          style={{
+                                                            border: "1px solid",
+                                                            width: 60,
+                                                            backgroundColor:
+                                                              store.selectReceptIndex ===
+                                                              index
+                                                                ? "#d0ff49"
+                                                                : "",
+                                                            fontSize: 9,
+                                                            height: 24,
+                                                          }}
+                                                        >
+                                                          отпыл расх
+                                                        </div>
                                                       </div>
-                                                      <div
-                                                        style={{
-                                                          width: 60,
-                                                          border:
-                                                            "1px solid black",
-                                                          background: "black",
-                                                          color: "white",
-                                                        }}
-                                                      >
-                                                        {orderMapper.getCommonL(
-                                                          store,
-                                                        )}
+                                                      <div>
+                                                        <Dust
+                                                          store={store}
+                                                          ele={orderMapper}
+                                                          index={index}
+                                                        />
+                                                        <div
+                                                          style={{
+                                                            border:
+                                                              "1px solid black",
+                                                          }}
+                                                          className="оптыл расх"
+                                                        >
+                                                          {orderMapper
+                                                            .getBalance(store)
+                                                            .shortToDecimalPlaces(
+                                                              2,
+                                                            )}{" "}
+                                                        </div>
                                                       </div>
                                                     </div>
-                                                  </div>
-                                                  <div></div>
-                                                  <div
-                                                    style={{ display: "flex" }}
-                                                  >
-                                                    <div>
-                                                      <div
-                                                        style={{
-                                                          border: "1px solid",
-                                                          width: 60,
-                                                          backgroundColor:
-                                                            store.selectReceptIndex ===
-                                                            index
-                                                              ? "#d0ff49"
-                                                              : "",
-                                                          fontSize: 8,
-                                                          height: 24,
-                                                        }}
-                                                      >
-                                                        <div>вес</div>
-                                                        <div>остатка</div>
-                                                      </div>
 
-                                                      <div
-                                                        style={{
-                                                          border: "1px solid",
-                                                          width: 60,
-                                                          backgroundColor:
-                                                            store.selectReceptIndex ===
-                                                            index
-                                                              ? "#d0ff49"
-                                                              : "",
-                                                          fontSize: 9,
-                                                          height: 24,
-                                                        }}
-                                                      >
-                                                        отпыл расх
-                                                      </div>
-                                                    </div>
-                                                    <div>
-                                                      <Dust
-                                                        store={store}
-                                                        ele={orderMapper}
-                                                        index={index}
-                                                      />
-                                                      <div
-                                                        style={{
-                                                          border:
-                                                            "1px solid black",
-                                                        }}
-                                                        className="оптыл расх"
-                                                      >
-                                                        {orderMapper
-                                                          .getBalance(store)
-                                                          .shortToDecimalPlaces(
-                                                            2,
-                                                          )}{" "}
-                                                      </div>
-                                                    </div>
-                                                  </div>
+                                                    <DrainTable
+                                                      store={store}
+                                                      orderMapper={orderMapper}
+                                                      index={index}
+                                                      number={index}
+                                                    />
 
-                                                  <DrainTable
-                                                    store={store}
-                                                    orderMapper={orderMapper}
-                                                    index={index}
-                                                    number={index}
-                                                  />
-
-                                                  {/* <div className="обьем">
+                                                    {/* <div className="обьем">
                                                     {orderMapper.balance
                                                       .reduce((el, acc) => {
                                                         return (
@@ -788,60 +817,64 @@ const OrderScreen = observer(() => {
                                                       }, 0)
                                                       .shortToDecimalPlaces(2)}
                                                   </div> */}
-                                                </div>
-                                                <div
-                                                  className="3"
-                                                  style={{ width: 60 }}
-                                                >
-                                                  <div className="2">
-                                                    <div
-                                                      style={{
-                                                        fontSize: 12,
-                                                        width: 60,
-                                                        border: "1px solid",
-                                                        height: 23,
-                                                        textAlignLast: "center",
-                                                        ...fromDrainHeaderStyle(
-                                                          orderMapper,
-                                                        ),
-                                                      }}
-                                                      title={fromDrainTitle(
-                                                        orderMapper,
-                                                      )}
-                                                    >
-                                                      добавка
-                                                    </div>
-
-                                                    {orderMapper.balance.map(
-                                                      (paint, indexPaint) => (
-                                                        <>
-                                                          <div
-                                                            style={{
-                                                              display: "flex",
-                                                            }}
-                                                            className="1"
-                                                          >
-                                                            <PaintMapper
-                                                              index={indexPaint}
-                                                              paint={paint}
-                                                              orderMapper={
-                                                                orderMapper
-                                                              }
-                                                              isLast={
-                                                                store
-                                                                  .componentsAddInRecept
-                                                                  .length -
-                                                                  1 ===
-                                                                index
-                                                              }
-                                                              store={store}
-                                                            />
-                                                          </div>
-                                                        </>
-                                                      ),
-                                                    )}
                                                   </div>
-                                                  {/*todo */}
+                                                  <div
+                                                    className="3"
+                                                    style={{ width: 60 }}
+                                                  >
+                                                    <div className="2">
+                                                      <div
+                                                        style={{
+                                                          fontSize: 12,
+                                                          width: 60,
+                                                          border: "1px solid",
+                                                          height: 23,
+                                                          textAlignLast:
+                                                            "center",
+                                                          ...fromDrainHeaderStyle(
+                                                            orderMapper,
+                                                          ),
+                                                        }}
+                                                        title={fromDrainTitle(
+                                                          orderMapper,
+                                                        )}
+                                                      >
+                                                        добавка
+                                                      </div>
+
+                                                      {orderMapper.balance.map(
+                                                        (paint, indexPaint) => (
+                                                          <>
+                                                            <div
+                                                              style={{
+                                                                display: "flex",
+                                                              }}
+                                                              className="1"
+                                                            >
+                                                              <PaintMapper
+                                                                index={
+                                                                  indexPaint
+                                                                }
+                                                                paint={paint}
+                                                                orderMapper={
+                                                                  orderMapper
+                                                                }
+                                                                isLast={
+                                                                  store
+                                                                    .componentsAddInRecept
+                                                                    .length -
+                                                                    1 ===
+                                                                  index
+                                                                }
+                                                                store={store}
+                                                              />
+                                                            </div>
+                                                          </>
+                                                        ),
+                                                      )}
+                                                    </div>
+                                                    {/*todo */}
+                                                  </div>
                                                 </div>
                                               </>
                                             )}
@@ -1720,6 +1753,53 @@ const HistoryButton: React.FC<{
 );
 
 // ячейка-поле: пока в фокусе — показывает то, что вводят, иначе — текущее значение из стора
+// номер рецепта (шага) над колонкой — та же нумерация, что у сливов
+const RECEPT_NUMBER_HEIGHT = 26;
+const ReceptNumber: React.FC<{
+  number: number;
+  orderMapper: OrderMapper;
+  isSelected: boolean;
+}> = observer(({ number, orderMapper, isSelected }) => {
+  const fromDrain =
+    orderMapper.fromDrain !== undefined && orderMapper.fromDrain !== null
+      ? orderMapper.fromDrain
+      : undefined;
+  return (
+    <div
+      title={
+        fromDrain !== undefined
+          ? `рецепт создан из ${fromDrain} слива`
+          : undefined
+      }
+      style={{
+        height: RECEPT_NUMBER_HEIGHT,
+        boxSizing: "border-box",
+        border: "1px solid",
+        borderBottom: "none",
+        textAlign: "center",
+        fontSize: 14,
+        fontWeight: 700,
+        lineHeight: `${RECEPT_NUMBER_HEIGHT - 2}px`,
+        backgroundColor: isSelected
+          ? "#d0ff49"
+          : fromDrain !== undefined
+            ? DRAIN_APPLIED_BG
+            : "#f0f2f5",
+      }}
+    >
+      Рецепт {number}
+      {fromDrain !== undefined ? (
+        <span style={{ fontWeight: 400, fontSize: 12 }}>
+          {" "}
+          (из {fromDrain} слива)
+        </span>
+      ) : (
+        <></>
+      )}
+    </div>
+  );
+});
+
 // колонка рецепта, созданная из слива, — зелёная шапка
 const DRAIN_APPLIED_BG = "#bbf7d0";
 const fromDrainHeaderStyle = (m: OrderMapper): React.CSSProperties =>
