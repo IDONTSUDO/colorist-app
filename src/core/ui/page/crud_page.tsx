@@ -210,6 +210,8 @@ export const CrudPage: React.FC<{
           style={{
             flex: 1,
             minHeight: 0,
+            // с таблицей прокручивается сама таблица, без неё — вся страница
+            overflowY: isNeedTable ? undefined : "auto",
             display: "flex",
             flexDirection: "column",
             paddingLeft: 20,
@@ -371,8 +373,9 @@ export const CrudPage: React.FC<{
 
           <div
             style={{
-              flex: 1,
-              minHeight: 0,
+              // с таблицей блок сжимается под экран, без неё — растёт по содержимому
+              flex: isNeedTable ? 1 : "none",
+              minHeight: isNeedTable ? 0 : undefined,
               display: "flex",
               flexDirection: "column",
               paddingBottom: 10,
