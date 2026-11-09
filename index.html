@@ -23,8 +23,8 @@
     <script type="module" src="/src/main.tsx"></script>
     <style>
       ::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
+        width: 14px;
+        height: 14px;
       }
       .root {
         height: 100%;
@@ -36,6 +36,13 @@
 
       ::-webkit-scrollbar-thumb {
         background-color: rgb(0, 0, 0);
+        border-radius: 7px;
+        /* прозрачная рамка — отступ от краёв, ползунок не липнет к краю */
+        border: 3px solid transparent;
+        background-clip: padding-box;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(79, 70, 229);
       }
       .icon {
         font-family: "tabler-icons" !important;
