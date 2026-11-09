@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { OrdersPath } from "../../../features/orders/orders";
-import { TextV2 } from "../text/text";
 
 export const Menu: React.FC<{
   child: React.ReactNode;

@@ -13,16 +13,14 @@ import { Icon, IconType } from "../../core/ui/icon/icon";
 import { ModalV2 } from "../../core/ui/modal/modal";
 import { InputV3 } from "../../core/ui/input/input_v3";
 import { M } from "./ui/modal_add_components";
-import { OrderForm } from "./ui/order_form";
-import { ClientForm } from "./ui/client";
 import { FinancialAccountingForm } from "./ui/finance_form";
 import { PaintComponentViewModel } from "../paint_components/paint_components_db_model";
 import { plainToClass } from "class-transformer";
 import { Popover } from "antd";
 import { downloadOrderDoc } from "./order_print";
-import { PaintConsistencyPicker } from "../orders/paint_consistency";
 import { orderTabsStore } from "./order_tabs_store";
 import { OrderTabs } from "./ui/order_tabs";
+import { OrderDetails } from "./ui/order_details";
 
 export const OrderPath = "/order";
 
@@ -701,50 +699,12 @@ const OrderScreen = observer(() => {
                                                                     : "",
                                                               }}
                                                             >
+                                                              {/* расход делится только между прежними компонентами,
+                                                                  добавленные в этот отпыл остаются целиком */}
                                                               {(
-                                                                ((paint.weightCalcRecept ??
-                                                                  0) /
-                                                                  orderMapper.balance
-                                                                    .reduce(
-                                                                      (
-                                                                        el,
-                                                                        acc,
-                                                                      ) => {
-                                                                        return (
-                                                                          el +
-                                                                          (acc.weight ??
-                                                                            0)
-                                                                        );
-                                                                      },
-                                                                      0,
-                                                                    )
-                                                                    .shortToDecimalPlaces(
-                                                                      2,
-                                                                    )) *
-                                                                (orderMapper.balance
-                                                                  .reduce(
-                                                                    (
-                                                                      el,
-                                                                      acc,
-                                                                    ) => {
-                                                                      return (
-                                                                        el +
-                                                                        (acc.weight ??
-                                                                          0)
-                                                                      );
-                                                                    },
-                                                                    0,
-                                                                  )
-                                                                  .shortToDecimalPlaces(
-                                                                    2,
-                                                                  ) -
-                                                                  orderMapper
-                                                                    .getBalance(
-                                                                      store,
-                                                                    )
-                                                                    .shortToDecimalPlaces(
-                                                                      2,
-                                                                    ))
+                                                                orderMapper.getRemainders(
+                                                                  store,
+                                                                )[subIndex] ?? 0
                                                               ).shortToDecimalPlaces(
                                                                 2,
                                                               )}
@@ -1130,145 +1090,7 @@ const OrderScreen = observer(() => {
 
                         {
                           name: "Заказ",
-                          jsx: (
-                            <>
-                              {/* <TextPointer
-                                rightText={"авто"}
-                                leftText={store.viewModel.auto}
-                              />
-                              <TextPointer
-                                rightText={"цвет"}
-                                leftText={store.viewModel.color}
-                              />
-                              <TextPointer
-                                rightText={"код краски"}
-                                leftText={store.viewModel.codePaint}
-                              />
-                              <TextPointer
-                                rightText={"Обьем краски для клиента"}
-                                leftText={store.viewModel.theVolumeOfPainTheCustomerWant?.toString()}
-                              />
-                               */}
-                              <OrderForm orderViewModel={store.viewModel} />
-                              <div style={{ height: 10 }}></div>
-                              <div style={{ maxWidth: 400 }}>
-                                <PaintConsistencyPicker
-                                  value={store.viewModel.paintConsistency}
-                                  onChange={(value) => {
-                                    store.updateForm({
-                                      paintConsistency: value,
-                                    });
-                                    store.updateOrder();
-                                  }}
-                                />
-                              </div>
-                              <div style={{ height: 10 }}></div>
-                              <div
-                                onClick={() => store.resetOrderModalShow()}
-                                style={{
-                                  fontSize: 10,
-                                  fontWeight: 100,
-                                  cursor: "pointer",
-                                }}
-                              >
-                                Сброс заказа *
-                              </div>
-                            </>
-                          ),
-                        },
-                        {
-                          name: "Клиент",
-                          jsx: (
-                            <>
-                              {/* <div>имя - {store.client.name}</div>
-                              <div>фамилия - {store.client.family}</div>
-                              <div>отчество - {store.client.surName}</div>
-                              <div>
-                                номер телефона - {store.client.numberPhone}
-                              </div> */}
-                              <ClientForm orderViewModel={store.client} />
-                            </>
-                          ),
-                        },
-                        {
-                          name: "Производство заказа",
-                          jsx: (
-                            <>
-                              {/* <Select
-                                options={["Начат", "Готов", "На паузе"].map(
-                                  (el) => {
-                                    return {
-                                      value: el,
-                                      label: el,
-                                    };
-                                  },
-                                )}
-                                value={store.viewModel.statusOrder}
-                                onChange={(text) => {
-                                  store.updateForm({ statusOrder: text });
-                                  store.updateOrder();
-                                }}
-                              /> */}
-                              <div>
-                                <label
-                                  style={{
-                                    fontSize: "12px",
-                                    fontWeight: 600,
-                                    color: "#4a5568",
-                                    textTransform: "uppercase",
-                                    letterSpacing: "0.5px",
-                                    marginBottom: "6px",
-                                    display: "block",
-                                  }}
-                                >
-                                  Статус
-                                </label>
-                                <select
-                                  value={store.viewModel.statusOrder}
-                                  onChange={(e) =>
-                                    store.updateOrderStatus(e.target.value)
-                                  }
-                                  style={{
-                                    width: "100%",
-                                    padding: "10px 12px",
-                                    fontSize: "15px",
-                                    border: "1px solid #cbd5e1",
-                                    borderRadius: "6px",
-                                    backgroundColor: "#ffffff",
-                                    color: "#1a202c",
-
-                                    outline: "none",
-                                    cursor: "pointer",
-                                    boxSizing: "border-box",
-                                  }}
-                                >
-                                  <option value="" disabled hidden>
-                                    Выберите статус...
-                                  </option>
-                                  <option value="Начат">Начат</option>
-                                  <option value="Готов">Готов</option>
-                                  <option value="На паузе">На паузе</option>
-                                </select>
-                                {store.viewModel.readyAt ? (
-                                  <div
-                                    style={{
-                                      marginTop: 8,
-                                      fontSize: 13,
-                                      color: "#4a5568",
-                                    }}
-                                  >
-                                    Дата готовности:{" "}
-                                    {new Date(
-                                      store.viewModel.readyAt,
-                                    ).toLocaleString()}
-                                  </div>
-                                ) : (
-                                  <></>
-                                )}
-                              </div>
-                            </>
-                          ),
-                          width: 200,
+                          jsx: <OrderDetails store={store} />,
                         },
                         {
                           name: "Финансовый учет",

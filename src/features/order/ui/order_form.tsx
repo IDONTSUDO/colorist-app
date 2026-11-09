@@ -10,8 +10,12 @@ interface OrderFormData {
   volume: string;
 }
 
-export const OrderForm: React.FC<{ orderViewModel: OrderViewModel }> = observer(
-  ({ orderViewModel }) => {
+export const OrderForm: React.FC<{
+  orderViewModel: OrderViewModel;
+  // без своей рамки и фона — когда форма уже внутри карточки
+  bare?: boolean;
+}> = observer(
+  ({ orderViewModel, bare }) => {
     // Инициализируем состояние значениями по умолчанию (как на скриншоте)
     const [formData, setFormData] = useState<OrderFormData>({
       auto: orderViewModel.auto,
@@ -51,12 +55,12 @@ export const OrderForm: React.FC<{ orderViewModel: OrderViewModel }> = observer(
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gridTemplateColumns: `repeat(auto-fit, minmax(${bare ? 200 : 280}px, 1fr))`,
           gap: "20px",
-          backgroundColor: "#fafafa",
-          border: "1px solid #e2e8f0",
+          backgroundColor: bare ? "transparent" : "#fafafa",
+          border: bare ? "none" : "1px solid #e2e8f0",
           borderRadius: "8px",
-          padding: "24px",
+          padding: bare ? 0 : "24px",
           fontFamily:
             '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
         }}

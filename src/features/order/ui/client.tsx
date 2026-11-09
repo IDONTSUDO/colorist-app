@@ -10,8 +10,12 @@ interface ClientFormData {
   phone: string;
 }
 
-export const ClientForm: React.FC<{ orderViewModel: ClientViewModel }> =
-  observer(({ orderViewModel }) => {
+export const ClientForm: React.FC<{
+  orderViewModel: ClientViewModel;
+  // без своей рамки и фона — когда форма уже внутри карточки
+  bare?: boolean;
+}> =
+  observer(({ orderViewModel, bare }) => {
     // Инициализируем состояние значениями со скриншота
     const [formData, setFormData] = useState<ClientFormData>({
       firstName: orderViewModel.name,
@@ -60,12 +64,12 @@ export const ClientForm: React.FC<{ orderViewModel: ClientViewModel }> =
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gridTemplateColumns: `repeat(auto-fit, minmax(${bare ? 200 : 280}px, 1fr))`,
           gap: "20px",
-          backgroundColor: "#fafafa",
-          border: "1px solid #e2e8f0",
+          backgroundColor: bare ? "transparent" : "#fafafa",
+          border: bare ? "none" : "1px solid #e2e8f0",
           borderRadius: "8px",
-          padding: "24px",
+          padding: bare ? 0 : "24px",
           fontFamily:
             '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
         }}

@@ -22,27 +22,10 @@ import {
 } from "./order_finance";
 
 export class OrderMapper {
+  // итог колонки «остаток» — сумма остатков по компонентам
   getCommonL(store: OrderStore) {
-    return this.balance
-      .map((paint) => {
-        return (
-          ((paint.weightCalcRecept ?? 0) /
-            this.balance
-              .reduce((el, acc) => {
-                return el + (acc.weight ?? 0);
-              }, 0)
-              .shortToDecimalPlaces(2)) *
-          (this.balance
-            .reduce((el, acc) => {
-              return el + (acc.weight ?? 0);
-            }, 0)
-            .shortToDecimalPlaces(2) -
-            this.getBalance(store).shortToDecimalPlaces(2))
-        ).shortToDecimalPlaces(2);
-      })
-      .reduce((acc, el) => {
-        return acc + el;
-      }, 0)
+    return this.getRemainders(store)
+      .reduce((acc, el) => acc + el, 0)
       .shortToDecimalPlaces(2);
   }
   getCommonW() {
@@ -106,6 +89,10 @@ export class OrderMapper {
   // этого отпыла (компонент добавлен через «компоненты»): при пересчёте и
   // в финансах её не считаем второй раз
   includedAdding?: number[] = undefined;
+  // часть веса компонентов, добавленная ПОСЛЕ взвешивания остатка (вес
+  // остатка уже был введён) — она в распылении не участвовала. Если компонент
+  // добавили до отпыла, он распыляется вместе со всеми и сюда не попадает
+  unsprayed?: number[] = undefined;
   // шаг создан добавлением компонента (add — добавленная краска)
   isAdding?: boolean;
   balance: PaintComponentViewModel[];
@@ -120,6 +107,23 @@ export class OrderMapper {
   // отпыл/расход = вес компонентов + вес тары − вес остатка
   // (остаток взвешивается вместе с тарой). Пока остаток не введён — тару
   // не учитываем, иначе остаток по компонентам уйдёт в минус.
+  // остаток по каждому компоненту после отпыла. Расход делится между
+  // компонентами пропорционально весу; вес, добавленный уже после отпыла
+  // (unsprayed), в распылении не участвовал и остаётся в остатке целиком
+  getRemainders(store: OrderStore): number[] {
+    const included = this.balance.map(
+      (_, i) => Number(this.unsprayed?.[i] ?? 0) || 0,
+    );
+    const own = this.balance.map((el, i) =>
+      Math.max((el.weightCalcRecept ?? 0) - included[i], 0),
+    );
+    const ownTotal = own.reduce((acc, el) => acc + el, 0);
+    const spent = this.getBalance(store);
+    const left = ownTotal - spent;
+    return this.balance.map(
+      (_, i) => (ownTotal === 0 ? 0 : (own[i] / ownTotal) * left) + included[i],
+    );
+  }
   getBalance(store: OrderStore) {
     const components = this.balance.reduce((acc, el) => {
       return acc + (el?.weightCalcRecept ?? 0);
@@ -233,24 +237,9 @@ export class OrderStore extends FormState<OrderViewModel> {
       message.error("введите вес остатка");
       return;
     }
+    const remainders = lastRecept.getRemainders(this);
     lastRecept.addingComponents.forEach((component, i) => {
-      const weight = lastRecept.balance.at(i)?.weight ?? 0;
-
-      let newComponentWeight =
-        ((weight ?? 0) /
-          lastRecept.balance
-            .reduce((el, acc) => {
-              return el + (acc.weightCalcRecept ?? 0);
-            }, 0)
-            .shortToDecimalPlaces(2)) *
-        (
-          lastRecept.balance
-            .reduce((el, acc) => {
-              return el + (acc.weightCalcRecept ?? 0);
-            }, 0)
-            .shortToDecimalPlaces(2) -
-          lastRecept.getBalance(this).shortToDecimalPlaces(2)
-        ).shortToDecimalPlaces(2);
+      let newComponentWeight = remainders[i] ?? 0;
       if (component !== undefined) {
         newComponentWeight +=
           (component.weight ?? 0) - (lastRecept.includedAdding?.[i] ?? 0);
@@ -260,6 +249,7 @@ export class OrderStore extends FormState<OrderViewModel> {
         PaintComponentViewModel,
         JSON.parse(JSON.stringify(lastRecept.balance.at(i))),
       );
+      newComponentWeight = Number(newComponentWeight.toFixed(2));
       newComponent.weightCalcRecept = newComponentWeight;
       newComponent.weight = newComponentWeight;
       newComponents.push(newComponent);
@@ -515,19 +505,17 @@ export class OrderStore extends FormState<OrderViewModel> {
     }
     const isLast = index === this.componentsAddInRecept.length - 1;
     const drain = mapper.getDrain().map((el) => Number(el.weight.toFixed(2)));
+    // добавка без части, уже включённой в вес компонентов (includedAdding)
     const existing = mapper.balance.map(
-      (_, i) => Number(mapper.addingComponents[i]?.weight ?? 0) || 0,
+      (_, i) =>
+        (Number(mapper.addingComponents[i]?.weight ?? 0) || 0) -
+        (Number(mapper.includedAdding?.[i] ?? 0) || 0),
     );
 
     // остаток по компоненту (как в колонке «остаток»)
-    const sum = mapper.balance
-      .reduce((acc, el) => acc + (el.weightCalcRecept ?? 0), 0)
-      .shortToDecimalPlaces(2);
-    const used = (
-      sum - mapper.getBalance(this).shortToDecimalPlaces(2)
-    ).shortToDecimalPlaces(2);
+    const remainders = mapper.getRemainders(this);
     const newComponents = mapper.balance.map((paint, i) => {
-      const remainder = sum === 0 ? 0 : ((paint.weight ?? 0) / sum) * used;
+      const remainder = remainders[i] ?? 0;
       // у последнего отпыла ручные добавки ещё не применены — идут в новый
       // отпыл вместе со сливом; у остальных они уже ушли в следующий отпыл
       const add = drain[i] + (isLast ? existing[i] : 0);
@@ -617,6 +605,9 @@ export class OrderStore extends FormState<OrderViewModel> {
       return;
     }
     this.componentsAddInRecept.atR(index).map((el) => {
+      // остаток взвесили заново — в банке распылялось уже всё, включая
+      // компоненты, добавленные после прошлого взвешивания
+      if (el.dust !== value) el.unsprayed = undefined;
       el.dust = value;
       this.updateOrder();
     });
@@ -1159,11 +1150,19 @@ export class OrderStore extends FormState<OrderViewModel> {
       const included = step.balance.map((_, i) => step.includedAdding?.[i] ?? 0);
       included[row] = Number((included[row] + w).toFixed(2));
       step.includedAdding = included;
-      // остаток уже взвешен — добавленный компонент тоже в банке, поэтому
-      // вес остатка растёт на столько же и «отпыл расход» не меняется
+      // остаток уже взвешен — значит, отпыл был до добавления: компонент
+      // не распылялся. Он тоже в банке, поэтому вес остатка растёт на
+      // столько же и «отпыл расход» не меняется
       if (step.dust !== undefined && step.dust.trim() !== "") {
         const d = Number(step.dust);
-        if (!isNaN(d)) step.dust = String(Number((d + w).toFixed(2)));
+        if (!isNaN(d)) {
+          step.dust = String(Number((d + w).toFixed(2)));
+          const unsprayed = step.balance.map(
+            (_, i) => step.unsprayed?.[i] ?? 0,
+          );
+          unsprayed[row] = Number((unsprayed[row] + w).toFixed(2));
+          step.unsprayed = unsprayed;
+        }
       }
       this.isNeedSaveButton = true;
       this.historyVersion += 1;
