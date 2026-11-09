@@ -1984,7 +1984,8 @@ const DrainCell: React.FC<{
   style: React.CSSProperties;
   title?: string;
   placeholder?: string;
-}> = observer(({ value, onChange, style, title, placeholder }) => {
+  disabled?: boolean;
+}> = observer(({ value, onChange, style, title, placeholder, disabled }) => {
   const [text, setText] = useState<string | null>(null);
   const shown =
     text ?? (value !== undefined ? String(value.shortToDecimalPlaces(2)) : "");
@@ -1994,6 +1995,7 @@ const DrainCell: React.FC<{
       placeholder={placeholder}
       value={shown}
       inputMode="decimal"
+      disabled={disabled}
       onFocus={() => setText(shown)}
       onBlur={() => setText(null)}
       onKeyDown={(event) => {
@@ -2009,9 +2011,12 @@ const DrainCell: React.FC<{
         font: "inherit",
         padding: 0,
         borderRadius: 0,
-        backgroundColor: style.backgroundColor || "#fff",
+        backgroundColor: disabled
+          ? "#f1f5f9"
+          : style.backgroundColor || "#fff",
         color: "inherit",
         outline: "none",
+        cursor: disabled ? "not-allowed" : undefined,
       }}
     />
   );
@@ -2119,7 +2124,12 @@ const DrainTable: React.FC<{
             {el.privateNumber}
           </div>
           <DrainCell
-            title="вес компонента — общий вес слива не меняется, остальные пересчитаются по рецепту"
+            title={
+              orderMapper.drainWeight
+                ? "вес компонента — общий вес слива не меняется, остальные пересчитаются по рецепту"
+                : "сначала введите грамм по рецепту"
+            }
+            disabled={!orderMapper.drainWeight}
             style={{
               ...cell,
               fontWeight: el.edited ? 700 : undefined,

@@ -84,7 +84,6 @@ export const Orders = observer(() => {
           "manufactureExcludedSteps",
           "readyAt",
           "paintConsistency",
-          // "financeStatus",
         ]}
         isEditable={false}
         addingColumns={[
