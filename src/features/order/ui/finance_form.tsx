@@ -130,7 +130,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                           : undefined,
                       }}
                     >
-                      Рецепт {el.step}
+                      Отпыл {el.step}
                     </span>
                     <strong
                       style={{
@@ -157,7 +157,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                     cursor: "pointer",
                     userSelect: "none",
                   }}
-                  title="не учитывать все рецепты — итог только по сливам"
+                  title="не учитывать все отпылы — итог только по сливам"
                 >
                   <input
                     type="checkbox"
@@ -175,7 +175,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                 </label>
               </div>
               <div style={{ fontSize: 12, color: "#718096", marginTop: 6 }}>
-                Отметьте рецепты, себестоймость производства которых не
+                Отметьте отпылы, себестоймость производства которых не
                 учитывать. Галочка у «Итого» — не учитывать все (считать только
                 по сливам).
               </div>

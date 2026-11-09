@@ -211,18 +211,19 @@ const buildGrid = (store: OrderStore): Cell[][] => {
     ...steps.flatMap(({ m, index }) => render(m, index)),
   ];
 
-  // номера рецептов
+  // номера отпылов — над «вес комп.» и «остаток», над «добавка» пусто
   grid.push(
     perStep((m, index) => {
       const from = fromDrainOf(m);
       return [
         {
-          text: `Рецепт ${index}${from !== undefined ? ` (из ${from} слива)` : ""}`,
-          span: 3,
+          text: `Отпыл ${index}${from !== undefined ? ` (из ${from} слива)` : ""}`,
+          span: 2,
           bold: true,
           center: true,
           fill: from !== undefined ? GREEN : HEADER,
         },
+        gap,
       ];
     }),
   );

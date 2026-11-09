@@ -18,6 +18,7 @@ import { ClientForm } from "./ui/client";
 import { FinancialAccountingForm } from "./ui/finance_form";
 import { PaintComponentViewModel } from "../paint_components/paint_components_db_model";
 import { plainToClass } from "class-transformer";
+import { Popover } from "antd";
 import { downloadOrderDoc } from "./order_print";
 import { PaintConsistencyPicker } from "../orders/paint_consistency";
 
@@ -592,18 +593,20 @@ const OrderScreen = observer(() => {
                                               <></>
                                             ) : (
                                               <>
-                                                <ReceptNumber
-                                                  number={index}
-                                                  orderMapper={orderMapper}
-                                                  isSelected={
-                                                    store.selectReceptIndex ===
-                                                    index
-                                                  }
-                                                />
                                                 <div
                                                   style={{ display: "flex" }}
                                                 >
                                                   <div className="55">
+                                                    {/* номер отпыла — над «вес комп.» и «остаток» */}
+                                                    <ReceptNumber
+                                                      store={store}
+                                                      number={index}
+                                                      orderMapper={orderMapper}
+                                                      isSelected={
+                                                        store.selectReceptIndex ===
+                                                        index
+                                                      }
+                                                    />
                                                     <div
                                                       style={{
                                                         display: "flex",
@@ -850,6 +853,13 @@ const OrderScreen = observer(() => {
                                                     className="3"
                                                     style={{ width: 60 }}
                                                   >
+                                                    {/* пустое место над «добавка» под строку номера */}
+                                                    <div
+                                                      style={{
+                                                        height:
+                                                          RECEPT_NUMBER_HEIGHT,
+                                                      }}
+                                                    />
                                                     <div className="2">
                                                       <div
                                                         style={{
@@ -1889,20 +1899,19 @@ const ReceptNumber: React.FC<{
   number: number;
   orderMapper: OrderMapper;
   isSelected: boolean;
-}> = observer(({ number, orderMapper, isSelected }) => {
+  store: OrderStore;
+}> = observer(({ number, orderMapper, isSelected, store }) => {
   const fromDrain =
     orderMapper.fromDrain !== undefined && orderMapper.fromDrain !== null
       ? orderMapper.fromDrain
       : undefined;
-  return (
+  const label = (
     <div
-      title={
-        fromDrain !== undefined
-          ? `рецепт создан из ${fromDrain} слива`
-          : undefined
-      }
       style={{
         height: RECEPT_NUMBER_HEIGHT,
+        // ширина — по двум столбцам под ней, подпись не растягивает колонку
+        width: 0,
+        minWidth: "100%",
         boxSizing: "border-box",
         border: "1px solid",
         borderBottom: "none",
@@ -1910,6 +1919,9 @@ const ReceptNumber: React.FC<{
         fontSize: 14,
         fontWeight: 700,
         lineHeight: `${RECEPT_NUMBER_HEIGHT - 2}px`,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        cursor: fromDrain !== undefined ? "help" : undefined,
         backgroundColor: isSelected
           ? "#d0ff49"
           : fromDrain !== undefined
@@ -1917,16 +1929,31 @@ const ReceptNumber: React.FC<{
             : "#f0f2f5",
       }}
     >
-      Рецепт {number}
-      {fromDrain !== undefined ? (
-        <span style={{ fontWeight: 400, fontSize: 12 }}>
-          {" "}
-          (из {fromDrain} слива)
-        </span>
-      ) : (
-        <></>
-      )}
+      Отпыл {number}
     </div>
+  );
+  if (fromDrain === undefined) return label;
+
+  const source = store.componentsAddInRecept.at(fromDrain);
+  return (
+    <Popover
+      trigger="hover"
+      placement="top"
+      mouseEnterDelay={0.15}
+      title={`Отпыл ${number}`}
+      content={
+        <div style={{ fontSize: 13 }}>
+          Создан из <b>{fromDrain} слива</b>
+          {source?.drainWeight ? (
+            <> — {source.drainWeight.shortToDecimalPlaces(2)} г по рецепту</>
+          ) : (
+            <></>
+          )}
+        </div>
+      }
+    >
+      {label}
+    </Popover>
   );
 });
 
