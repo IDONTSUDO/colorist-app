@@ -816,11 +816,14 @@ export class OrderStore extends FormState<OrderViewModel> {
       (el) => el as OrderViewModel | undefined,
       () => undefined,
     );
-    this.isLoading = false;
-    if (order === undefined) {
+    // репозиторий может вернуть и null, и undefined — оба значат «нет заказа».
+    // notFound ставим до снятия isLoading, чтобы экран не отрисовался без заказа
+    if (order === undefined || order === null) {
       this.notFound = true;
+      this.isLoading = false;
       return;
     }
+    this.isLoading = false;
     this.viewModel = order;
 
     await this.mapOk(

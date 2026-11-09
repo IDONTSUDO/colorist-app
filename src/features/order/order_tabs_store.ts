@@ -2,7 +2,6 @@ import { makeAutoObservable } from "mobx";
 
 export interface OrderTab {
   id: number;
-  title?: string;
 }
 
 const STORAGE_KEY = "order-tabs";
@@ -22,7 +21,7 @@ const load = (): OrderTab[] => {
 };
 
 // Открытые вкладки заказов (как вкладки браузера). Само состояние заказа
-// и история undo/redo лежат в БД, поэтому вкладка — это только id и заголовок.
+// и история undo/redo лежат в БД, поэтому вкладка — это только id.
 class OrderTabsStore {
   tabs: OrderTab[] = load();
 
@@ -49,13 +48,6 @@ class OrderTabsStore {
       afterId === undefined ? -1 : this.tabs.findIndex((t) => t.id === afterId);
     if (index === -1) this.tabs.push({ id });
     else this.tabs.splice(index + 1, 0, { id });
-    this.persist();
-  }
-
-  setTitle(id: number, title: string) {
-    const tab = this.tabs.find((t) => t.id === id);
-    if (!tab || tab.title === title) return;
-    tab.title = title;
     this.persist();
   }
 

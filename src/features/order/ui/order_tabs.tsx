@@ -50,7 +50,7 @@ export const OrderTabs = observer(({ activeId }: { activeId: number }) => {
           <div
             key={tab.id}
             draggable
-            title={tab.title ?? `Заказ №${tab.id}`}
+            title={`Заказ №${tab.id}`}
             onDragStart={() => setDragId(tab.id)}
             onDragEnd={() => setDragId(undefined)}
             onDragOver={(e) => {
@@ -95,7 +95,7 @@ export const OrderTabs = observer(({ activeId }: { activeId: number }) => {
                 whiteSpace: "nowrap",
               }}
             >
-              {tab.title ?? `№${tab.id}`}
+              №{tab.id}
             </span>
             <span
               role="button"

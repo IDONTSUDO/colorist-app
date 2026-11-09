@@ -164,14 +164,6 @@ const OrderScreen = observer(() => {
     // несуществующий заказ не держим во вкладках
     if (store.notFound) orderTabsStore.close(Number(id));
   }, [store.notFound]);
-  const vm = store.viewModel;
-  const tabTitle = [`№${id}`, vm?.auto, vm?.codePaint]
-    .filter((s) => s !== undefined && s !== null && String(s).trim() !== "")
-    .join(" · ");
-  useEffect(() => {
-    if (!store.isLoading && !store.notFound && vm?.id !== undefined)
-      orderTabsStore.setTitle(Number(id), tabTitle);
-  }, [tabTitle, store.isLoading]);
   if (store.notFound) return <OrderNotFound id={id} />;
   return (
     <>
