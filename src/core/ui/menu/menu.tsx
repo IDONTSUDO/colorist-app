@@ -21,8 +21,43 @@ export const Menu: React.FC<{
         backgroundColor: "var(--bg-secondary)",
       }}
     >
-      <div style={{ flexShrink: 0 }}>
-        {top ?? <div style={{ height: 48 }}></div>}
+      {/* верх страницы: «назад» + название, справа от них — вкладки */}
+      <div
+        style={{
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "flex-end",
+          minHeight: 48,
+          paddingLeft: 20,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexShrink: 0,
+            height: 48,
+          }}
+        >
+          <button
+            style={{ cursor: "pointer" }}
+            className="back-btn"
+            title="К списку заказов"
+            onClick={() => n(OrdersPath)}
+          >
+            <i className="icon"> </i>
+          </button>
+          {/* <TextV2
+            text={"Заказ"}
+            style={{
+              fontFamily: `Manrope, sans-serif`,
+              paddingLeft: 10,
+              whiteSpace: "nowrap",
+              alignContent: "center",
+            }}
+          /> */}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>{top}</div>
       </div>
       <div
         className="app"
@@ -53,26 +88,9 @@ export const Menu: React.FC<{
               display: "flex",
               width: "100%",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "flex-end",
             }}
           >
-            <div style={{ display: "flex" }}>
-              <button
-                style={{ cursor: "pointer" }}
-                className="back-btn"
-                onClick={() => n(OrdersPath)}
-              >
-                <i className="icon"> </i>
-              </button>
-              <TextV2
-                text={"Новый рецепт"}
-                style={{
-                  fontFamily: `Manrope, sans-serif`,
-                  paddingLeft: 10,
-                  alignContent: "center",
-                }}
-              />
-            </div>
             <div>
               <div>{right} </div>
             </div>
