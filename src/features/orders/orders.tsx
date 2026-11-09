@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { PaintConsistencyPicker } from "./paint_consistency";
+import { CarPicker } from "../cars/car_picker";
 import { useStore } from "../../core/helper/use_store";
 import { OrdersStore } from "./orders_store";
 import { ModalV2 } from "../../core/ui/modal/modal";
@@ -78,7 +79,6 @@ export const Orders = observer(() => {
           "selectReceptWeight",
           "selectReceptPaintFinal",
           "orderCreate",
-
           "weightContainers",
           "ignoreManufactureCost",
           "manufactureExcludedSteps",
@@ -168,21 +168,9 @@ export const Orders = observer(() => {
         }}
         children={
           <>
-            <InputV3
-              label="Авто"
-              autoCompleteChildren={store.autoCompleteChildren}
+            <CarPicker
               value={store.viewModel.auto?.toString()}
-              onChange={(text) => {
-                store.updateForm({
-                  auto: text,
-                });
-                store.findAuto();
-              }}
-              onClickAutoCompleteChildren={(index) => {
-                store.updateForm({ auto: store.autoCompleteChildren[index] });
-                store.autoCompleteChildren = [];
-              }}
-              onEnter={() => store.addNewAuto()}
+              onChange={(text) => store.updateForm({ auto: text })}
             />
 
             <div style={{ height: 5 }} />
