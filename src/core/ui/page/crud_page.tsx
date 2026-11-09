@@ -88,10 +88,18 @@ export const CrudPage: React.FC<{
       store.feature = feature;
     }, []);
     return (
-      <div style={{ height: "100%" }}>
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
         <div
           style={{
             display: "flex",
+            flexShrink: 0,
             paddingLeft: 9,
             borderBottom: "1px solid oklch(92.9% 0.013 255.508)",
           }}
@@ -137,7 +145,8 @@ export const CrudPage: React.FC<{
         </div>
         <div
           style={{
-            height: "100%",
+            flex: 1,
+            minHeight: 0,
             display: "flex",
             flexDirection: "column",
             paddingLeft: 20,
@@ -291,7 +300,15 @@ export const CrudPage: React.FC<{
             <> </>
           )}
 
-          <div style={{ height: "100%" }}>
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+              paddingBottom: 10,
+            }}
+          >
             {store.isLoading &&
             store.models !== undefined &&
             store.models()?.at(0) !== undefined ? (
