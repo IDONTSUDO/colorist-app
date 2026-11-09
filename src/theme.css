@@ -1,0 +1,199 @@
+@import "./theme_tokens.css";
+
+/* Базовые цвета приложения. Светлая тема — исходные цвета. */
+:root {
+  --app-bg: #ffffff;
+  --app-text: rgba(0, 0, 0, 0.85);
+  --scroll-thumb: #000000;
+  --icon-fg: #000000;
+  --overlay: #10101087;
+  --popup-bg: #ffffff;
+  --popup-border: #e2e8f0;
+  --popup-hover: #f5f5f5;
+  --popup-selected: #e6f7ff;
+  --muted: #8fa1b9;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --app-bg: #181a21;
+  --app-text: #e7e9ee;
+  --scroll-thumb: #4a5266;
+  --icon-fg: #d3d7df;
+  --overlay: #000000a6;
+  --popup-bg: #1f232b;
+  --popup-border: #3a4050;
+  --popup-hover: #282d38;
+  --popup-selected: #1c304a;
+  --muted: #959eb3;
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+/* ---------- antd v4 в тёмной теме ---------- */
+:root[data-theme="dark"] .ant-picker,
+:root[data-theme="dark"] .ant-input,
+:root[data-theme="dark"] .ant-input-affix-wrapper,
+:root[data-theme="dark"] .ant-select:not(.ant-select-customize-input) .ant-select-selector,
+:root[data-theme="dark"] .ant-input-number {
+  background: var(--popup-bg);
+  border-color: var(--popup-border);
+  color: var(--app-text);
+}
+:root[data-theme="dark"] .ant-picker-input > input,
+:root[data-theme="dark"] .ant-input-number-input,
+:root[data-theme="dark"] .ant-select-selection-item {
+  color: var(--app-text);
+}
+:root[data-theme="dark"] .ant-picker-input > input::placeholder,
+:root[data-theme="dark"] .ant-input::placeholder {
+  color: var(--muted);
+}
+:root[data-theme="dark"] .ant-picker-suffix,
+:root[data-theme="dark"] .ant-picker-separator,
+:root[data-theme="dark"] .ant-picker-clear {
+  color: var(--muted);
+  background: transparent;
+}
+
+:root[data-theme="dark"] .ant-picker-panel-container,
+:root[data-theme="dark"] .ant-select-dropdown,
+:root[data-theme="dark"] .ant-dropdown-menu,
+:root[data-theme="dark"] .ant-popover-inner,
+:root[data-theme="dark"] .ant-message-notice-content,
+:root[data-theme="dark"] .ant-notification-notice,
+:root[data-theme="dark"] .ant-modal-content,
+:root[data-theme="dark"] .ant-modal-header {
+  background: var(--popup-bg);
+  color: var(--app-text);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="dark"] .ant-picker-panel,
+:root[data-theme="dark"] .ant-picker-header,
+:root[data-theme="dark"] .ant-picker-footer,
+:root[data-theme="dark"] .ant-picker-panels > *:first-child button.ant-picker-header-next-btn,
+:root[data-theme="dark"] .ant-picker-panel-container .ant-picker-panel {
+  border-color: var(--popup-border);
+}
+:root[data-theme="dark"] .ant-picker-header,
+:root[data-theme="dark"] .ant-picker-header button,
+:root[data-theme="dark"] .ant-picker-content th,
+:root[data-theme="dark"] .ant-picker-cell-in-view,
+:root[data-theme="dark"] .ant-select-item,
+:root[data-theme="dark"] .ant-dropdown-menu-item,
+:root[data-theme="dark"] .ant-modal-title,
+:root[data-theme="dark"] .ant-modal-close,
+:root[data-theme="dark"] .ant-notification-notice-message,
+:root[data-theme="dark"] .ant-notification-notice-description {
+  color: var(--app-text);
+}
+:root[data-theme="dark"] .ant-picker-cell {
+  color: #4f586d;
+}
+:root[data-theme="dark"]
+  .ant-picker-cell:hover:not(.ant-picker-cell-in-view)
+  .ant-picker-cell-inner,
+:root[data-theme="dark"]
+  .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end)
+  .ant-picker-cell-inner,
+:root[data-theme="dark"] .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+:root[data-theme="dark"] .ant-dropdown-menu-item:hover {
+  background: var(--popup-hover);
+}
+:root[data-theme="dark"] .ant-picker-cell-in-view.ant-picker-cell-in-range::before,
+:root[data-theme="dark"] .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: var(--popup-selected);
+}
+:root[data-theme="dark"]
+  .ant-picker-cell-in-view.ant-picker-cell-range-start:not(.ant-picker-cell-range-start-single)::before,
+:root[data-theme="dark"]
+  .ant-picker-cell-in-view.ant-picker-cell-range-end:not(.ant-picker-cell-range-end-single)::before {
+  background: var(--popup-selected);
+}
+:root[data-theme="dark"] .ant-picker-range-arrow::after {
+  border-color: var(--popup-bg) var(--popup-bg) transparent transparent;
+}
+:root[data-theme="dark"] .ant-picker-range-arrow {
+  box-shadow: none;
+}
+:root[data-theme="dark"] .ant-empty-description {
+  color: var(--muted);
+}
+
+/* ---------- стили из index.html (.app, .topbar, .back-btn, .hover-box) ---------- */
+:root[data-theme="dark"] {
+  --bg: #181a21;
+  --bg-secondary: #1f232b;
+  --bg-danger: #4a1c1f;
+  --text: #e7e9ee;
+  --text-secondary: #959eb3;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.25);
+  --border-focus: rgba(255, 255, 255, 0.4);
+}
+:root[data-theme="dark"] .hover-box:hover {
+  background-color: #282d38;
+}
+
+/* поля без явного фона берут фон родителя, а не системный серый */
+:root[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+:root[data-theme="dark"] textarea {
+  background-color: transparent;
+  color: var(--app-text);
+}
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: var(--muted);
+}
+
+/* ---------- antd Checkbox / Radio / Popover ---------- */
+:root[data-theme="dark"] .ant-checkbox-wrapper,
+:root[data-theme="dark"] .ant-radio-wrapper,
+:root[data-theme="dark"] .ant-radio-button-wrapper,
+:root[data-theme="dark"] .ant-popover-inner-content,
+:root[data-theme="dark"] .ant-popover-title {
+  color: var(--app-text);
+}
+:root[data-theme="dark"] .ant-checkbox-wrapper-disabled,
+:root[data-theme="dark"] .ant-radio-wrapper-disabled,
+:root[data-theme="dark"] .ant-checkbox-disabled + span,
+:root[data-theme="dark"] .ant-radio-disabled + span {
+  color: var(--muted);
+}
+:root[data-theme="dark"] .ant-checkbox-inner,
+:root[data-theme="dark"] .ant-radio-inner {
+  background-color: var(--popup-bg);
+  border-color: var(--popup-border);
+}
+:root[data-theme="dark"] .ant-checkbox-checked .ant-checkbox-inner,
+:root[data-theme="dark"] .ant-checkbox-indeterminate .ant-checkbox-inner {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+:root[data-theme="dark"] .ant-checkbox-indeterminate .ant-checkbox-inner {
+  background-color: var(--popup-bg);
+}
+:root[data-theme="dark"] .ant-radio-checked .ant-radio-inner {
+  border-color: #1890ff;
+}
+:root[data-theme="dark"] .ant-radio-button-wrapper {
+  background: var(--popup-bg);
+  border-color: var(--popup-border);
+}
+:root[data-theme="dark"] .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  background: var(--popup-selected);
+  color: #69b1ff;
+}
+:root[data-theme="dark"] .ant-popover-title {
+  border-color: var(--popup-border);
+}
+:root[data-theme="dark"] .ant-popover-arrow-content,
+:root[data-theme="dark"] .ant-popover-arrow-content::before {
+  background: var(--popup-bg);
+  --antd-arrow-background-color: var(--popup-bg);
+}

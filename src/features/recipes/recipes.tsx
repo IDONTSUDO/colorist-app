@@ -112,7 +112,7 @@ export const Recipes = observer(() => {
                       alignItems: "center",
                       margin: 5,
                       padding: 5,
-                      backgroundColor: "#dedede",
+                      backgroundColor: "var(--bg-dedede)",
                     }}
                   >
                     <div>{el.privateNumber}</div>

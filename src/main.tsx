@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import "antd/dist/antd.min.css";
+import "./theme.css";
 
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
@@ -15,7 +16,7 @@ import moment from "moment";
 // @ts-ignore — у moment/dist/locale нет типов
 import "moment/dist/locale/ru";
 
-import { ThemeStore } from "./core/store/theme_store";
+import { themeStore } from "./core/store/theme_store";
 import { Database } from "@indexeddb-orm/idb-orm";
 import { PaintComponentViewModel } from "./features/paint_components/paint_components_db_model";
 import { ConsumablesViewModel } from "./features/consumables/consumables_db_model";
@@ -44,7 +45,7 @@ configure({
   enforceActions: "never",
 });
 export const authService = new AuthService();
-export const themeStore = new ThemeStore();
+export { themeStore };
 
 extensions();
 moment.locale("ru");

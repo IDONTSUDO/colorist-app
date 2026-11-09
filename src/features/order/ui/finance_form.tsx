@@ -18,7 +18,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
     const labelStyle: React.CSSProperties = {
       fontSize: "12px",
       fontWeight: 600,
-      color: "#4a5568",
+      color: "var(--tx-4a5568)",
       textTransform: "uppercase",
       letterSpacing: "0.5px",
       marginBottom: "6px",
@@ -31,8 +31,8 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           display: "flex",
           flexDirection: "column",
           gap: "24px",
-          backgroundColor: "#fafafa",
-          border: "1px solid #e2e8f0",
+          backgroundColor: "var(--bg-fafafa)",
+          border: "1px solid var(--bd-e2e8f0)",
           borderRadius: "8px",
           padding: "24px",
           fontFamily:
@@ -45,7 +45,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
             margin: 0,
             fontSize: "16px",
             fontWeight: 600,
-            color: "#111111",
+            color: "var(--tx-111111)",
           }}
         >
           Управление статусом финансов
@@ -64,10 +64,10 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
               width: "100%",
               padding: "10px 12px",
               fontSize: "15px",
-              border: "1px solid #cbd5e1",
+              border: "1px solid var(--bd-cbd5e1)",
               borderRadius: "6px",
-              backgroundColor: "#ffffff",
-              color: financialStatus ? "#1a202c" : "#718096",
+              backgroundColor: "var(--bg-ffffff)",
+              color: financialStatus ? "var(--tx-1a202c)" : "var(--tx-718096)",
               outline: "none",
               cursor: "pointer",
               boxSizing: "border-box",
@@ -91,8 +91,8 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
               <label style={labelStyle}>Себестоймость производства</label>
               <div
                 style={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #e2e8f0",
+                  backgroundColor: "var(--bg-ffffff)",
+                  border: "1px solid var(--bd-e2e8f0)",
                   borderRadius: "6px",
                   overflow: "hidden",
                 }}
@@ -103,12 +103,12 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                     title="отметьте, чтобы не учитывать себестоимость производства этого рецепта"
                     style={{
                       fontSize: "14px",
-                      color: "#4a5568",
+                      color: "var(--tx-4a5568)",
                       display: "flex",
                       alignItems: "center",
                       gap: 10,
                       padding: "10px 14px",
-                      borderBottom: "1px solid #e2e8f0",
+                      borderBottom: "1px solid var(--bd-e2e8f0)",
                       cursor: "pointer",
                       userSelect: "none",
                     }}
@@ -134,7 +134,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                     </span>
                     <strong
                       style={{
-                        color: "#1a202c",
+                        color: "var(--tx-1a202c)",
                         opacity: el.excluded ? 0.5 : 1,
                         textDecoration: el.excluded
                           ? "line-through"
@@ -148,12 +148,12 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                 <label
                   style={{
                     fontSize: "14px",
-                    color: "#4a5568",
+                    color: "var(--tx-4a5568)",
                     display: "flex",
                     alignItems: "center",
                     gap: 10,
                     padding: "12px 14px",
-                    backgroundColor: "#f8fafc",
+                    backgroundColor: "var(--bg-f8fafc)",
                     cursor: "pointer",
                     userSelect: "none",
                   }}
@@ -168,13 +168,13 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                     style={{ width: 16, height: 16, cursor: "pointer" }}
                   />
                   <span style={{ flex: 1 }}>Итого в расчёт:</span>
-                  <strong style={{ color: "#1a202c" }}>
+                  <strong style={{ color: "var(--tx-1a202c)" }}>
                     {store.getManufactureCostInTotal().shortToDecimalPlaces(2)}{" "}
                     ₽
                   </strong>
                 </label>
               </div>
-              <div style={{ fontSize: 12, color: "#718096", marginTop: 6 }}>
+              <div style={{ fontSize: 12, color: "var(--tx-718096)", marginTop: 6 }}>
                 Отметьте отпылы, себестоймость производства которых не
                 учитывать. Галочка у «Итого» — не учитывать все (считать только
                 по сливам).
@@ -185,8 +185,8 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
               <label style={labelStyle}>Себестоймость сливов</label>
               <div
                 style={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #e2e8f0",
+                  backgroundColor: "var(--bg-ffffff)",
+                  border: "1px solid var(--bd-e2e8f0)",
                   borderRadius: "6px",
                   overflow: "hidden",
                 }}
@@ -196,7 +196,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                     style={{
                       padding: "12px 14px",
                       fontSize: "14px",
-                      color: "#718096",
+                      color: "var(--tx-718096)",
                     }}
                   >
                     сливы не заданы — введите граммы в таблицах слива
@@ -207,17 +207,17 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                       key={el.number}
                       style={{
                         fontSize: "14px",
-                        color: "#4a5568",
+                        color: "var(--tx-4a5568)",
                         display: "flex",
                         justifyContent: "space-between",
                         padding: "10px 14px",
-                        borderBottom: "1px solid #e2e8f0",
+                        borderBottom: "1px solid var(--bd-e2e8f0)",
                       }}
                     >
                       <span>
                         {el.number} слив · {el.weight.shortToDecimalPlaces(2)} г
                       </span>
-                      <strong style={{ color: "#1a202c" }}>
+                      <strong style={{ color: "var(--tx-1a202c)" }}>
                         {el.cost.shortToDecimalPlaces(2)} ₽
                       </strong>
                     </div>
@@ -228,16 +228,16 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                   title="подробно по компонентам"
                   style={{
                     fontSize: "14px",
-                    color: "#4a5568",
+                    color: "var(--tx-4a5568)",
                     display: "flex",
                     justifyContent: "space-between",
                     padding: "12px 14px",
-                    backgroundColor: "#f8fafc",
+                    backgroundColor: "var(--bg-f8fafc)",
                     cursor: "pointer",
                   }}
                 >
                   <span>Итого себестоймость сливов:</span>
-                  <strong style={{ color: "#1a202c" }}>
+                  <strong style={{ color: "var(--tx-1a202c)" }}>
                     {store.getCostComponents().shortToDecimalPlaces(2)} ₽
                   </strong>
                 </div>
@@ -269,10 +269,10 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                   ? "#ef4444"
                   : isFocused
                     ? "#4f46e5"
-                    : "#cbd5e1",
+                    : "var(--bd-cbd5e1)",
                 borderRadius: "6px",
-                backgroundColor: "#ffffff",
-                color: "#1a202c",
+                backgroundColor: "var(--bg-ffffff)",
+                color: "var(--tx-1a202c)",
                 outline: "none",
                 boxSizing: "border-box",
                 boxShadow: isInvalid
@@ -289,7 +289,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
             <span
               style={{
                 fontSize: "12px",
-                color: "#ef4444",
+                color: "var(--tx-ef4444)",
                 marginTop: "6px",
                 display: "block",
               }}
@@ -303,17 +303,17 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
           style={{
             marginTop: "8px",
             paddingTop: "16px",
-            borderTop: "1px solid #e2e8f0",
+            borderTop: "1px solid var(--bd-e2e8f0)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <span style={{ fontSize: "15px", fontWeight: 600, color: "#4a5568" }}>
+          <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--tx-4a5568)" }}>
             Итоговая стоимость для клиента:
           </span>
           <strong
-            style={{ fontSize: "20px", fontWeight: 700, color: "#4f46e5" }}
+            style={{ fontSize: "20px", fontWeight: 700, color: "var(--tx-4f46e5)" }}
           >
             {(
               store.getCostComponents().shortToDecimalPlaces(2) +

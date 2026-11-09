@@ -26,7 +26,7 @@ export const Settings = observer(() => {
             <TextV2 style={{ fontSize: 18 }} text="Выгрузка базы данных" />
             <div style={{ height: 6 }} />
             <TextV2
-              color="#8fa1b9"
+              color="var(--tx-8fa1b9)"
               text="Выберите таблицы, которые нужно выгрузить в JSON"
             />
             <div style={{ height: 16 }} />
@@ -45,7 +45,7 @@ export const Settings = observer(() => {
                 </Checkbox>
                 <div
                   style={{
-                    borderBottom: "1px solid oklch(92.9% 0.013 255.508)",
+                    borderBottom: "1px solid var(--bd-oklch-92-9-0-013-255-508)",
                     margin: "10px 0",
                   }}
                 />
@@ -65,7 +65,7 @@ export const Settings = observer(() => {
                     >
                       {table.label}
                     </Checkbox>
-                    <span style={{ color: "#8fa1b9" }}>
+                    <span style={{ color: "var(--tx-8fa1b9)" }}>
                       {table.count} записей
                     </span>
                   </div>
@@ -91,7 +91,7 @@ export const Settings = observer(() => {
             <TextV2 style={{ fontSize: 18 }} text="Импорт базы данных" />
             <div style={{ height: 6 }} />
             <TextV2
-              color="#8fa1b9"
+              color="var(--tx-8fa1b9)"
               text="Загрузите JSON-файл, ранее выгруженный из приложения"
             />
             <div style={{ height: 16 }} />
@@ -121,7 +121,7 @@ export const Settings = observer(() => {
                 <TextV2 text={`Файл: ${store.importFileName}`} />
                 <div
                   style={{
-                    borderBottom: "1px solid oklch(92.9% 0.013 255.508)",
+                    borderBottom: "1px solid var(--bd-oklch-92-9-0-013-255-508)",
                     margin: "10px 0",
                   }}
                 />
@@ -141,7 +141,7 @@ export const Settings = observer(() => {
                     >
                       {table.label}
                     </Checkbox>
-                    <span style={{ color: "#8fa1b9" }}>
+                    <span style={{ color: "var(--tx-8fa1b9)" }}>
                       {table.count} записей
                     </span>
                   </div>
@@ -201,7 +201,7 @@ export const Settings = observer(() => {
 
 const cardStyle: React.CSSProperties = {
   maxWidth: 520,
-  border: "1px solid oklch(92.9% 0.013 255.508)",
+  border: "1px solid var(--bd-oklch-92-9-0-013-255-508)",
   borderRadius: 8,
   padding: 20,
 };

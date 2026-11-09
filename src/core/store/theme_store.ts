@@ -52,10 +52,47 @@ export class BlackTheme implements Theme {
   onSurfaceVariant: string = "rgba(202, 196, 208, 1)";
 }
 
+export type ThemeMode = "light" | "dark";
+const THEME_KEY = "theme";
+
+const readMode = (): ThemeMode => {
+  try {
+    return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+};
+
 export class ThemeStore {
   theme: Theme = new BlackTheme();
+  // Цвета берутся из CSS-переменных (src/theme.css, src/theme_tokens.css),
+  // тема переключается атрибутом data-theme на <html>.
+  mode: ThemeMode = readMode();
   constructor() {
     makeAutoObservable(this);
+    this.apply();
   }
   changeTheme = (theme: Theme) => (this.theme = theme);
+  get isDark() {
+    return this.mode === "dark";
+  }
+  setMode = (mode: ThemeMode) => {
+    this.mode = mode;
+    try {
+      localStorage.setItem(THEME_KEY, mode);
+    } catch {
+      // приватный режим / запрещённое хранилище — тема просто не запомнится
+    }
+    this.apply();
+  };
+  toggle = () => this.setMode(this.isDark ? "light" : "dark");
+  private apply() {
+    if (this.mode === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+  }
 }
+
+export const themeStore = new ThemeStore();

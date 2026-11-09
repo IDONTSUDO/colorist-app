@@ -79,12 +79,12 @@ const PhoneInput: React.FC<RussianPhoneInputDivProps> = ({
         contentEditable
         onInput={handleInput}
         style={{
-          border: "1px solid oklch(0.929 0.013 255.508)",
+          border: "1px solid var(--bd-oklch-0-929-0-013-255-508)",
           borderRadius: "4px",
           paddingTop: "6px",
           paddingLeft: "6px",
           width: "220px",
-          backgroundColor: "white",
+          backgroundColor: "var(--bg-white)",
           minHeight: "40px",
           outline: "none",
           userSelect: "text",

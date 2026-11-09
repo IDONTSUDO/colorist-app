@@ -17,6 +17,12 @@
     />
 
     <title>Colorist App</title>
+    <script>
+      try {
+        if (localStorage.getItem("theme") === "dark")
+          document.documentElement.setAttribute("data-theme", "dark");
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div class="root" id="root"></div>
@@ -31,11 +37,11 @@
       }
 
       ::-webkit-scrollbar-track {
-        background-color: rgb(255, 255, 255);
+        background-color: var(--app-bg, rgb(255, 255, 255));
       }
 
       ::-webkit-scrollbar-thumb {
-        background-color: rgb(0, 0, 0);
+        background-color: var(--scroll-thumb, rgb(0, 0, 0));
         border-radius: 7px;
         /* прозрачная рамка — отступ от краёв, ползунок не липнет к краю */
         border: 3px solid transparent;

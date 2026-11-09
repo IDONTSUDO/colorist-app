@@ -8,7 +8,7 @@ export const PaintConsistencyPicker: React.FC<{
   onChange: (value: string | null) => void;
 }> = ({ value, onChange }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-    <label style={{ fontSize: 12, fontWeight: 600, color: "#4a5568" }}>
+    <label style={{ fontSize: 12, fontWeight: 600, color: "var(--tx-4a5568)" }}>
       Тип краски (необязательно)
     </label>
     <div style={{ display: "flex", gap: 8 }}>
@@ -28,9 +28,9 @@ export const PaintConsistencyPicker: React.FC<{
               fontWeight: 500,
               borderRadius: 6,
               border: "1px solid",
-              borderColor: active ? "#4f46e5" : "#cbd5e1",
-              backgroundColor: active ? "#4f46e5" : "#ffffff",
-              color: active ? "#ffffff" : "#4a5568",
+              borderColor: active ? "#4f46e5" : "var(--bd-cbd5e1)",
+              backgroundColor: active ? "#4f46e5" : "var(--bg-ffffff)",
+              color: active ? "#ffffff" : "var(--tx-4a5568)",
               cursor: "pointer",
               transition: "all 0.2s",
             }}

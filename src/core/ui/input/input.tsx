@@ -59,11 +59,11 @@ export const Input: React.FC<{
             display: display,
           }}
           text={label}
-          color={error != undefined ? "#F44336" : "#64748B"}
+          color={error != undefined ? "var(--tx-f44336)" : "var(--tx-64748b)"}
         />
       </div>
       <TextV2
-        color="#64748B"
+        color="var(--tx-64748b)"
         currentRef={ref}
         onChange={(text) => {
           setValue(text);
@@ -72,10 +72,10 @@ export const Input: React.FC<{
         text={initialValue}
         isEditable={true}
         style={{
-          border: "1.5px solid #E2E8F0",
+          border: "1.5px solid var(--bd-e2e8f0)",
           borderRadius: 4,
           height: 40,
-          background: "#FFFFFF",
+          background: "var(--bg-ffffff)",
           width: 470,
           paddingTop: 8,
 
@@ -85,7 +85,7 @@ export const Input: React.FC<{
       />
       <div style={{ position: "relative" }}>
         <div style={{ position: "absolute", bottom: -20 }}>
-          <TextV2 text={error} color="#F44336" style={{ paddingLeft: 10 }} />
+          <TextV2 text={error} color="var(--tx-f44336)" style={{ paddingLeft: 10 }} />
         </div>
       </div>
     </div>

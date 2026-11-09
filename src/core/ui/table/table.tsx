@@ -32,7 +32,7 @@ export const CoreTable: React.FC<{
         minHeight: 0,
         // z-index липкой шапки действует только внутри таблицы
         isolation: "isolate",
-        border: "1px solid oklch(92.9% 0.013 255.508)",
+        border: "1px solid var(--bd-oklch-92-9-0-013-255-508)",
         borderRadius: 6,
         overflow: "auto",
       }}
@@ -54,7 +54,7 @@ export const CoreTable: React.FC<{
                   style={{
                     height: thHeight,
                     textAlign: "justify",
-                    backgroundColor: "#000",
+                    backgroundColor: "var(--bg-000)",
                     position: "sticky",
                     top: 0,
                     zIndex: 1,
@@ -81,7 +81,7 @@ export const CoreTable: React.FC<{
                             height: thHeight,
                             fontSize: 14,
                             fontWeight: 500,
-                            backgroundColor: "#000",
+                            backgroundColor: "var(--bg-000)",
                             position: "sticky",
                             top: 0,
                             zIndex: 1,
@@ -102,7 +102,7 @@ export const CoreTable: React.FC<{
                             height: thHeight,
                             fontSize: 14,
                             fontWeight: 500,
-                            backgroundColor: "#000",
+                            backgroundColor: "var(--bg-000)",
                             position: "sticky",
                             top: 0,
                             zIndex: 1,
@@ -129,7 +129,7 @@ export const CoreTable: React.FC<{
                       fontSize: 14,
                       fontWeight: 500,
                       padding: "8px 10px",
-                      backgroundColor: "#000",
+                      backgroundColor: "var(--bg-000)",
                       position: "sticky",
                       top: 0,
                       zIndex: 1,
@@ -154,11 +154,11 @@ export const CoreTable: React.FC<{
                 rowHoverColor !== undefined && hoverIndex === i
                   ? rowHoverColor
                   : i % 2 === 0
-                    ? "#fff"
-                    : "#F5F5F5",
+                    ? "var(--bg-fff)"
+                    : "var(--bg-f5f5f5)",
               cursor: rowHoverColor !== undefined ? "pointer" : undefined,
               transition: "background-color 0.1s",
-              borderBottom: "1px solid #D0D0D0",
+              borderBottom: "1px solid var(--bd-d0d0d0)",
             }}
           >
             {Object.entries(el)
@@ -175,7 +175,7 @@ export const CoreTable: React.FC<{
                       fontSize: 14,
                       // borderRight: "1px solid #D0D0D0",
                       padding: "6px 10px",
-                      color: "#000",
+                      color: "var(--tx-000)",
                       height: tdHeight,
                     }}
                     onClick={() => onClick?.(i)}
@@ -201,7 +201,7 @@ export const CoreTable: React.FC<{
                         // borderRight: "1px solid #D0D0D0",
                         padding: "6px 10px",
                         textAlign: "justify",
-                        color: "#000",
+                        color: "var(--tx-000)",
                         height: tdHeight,
                       }}
                     >

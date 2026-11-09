@@ -12,13 +12,13 @@ export type SelectOption = {
 };
 
 const colors = {
-  border: "#e2e8f1",
-  borderHover: "#cbd5e1",
+  border: "var(--bd-e2e8f1)",
+  borderHover: "var(--bd-cbd5e1)",
   borderActive: "oklch(20.8% 0.042 265.755)",
-  text: "oklch(37.2% 0.044 257.287)",
-  muted: "#8fa1b9",
-  hover: "#f8fafc",
-  selected: "#f1f5f9",
+  text: "var(--tx-oklch-37-2-0-044-257-287)",
+  muted: "var(--tx-8fa1b9)",
+  hover: "var(--bg-f8fafc)",
+  selected: "var(--bg-f1f5f9)",
 };
 
 const Chevron: React.FC<{ open: boolean }> = ({ open }) => (
@@ -118,7 +118,7 @@ export const Select: React.FC<{
           minWidth: isSmall ? 100 : 160,
           paddingLeft: 14,
           paddingRight: 12,
-          background: "#fff",
+          background: "var(--bg-fff)",
           borderRadius: 6,
           cursor: "pointer",
           userSelect: "none",
@@ -182,7 +182,7 @@ export const Select: React.FC<{
             overflowY: "auto",
             boxSizing: "border-box",
             padding: 4,
-            background: "#fff",
+            background: "var(--bg-fff)",
             border: `1px solid ${colors.border}`,
             borderRadius: 8,
             boxShadow:

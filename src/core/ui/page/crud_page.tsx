@@ -20,6 +20,7 @@ import { OrdersPath } from "../../../features/orders/orders";
 import { PaintsComponentPath } from "../../../features/paint_components/paint_components";
 import { ReportsPath } from "../../../features/reports/reports";
 import { SettingsPath } from "../../../features/settings/settings";
+import { ThemeToggle } from "../theme_toggle/theme_toggle";
 
 const pages: { icon: IconType; name: string; path?: string; fn?: Function }[] =
   [
@@ -87,19 +88,19 @@ export const CrudPage: React.FC<{
     const isEditMode = store.currentMode === CrudMode.edit;
     const modeInfo = isDeleteMode
       ? {
-          color: "#e11d48",
-          bg: "#fff1f2",
-          border: "#fecdd3",
-          rowHover: "#ffe4e6",
+          color: "var(--tx-e11d48)",
+          bg: "var(--bg-fff1f2)",
+          border: "var(--bd-fecdd3)",
+          rowHover: "var(--bg-ffe4e6)",
           title: "Режим удаления",
           hint: "нажмите на строку, чтобы удалить запись",
         }
       : isEditMode
         ? {
-            color: "#2563eb",
-            bg: "#eff6ff",
-            border: "#bfdbfe",
-            rowHover: "#dbeafe",
+            color: "var(--tx-2563eb)",
+            bg: "var(--bg-eff6ff)",
+            border: "var(--bd-bfdbfe)",
+            rowHover: "var(--bg-dbeafe)",
             title: "Режим редактирования",
             hint: "нажмите на строку, чтобы изменить запись",
           }
@@ -147,7 +148,7 @@ export const CrudPage: React.FC<{
             display: "flex",
             flexShrink: 0,
             paddingLeft: 9,
-            borderBottom: "1px solid oklch(92.9% 0.013 255.508)",
+            borderBottom: "1px solid var(--bd-oklch-92-9-0-013-255-508)",
           }}
         >
           {pages.map((el) => (
@@ -183,11 +184,21 @@ export const CrudPage: React.FC<{
                   borderBottom:
                     pageName !== el.name
                       ? undefined
-                      : "2px solid oklch(20.8% 0.042 265.755)",
+                      : "2px solid var(--bd-oklch-20-8-0-042-265-755)",
                 }}
               ></div>
             </div>
           ))}
+          <div style={{ flex: 1 }} />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              paddingRight: 20,
+            }}
+          >
+            <ThemeToggle />
+          </div>
         </div>
         <div
           style={{
@@ -276,7 +287,7 @@ export const CrudPage: React.FC<{
                   <div
                     style={{
                       width: 1.5,
-                      backgroundColor: "oklch(92.9% 0.013 255.508)",
+                      backgroundColor: "var(--bg-oklch-92-9-0-013-255-508)",
                       height: 18,
                     }}
                   ></div>
@@ -382,7 +393,7 @@ export const CrudPage: React.FC<{
                           borderRadius: 6,
                           fontFamily: "system-ui",
                           fontSize: 14,
-                          color: "oklch(37.2% 0.044 257.287)",
+                          color: "var(--tx-oklch-37-2-0-044-257-287)",
                         }}
                       >
                         <span
@@ -392,7 +403,7 @@ export const CrudPage: React.FC<{
                         </span>
                         <span>— {modeInfo.hint}</span>
                         <span style={{ flex: 1 }} />
-                        <span style={{ color: "#8fa1b9", fontSize: 12 }}>
+                        <span style={{ color: "var(--tx-8fa1b9)", fontSize: 12 }}>
                           Esc
                         </span>
                         <div
@@ -400,7 +411,7 @@ export const CrudPage: React.FC<{
                           style={{
                             padding: "4px 12px",
                             borderRadius: 5,
-                            background: "#fff",
+                            background: "var(--bg-fff)",
                             border: `1px solid ${modeInfo.border}`,
                             color: modeInfo.color,
                             fontWeight: 500,
@@ -420,9 +431,9 @@ export const CrudPage: React.FC<{
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          border: "1px solid oklch(92.9% 0.013 255.508)",
+                          border: "1px solid var(--bd-oklch-92-9-0-013-255-508)",
                           borderRadius: 6,
-                          color: "#8fa1b9",
+                          color: "var(--tx-8fa1b9)",
                           fontSize: 18,
                         }}
                       >

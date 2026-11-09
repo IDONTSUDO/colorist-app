@@ -16,7 +16,7 @@ export const ModalV2: React.FC<{
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "#10101087",
+        backgroundColor: "var(--overlay)",
         //  themeStore.theme.fon,
         display: "flex",
         justifyContent: "center",
@@ -28,8 +28,8 @@ export const ModalV2: React.FC<{
         onClick={(event) => event.stopPropagation()}
         style={Object.assign(
           {
-            backgroundColor: "white",
-            border: `1px solid white`,
+            backgroundColor: "var(--bg-white)",
+            border: `1px solid var(--bd-white)`,
             padding: 20,
             borderRadius: 5,
             // width: 400,

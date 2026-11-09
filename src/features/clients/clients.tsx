@@ -7,6 +7,7 @@ import { CrudPage } from "../../core/ui/page/crud_page";
 import { ClientsStore } from "./clients_store";
 import { ClientViewModel } from "./clients_db_model";
 import { InputV3 } from "../../core/ui/input/input_v3";
+import { PhoneSearchInput } from "../../core/ui/input/phone_search_input";
 export const ClientsPath = "/clients";
 
 export const Clients = observer(() => {
@@ -14,6 +15,15 @@ export const Clients = observer(() => {
   return (
     <CrudPage
       feature={ClientsPath}
+      searchByField={{
+        numberPhone: () => (
+          <PhoneSearchInput
+            value={store.searchPhoneDigits}
+            onChange={(digits) => (store.searchPhoneDigits = digits)}
+            onEnter={() => store.onClickFindButton()}
+          />
+        ),
+      }}
       isEditable={true}
       instanceModel={ClientViewModel}
       store={store}

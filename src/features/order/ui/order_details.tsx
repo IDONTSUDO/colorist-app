@@ -8,15 +8,15 @@ import { OrderForm } from "./order_form";
 // Вкладка «Заказ»: карточки «Автомобиль и краска», «Клиент», «Производство»
 
 const STATUSES: { value: string; color: string; bg: string }[] = [
-  { value: "Начат", color: "#4f46e5", bg: "#eef2ff" },
-  { value: "На паузе", color: "#b45309", bg: "#fef3c7" },
-  { value: "Готов", color: "#15803d", bg: "#dcfce7" },
+  { value: "Начат", color: "var(--tx-4f46e5)", bg: "var(--bg-eef2ff)" },
+  { value: "На паузе", color: "var(--tx-b45309)", bg: "var(--bg-fef3c7)" },
+  { value: "Готов", color: "var(--tx-15803d)", bg: "var(--bg-dcfce7)" },
 ];
 
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
   fontWeight: 600,
-  color: "#4a5568",
+  color: "var(--tx-4a5568)",
   textTransform: "uppercase",
   letterSpacing: "0.5px",
 };
@@ -29,8 +29,8 @@ const Card: React.FC<{
 }> = ({ title, hint, children, style }) => (
   <section
     style={{
-      backgroundColor: "#ffffff",
-      border: "1px solid #e2e8f0",
+      backgroundColor: "var(--bg-ffffff)",
+      border: "1px solid var(--bd-e2e8f0)",
       borderRadius: 12,
       padding: 24,
       boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
@@ -51,13 +51,13 @@ const Card: React.FC<{
           margin: 0,
           fontSize: 16,
           fontWeight: 600,
-          color: "#1a202c",
+          color: "var(--tx-1a202c)",
         }}
       >
         {title}
       </h3>
       {hint ? (
-        <span style={{ fontSize: 13, color: "#94a3b8" }}>{hint}</span>
+        <span style={{ fontSize: 13, color: "var(--tx-94a3b8)" }}>{hint}</span>
       ) : (
         <></>
       )}
@@ -75,7 +75,7 @@ const Segmented: React.FC<{
   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
     {options.map((o) => {
       const active = value === o.value;
-      const color = o.color ?? "#4f46e5";
+      const color = o.color ?? "var(--tx-4f46e5)";
       return (
         <button
           key={o.value}
@@ -93,9 +93,9 @@ const Segmented: React.FC<{
             fontWeight: 500,
             borderRadius: 8,
             border: "1px solid",
-            borderColor: active ? color : "#cbd5e1",
-            backgroundColor: active ? (o.bg ?? color) : "#ffffff",
-            color: active ? (o.bg ? color : "#ffffff") : "#4a5568",
+            borderColor: active ? color : "var(--tx-cbd5e1)",
+            backgroundColor: active ? (o.bg ?? color) : "var(--bg-ffffff)",
+            color: active ? (o.bg ? color : "#ffffff") : "var(--tx-4a5568)",
             cursor: "pointer",
             transition: "all 0.2s",
           }}
@@ -155,7 +155,7 @@ export const OrderDetails: React.FC<{ store: OrderStore }> = observer(
                   onChange={(value) => store.updateOrderStatus(value)}
                 />
                 {vm.readyAt ? (
-                  <div style={{ fontSize: 13, color: "#15803d" }}>
+                  <div style={{ fontSize: 13, color: "var(--tx-15803d)" }}>
                     Готов {new Date(vm.readyAt).toLocaleString()}
                   </div>
                 ) : (
@@ -169,7 +169,7 @@ export const OrderDetails: React.FC<{ store: OrderStore }> = observer(
                     style={{
                       textTransform: "none",
                       fontWeight: 400,
-                      color: "#94a3b8",
+                      color: "var(--tx-94a3b8)",
                       letterSpacing: 0,
                     }}
                   >
@@ -205,9 +205,9 @@ export const OrderDetails: React.FC<{ store: OrderStore }> = observer(
               fontSize: 13,
               fontWeight: 500,
               borderRadius: 8,
-              border: "1px solid #fecaca",
-              backgroundColor: "#ffffff",
-              color: "#dc2626",
+              border: "1px solid var(--bd-fecaca)",
+              backgroundColor: "var(--bg-ffffff)",
+              color: "var(--tx-dc2626)",
               cursor: "pointer",
             }}
           >

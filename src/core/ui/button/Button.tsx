@@ -9,10 +9,10 @@ export enum ButtonType {
 }
 const getColorBorder = (type: ButtonType): string => {
   if (type === ButtonType.default) {
-    return "#e2e8f1";
+    return "var(--bd-e2e8f1)";
   }
   if (type === ButtonType.delete) {
-    return "#ffccd2";
+    return "var(--bd-ffccd2)";
   }
   if (type === ButtonType.blue) {
     return "#1d4ed8";
@@ -27,7 +27,7 @@ const getBgColor = (type: ButtonType) => {
   if (type === ButtonType.blue) {
     return "#2563eb";
   }
-  return "white";
+  return "var(--bg-white)";
 };
 const getTextColor = (type: ButtonType): string => {
   if (type === ButtonType.blue) {
@@ -37,10 +37,10 @@ const getTextColor = (type: ButtonType): string => {
     return "white";
   }
   if (type === ButtonType.delete) {
-    return "oklch(64.5% 0.246 16.439)";
+    return "var(--tx-oklch-64-5-0-246-16-439)";
   }
   if (type === ButtonType.default) {
-    return "oklch(37.2% 0.044 257.287)";
+    return "var(--tx-oklch-37-2-0-044-257-287)";
   }
   return "";
 };

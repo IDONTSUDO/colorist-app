@@ -86,9 +86,9 @@ export const InputV3 = (props: {
         style={Object.assign(
           {
             height: 40,
-            color: "#8fa1b9",
+            color: "var(--tx-8fa1b9)",
             borderRadius: 5,
-            border: "1px solid oklch(92.9% 0.013 255.508)",
+            border: "1px solid var(--bd-oklch-92-9-0-013-255-508)",
             padding: "0 10px",
           },
           props.style,
@@ -105,7 +105,7 @@ export const InputV3 = (props: {
           <div
             style={{
               position: "absolute",
-              backgroundColor: "white",
+              backgroundColor: "var(--bg-white)",
               width: "100%",
               boxShadow: "#9a9a9a 0px 5px 5px",
               borderRadius: 5,

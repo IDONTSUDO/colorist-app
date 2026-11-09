@@ -38,10 +38,10 @@ export const ClientForm: React.FC<{
       padding: "10px 12px",
       fontSize: "15px",
       border: "1px solid",
-      borderColor: focusedField === fieldName ? "#4f46e5" : "#cbd5e1",
+      borderColor: focusedField === fieldName ? "#4f46e5" : "var(--bd-cbd5e1)",
       borderRadius: "6px",
-      backgroundColor: "#ffffff",
-      color: "#1a202c",
+      backgroundColor: "var(--bg-ffffff)",
+      color: "var(--tx-1a202c)",
       outline: "none",
       boxSizing: "border-box",
       boxShadow:
@@ -55,7 +55,7 @@ export const ClientForm: React.FC<{
     const labelStyle: React.CSSProperties = {
       fontSize: "12px",
       fontWeight: 600,
-      color: "#4a5568",
+      color: "var(--tx-4a5568)",
       textTransform: "uppercase",
       letterSpacing: "0.5px",
     };
@@ -66,8 +66,8 @@ export const ClientForm: React.FC<{
           display: "grid",
           gridTemplateColumns: `repeat(auto-fit, minmax(${bare ? 200 : 280}px, 1fr))`,
           gap: "20px",
-          backgroundColor: bare ? "transparent" : "#fafafa",
-          border: bare ? "none" : "1px solid #e2e8f0",
+          backgroundColor: bare ? "transparent" : "var(--bg-fafafa)",
+          border: bare ? "none" : "1px solid var(--bd-e2e8f0)",
           borderRadius: "8px",
           padding: bare ? 0 : "24px",
           fontFamily:

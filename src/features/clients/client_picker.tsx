@@ -11,8 +11,8 @@ const digits = (s: string | undefined) => (s ?? "").replace(/\D/g, "");
 
 const formatPhone = (phone?: string) => (phone ? phone.phoneMapper() : "");
 
-const border = "1px solid oklch(92.9% 0.013 255.508)";
-const muted = "#8fa1b9";
+const border = "1px solid var(--bd-oklch-92-9-0-013-255-508)";
+const muted = "var(--tx-8fa1b9)";
 
 // репозиторий создается лениво: на этапе импорта модуля db из main.tsx
 // еще не инициализирован (циклический импорт main → routers → ... → сюда)
@@ -74,7 +74,7 @@ export const ClientPicker: React.FC<{
             padding: "10px 14px",
             border: "1px solid oklch(0.208 0.042 265.755)",
             borderRadius: 6,
-            background: "oklch(97% 0.01 255)",
+            background: "var(--bg-oklch-97-0-01-255)",
           }}
         >
           <div>
@@ -117,7 +117,7 @@ export const ClientPicker: React.FC<{
                     borderBottom: border,
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "oklch(97% 0.01 255)")
+                    (e.currentTarget.style.background = "var(--bg-oklch-97-0-01-255)")
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.background = "transparent")
@@ -148,7 +148,7 @@ const dropdown: React.CSSProperties = {
   left: 0,
   right: 0,
   zIndex: 10,
-  background: "#fff",
+  background: "var(--bg-fff)",
   border,
   borderRadius: 6,
   marginTop: 4,

@@ -7,6 +7,7 @@ import { ClientsDbRepository } from "../clients/clients_db_repository";
 import type { ClientViewModel } from "../clients/clients_db_model";
 import { CarsDbRepository } from "../cars/cars_db_repository";
 import { CarsViewModel } from "../cars/cars_model";
+import { normalizeCarName } from "../cars/car_picker";
 
 export interface IUser {
   id: number;
@@ -57,6 +58,9 @@ export class OrdersStore extends CrudFormLocalDbStore<
   // createdAt — timestamp, текстовый поиск по нему не работает: ищем по периоду
   private baseFindButton = this.onClickFindButton;
   onClickFindButton = async (): Promise<void> => {
+    if (this.searchByField === "auto") {
+      return this.findByAuto();
+    }
     if (this.searchByField !== "createdAt") {
       return this.baseFindButton();
     }
@@ -66,6 +70,29 @@ export class OrdersStore extends CrudFormLocalDbStore<
     }
     const [from, to] = this.searchDateRange;
     const orders = await this.repository.getOrdersInPeriod(from, to);
+    if (this.page !== undefined) {
+      this.page.data = orders;
+    }
+  };
+
+  // Авто: каждое слово запроса ищется в названии без учёта регистра;
+  // с «=» — только точное совпадение названия
+  findByAuto = async (): Promise<void> => {
+    const q = normalizeCarName(this.searchValue ?? "");
+    if (!q) {
+      message.error("Введите авто");
+      return;
+    }
+    const words = q.split(" ");
+    const orders = await this.repository.db
+      .getRepository(this.repository.entity)
+      .filter((o: OrderViewModel) => {
+        const name = normalizeCarName(String(o.auto ?? ""));
+        return this.onlyEqual
+          ? name === q
+          : words.every((w) => name.includes(w));
+      })
+      .toArray();
     if (this.page !== undefined) {
       this.page.data = orders;
     }

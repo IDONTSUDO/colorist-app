@@ -24,4 +24,15 @@ export class ClientsDbRepository extends CrudIndexedDbRepository<ClientViewModel
 
         return Result.ok(documents.filter(doc => new Set(searchResults.map(result => result.id)).has((doc as any).id)));
     }
+    // Телефон хранится как "999 123-45-67" (без +7) — сравниваем только цифры
+    findByPhoneDigits = async (digits: string): Promise<ClientViewModel[]> => {
+        const normalize = (phone: unknown) => {
+            const d = String(phone ?? "").replace(/\D/g, "");
+            return d.length === 11 && /^[78]/.test(d) ? d.slice(1) : d;
+        };
+        return this.db
+            .getRepository(this.entity)
+            .filter((c: ClientViewModel) => normalize(c.numberPhone).includes(digits))
+            .toArray();
+    }
 }

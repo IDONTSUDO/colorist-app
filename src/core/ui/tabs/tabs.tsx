@@ -10,7 +10,7 @@ export const Tabs: React.FC<{
         style={{
           display: "flex",
           gap: 6,
-          background: "#f0f2f5",
+          background: "var(--bg-f0f2f5)",
           padding: 4,
           borderRadius: 8,
           marginBottom: 28,
@@ -35,11 +35,11 @@ export const Tabs: React.FC<{
               borderRadius: 6,
               fontSize: 14,
               fontWeight: 500,
-              color: i === activeIndex ? "#4f46e5" : "#718096",
+              color: i === activeIndex ? "var(--tx-4f46e5)" : "var(--tx-718096)",
               cursor: "pointer",
               border: "none",
 
-              backgroundColor: i === activeIndex ? "#ffffff" : "transparent",
+              backgroundColor: i === activeIndex ? "var(--bg-ffffff)" : "transparent",
               whiteSpace: "nowrap",
               transition: "all 0.2s",
             }}

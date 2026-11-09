@@ -4,8 +4,8 @@ import { InputV3 } from "../../core/ui/input/input_v3";
 import { CarsDbRepository } from "./cars_db_repository";
 import { CarsViewModel } from "./cars_model";
 
-const border = "1px solid oklch(92.9% 0.013 255.508)";
-const muted = "#8fa1b9";
+const border = "1px solid var(--bd-oklch-92-9-0-013-255-508)";
+const muted = "var(--tx-8fa1b9)";
 
 // репозиторий создается лениво: на этапе импорта модуля db из main.tsx
 // еще не инициализирован (как в ClientPicker)
@@ -21,7 +21,7 @@ const loadCars = async () => {
 };
 
 // для поиска: регистр, ё/е, дефисы и лишние пробелы не важны
-const normalize = (s: string) =>
+export const normalizeCarName = (s: string) =>
   s
     .toLowerCase()
     .replace(/ё/g, "е")
@@ -38,7 +38,18 @@ export const CarPicker: React.FC<{
   value?: string;
   onChange: (name: string) => void;
   label?: string;
-}> = ({ value, onChange, label = "Авто" }) => {
+  // для строки поиска: без пункта «добавить в справочник»
+  allowAdd?: boolean;
+  placeholder?: string;
+  onEnter?: () => void;
+}> = ({
+  value,
+  onChange,
+  label = "Авто",
+  allowAdd = true,
+  placeholder = "Начните вводить марку или модель",
+  onEnter,
+}) => {
   const [cars, setCars] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -48,14 +59,14 @@ export const CarPicker: React.FC<{
   }, []);
 
   const query = value ?? "";
-  const q = normalize(query);
+  const q = normalizeCarName(query);
 
   const matches = useMemo(() => {
     if (!q) return [];
     const words = q.split(" ");
     const unique = [...new Set(cars)];
     return unique
-      .map((name) => ({ name, n: normalize(name) }))
+      .map((name) => ({ name, n: normalizeCarName(name) }))
       .filter(({ n }) => words.every((w) => n.includes(w)))
       // сначала начинающиеся с запроса, потом по алфавиту
       .sort(
@@ -67,7 +78,7 @@ export const CarPicker: React.FC<{
       .map((el) => el.name);
   }, [cars, q]);
 
-  const exact = cars.some((name) => normalize(name) === q);
+  const exact = cars.some((name) => normalizeCarName(name) === q);
 
   const select = (name: string) => {
     onChange(name);
@@ -89,11 +100,12 @@ export const CarPicker: React.FC<{
     setIsOpen(false);
   };
 
-  const showDropdown = isOpen && q !== "" && (matches.length > 0 || !exact);
+  const canAdd = allowAdd && !exact;
+  const showDropdown = isOpen && q !== "" && (matches.length > 0 || canAdd);
 
   return (
-    <div>
-      <div style={{ marginBottom: 6 }}>{label}</div>
+    <div style={{ width: "100%" }}>
+      {label ? <div style={{ marginBottom: 6 }}>{label}</div> : null}
       <div
         style={{ position: "relative" }}
         onFocus={() => setIsOpen(true)}
@@ -106,7 +118,7 @@ export const CarPicker: React.FC<{
         <InputV3
           style={{ width: "100%", height: 46 }}
           placeHolderType=""
-          placeholder="Начните вводить марку или модель"
+          placeholder={placeholder}
           value={query}
           onChange={(text) => {
             // подхватываем авто, добавленные пока экран был открыт
@@ -115,8 +127,12 @@ export const CarPicker: React.FC<{
             setIsOpen(true);
           }}
           onEnter={() => {
-            if (matches.length > 0 && !exact) select(matches[0]);
-            else setIsOpen(false);
+            if (isOpen && matches.length > 0 && !exact) {
+              select(matches[0]);
+              return;
+            }
+            setIsOpen(false);
+            onEnter?.();
           }}
         />
         {showDropdown && (
@@ -128,7 +144,7 @@ export const CarPicker: React.FC<{
                 tabIndex={0}
                 style={item}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "oklch(97% 0.01 255)")
+                  (e.currentTarget.style.background = "var(--bg-oklch-97-0-01-255)")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = "transparent")
@@ -140,13 +156,13 @@ export const CarPicker: React.FC<{
                 {name}
               </div>
             ))}
-            {!exact && (
+            {canAdd && (
               <div
                 role="button"
                 tabIndex={0}
-                style={{ ...item, color: "#4f46e5" }}
+                style={{ ...item, color: "var(--tx-4f46e5)" }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "oklch(97% 0.01 255)")
+                  (e.currentTarget.style.background = "var(--bg-oklch-97-0-01-255)")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = "transparent")
@@ -182,7 +198,7 @@ const dropdown: React.CSSProperties = {
   left: 0,
   right: 0,
   zIndex: 10,
-  background: "#fff",
+  background: "var(--bg-fff)",
   border,
   borderRadius: 6,
   marginTop: 4,

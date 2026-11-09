@@ -3,12 +3,12 @@ import { observer } from "mobx-react-lite";
 import { CrudFormLocalDbStore, CrudFormStore } from "../../store/base_store";
 
 const colors = {
-  border: "#e2e8f1",
-  borderHover: "#cbd5e1",
-  text: "oklch(37.2% 0.044 257.287)",
-  muted: "#8fa1b9",
+  border: "var(--bd-e2e8f1)",
+  borderHover: "var(--bd-cbd5e1)",
+  text: "var(--tx-oklch-37-2-0-044-257-287)",
+  muted: "var(--tx-8fa1b9)",
   active: "oklch(20.8% 0.042 265.755)",
-  hover: "#f8fafc",
+  hover: "var(--bg-f8fafc)",
 };
 
 // Номера страниц с многоточиями: 1 … 4 5 6 … 20
@@ -55,7 +55,7 @@ const PageButton: React.FC<{
         border: `1px solid ${
           isActive ? colors.active : hover ? colors.borderHover : colors.border
         }`,
-        background: isActive ? colors.active : hover ? colors.hover : "#fff",
+        background: isActive ? colors.active : hover ? colors.hover : "var(--bg-fff)",
         color: isActive ? "#fff" : disabled ? colors.border : colors.text,
         fontFamily: "system-ui",
         fontSize: 14,

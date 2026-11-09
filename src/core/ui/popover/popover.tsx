@@ -59,8 +59,8 @@ const Popover: React.FC<{
           ref={popoverRef}
           style={{
             ...getPopoverStyle(),
-            background: "#fff",
-            border: "1px solid #ccc",
+            background: "var(--bg-fff)",
+            border: "1px solid var(--bd-ccc)",
             boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
             borderRadius: 4,
             padding: "8px 12px",

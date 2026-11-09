@@ -12,7 +12,7 @@ export const Switcher: React.FC<{
       aria-pressed={isOn}
       style={{
         cursor: disabled ? "not-allowed" : "pointer",
-        backgroundColor: isOn ? "#4caf50" : "#ccc",
+        backgroundColor: isOn ? "#4caf50" : "var(--bg-ccc)",
         borderRadius: "15px",
         width: "50px",
         height: "25px",
@@ -28,7 +28,7 @@ export const Switcher: React.FC<{
           left: isOn ? "26px" : "2.5px",
           width: "20px",
           height: "20px",
-          background: "#fff",
+          background: "var(--bg-fff)",
           borderRadius: "50%",
           transition: "left 0.3s",
         }}

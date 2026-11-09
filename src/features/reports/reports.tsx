@@ -13,8 +13,8 @@ import { orderDate } from "../orders/orders_db_repository";
 
 export const ReportsPath = "/reports";
 
-const border = "1px solid oklch(92.9% 0.013 255.508)";
-const muted = "#8fa1b9";
+const border = "1px solid var(--bd-oklch-92-9-0-013-255-508)";
+const muted = "var(--tx-8fa1b9)";
 
 const formatDate = (d: Date | number) =>
   new Date(d).toLocaleDateString("ru-RU");
@@ -346,7 +346,7 @@ const card: React.CSSProperties = {
 
 const th: React.CSSProperties = {
   textAlign: "left",
-  backgroundColor: "#000",
+  backgroundColor: "var(--bg-000)",
   color: "#fff",
   padding: "8px 10px",
   fontSize: 14,

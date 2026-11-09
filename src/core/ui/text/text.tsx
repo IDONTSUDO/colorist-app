@@ -40,7 +40,7 @@ export const TextV2: React.FC<{
           fontWeight: 500,
           fontSize: size ?? 16,
 
-          color: color ?? "black",
+          color: color ?? "var(--tx-black)",
         },
         style ?? {},
       )}

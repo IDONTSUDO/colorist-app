@@ -28,6 +28,16 @@ export const Orders = observer(() => {
       <CrudPage
         feature={OrdersPath}
         searchByField={{
+          auto: () => (
+            <CarPicker
+              label=""
+              allowAdd={false}
+              placeholder="Авто: начните вводить марку или модель"
+              value={store.searchValue ?? ""}
+              onChange={(text) => (store.searchValue = text)}
+              onEnter={() => store.onClickFindButton()}
+            />
+          ),
           createdAt: () => (
             <>
               <DatePicker.RangePicker

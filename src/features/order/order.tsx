@@ -54,8 +54,8 @@ const OrderNotFound: React.FC<{ id?: string }> = ({ id }) => {
     >
       <div
         style={{
-          backgroundColor: "#fafafa",
-          border: "1px solid #e2e8f0",
+          backgroundColor: "var(--bg-fafafa)",
+          border: "1px solid var(--bd-e2e8f0)",
           borderRadius: 8,
           padding: 24,
           width: "100%",
@@ -65,10 +65,10 @@ const OrderNotFound: React.FC<{ id?: string }> = ({ id }) => {
           gap: 16,
         }}
       >
-        <div style={{ fontSize: 18, fontWeight: 600, color: "#111111" }}>
+        <div style={{ fontSize: 18, fontWeight: 600, color: "var(--tx-111111)" }}>
           Заказ {id ? `№${id} ` : ""}не найден
         </div>
-        <div style={{ fontSize: 14, color: "#4a5568" }}>
+        <div style={{ fontSize: 14, color: "var(--tx-4a5568)" }}>
           Такого заказа нет. Введите другой номер заказа.
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -85,10 +85,10 @@ const OrderNotFound: React.FC<{ id?: string }> = ({ id }) => {
               flex: 1,
               padding: "10px 12px",
               fontSize: 15,
-              border: "1px solid #cbd5e1",
+              border: "1px solid var(--bd-cbd5e1)",
               borderRadius: 6,
-              backgroundColor: "#ffffff",
-              color: "#1a202c",
+              backgroundColor: "var(--bg-ffffff)",
+              color: "var(--tx-1a202c)",
               outline: "none",
               boxSizing: "border-box",
             }}
@@ -103,7 +103,7 @@ const OrderNotFound: React.FC<{ id?: string }> = ({ id }) => {
               fontSize: 14,
               fontWeight: 500,
               border: "none",
-              backgroundColor: value === "" ? "#c7c9f5" : "#4f46e5",
+              backgroundColor: value === "" ? "var(--bg-c7c9f5)" : "#4f46e5",
               color: "#ffffff",
               cursor: value === "" ? "default" : "pointer",
             }}
@@ -115,7 +115,7 @@ const OrderNotFound: React.FC<{ id?: string }> = ({ id }) => {
           onClick={() => navigate(OrdersPath)}
           style={{
             fontSize: 14,
-            color: "#4f46e5",
+            color: "var(--tx-4f46e5)",
             textDecoration: "underline",
             cursor: "pointer",
           }}
@@ -201,8 +201,8 @@ const OrderScreen = observer(() => {
                           alignContent: "center",
                           cursor: "pointer",
                           border: "none",
-                          backgroundColor: "rgb(240, 242, 245)",
-                          color: "rgb(74, 85, 104)",
+                          backgroundColor: "var(--bg-rgb-240-242-245)",
+                          color: "var(--tx-rgb-74-85-104)",
                           transition: "all 0.2s",
                         }}
                       >
@@ -225,8 +225,8 @@ const OrderScreen = observer(() => {
                           alignContent: "center",
                           cursor: "pointer",
                           border: "none",
-                          backgroundColor: "#f0f2f5",
-                          color: "#4a5568",
+                          backgroundColor: "var(--bg-f0f2f5)",
+                          color: "var(--tx-4a5568)",
                           transition: "all 0.2s",
                         }}
                       >
@@ -262,8 +262,8 @@ const OrderScreen = observer(() => {
                           alignContent: "center",
                           cursor: "pointer",
                           border: "none",
-                          backgroundColor: "rgb(240, 242, 245)",
-                          color: "rgb(74, 85, 104)",
+                          backgroundColor: "var(--bg-rgb-240-242-245)",
+                          color: "var(--tx-rgb-74-85-104)",
                           transition: "all 0.2s",
                         }}
                         onClick={() => store.copyRecept()}
@@ -312,12 +312,12 @@ const OrderScreen = observer(() => {
                           backgroundColor:
                             store.orderMode === OrderMode.selectRecept
                               ? "rgb(79, 70, 229)"
-                              : "rgb(240, 242, 245)",
+                              : "var(--bg-rgb-240-242-245)",
                           // color: "rgb(74, 85, 104)",
                           color:
                             store.orderMode === OrderMode.selectRecept
                               ? "white"
-                              : "rgb(74, 85, 104)",
+                              : "var(--tx-rgb-74-85-104)",
                           transition: "all 0.2s",
                         }}
                         onClick={() => store.setSelectReceptMode()}
@@ -337,10 +337,10 @@ const OrderScreen = observer(() => {
                           border: "none",
                           backgroundColor: store.isDrainSelectMode
                             ? "rgb(79, 70, 229)"
-                            : "rgb(240, 242, 245)",
+                            : "var(--bg-rgb-240-242-245)",
                           color: store.isDrainSelectMode
                             ? "white"
-                            : "rgb(74, 85, 104)",
+                            : "var(--tx-rgb-74-85-104)",
                           transition: "all 0.2s",
                         }}
                         onClick={() => store.toggleDrainSelectMode()}
@@ -538,9 +538,9 @@ const OrderScreen = observer(() => {
                                           <div style={{ display: "flex" }}>
                                             <div
                                               style={{
-                                                border: "1px solid black  ",
+                                                border: "1px solid var(--bd-black)  ",
                                                 width: 60,
-                                                backgroundColor: "black",
+                                                backgroundColor: "var(--bg-black)",
                                                 color: "white",
                                               }}
                                             >
@@ -674,7 +674,7 @@ const OrderScreen = observer(() => {
                                                               backgroundColor:
                                                                 store.selectReceptIndex ===
                                                                 index
-                                                                  ? "#d0ff49"
+                                                                  ? "var(--bg-d0ff49)"
                                                                   : "",
                                                             }}
                                                           >
@@ -695,7 +695,7 @@ const OrderScreen = observer(() => {
                                                                 backgroundColor:
                                                                   store.selectReceptIndex ===
                                                                   index
-                                                                    ? "#d0ff49"
+                                                                    ? "var(--bg-d0ff49)"
                                                                     : "",
                                                               }}
                                                             >
@@ -734,8 +734,8 @@ const OrderScreen = observer(() => {
                                                           style={{
                                                             width: 60,
                                                             border:
-                                                              "1px solid black",
-                                                            background: "black",
+                                                              "1px solid var(--bd-black)",
+                                                            background: "var(--bg-black)",
                                                             color: "white",
                                                           }}
                                                         >
@@ -745,8 +745,8 @@ const OrderScreen = observer(() => {
                                                           style={{
                                                             width: 60,
                                                             border:
-                                                              "1px solid black",
-                                                            background: "black",
+                                                              "1px solid var(--bd-black)",
+                                                            background: "var(--bg-black)",
                                                             color: "white",
                                                           }}
                                                         >
@@ -770,7 +770,7 @@ const OrderScreen = observer(() => {
                                                             backgroundColor:
                                                               store.selectReceptIndex ===
                                                               index
-                                                                ? "#d0ff49"
+                                                                ? "var(--bg-d0ff49)"
                                                                 : "",
                                                             fontSize: 8,
                                                             height: 24,
@@ -787,7 +787,7 @@ const OrderScreen = observer(() => {
                                                             backgroundColor:
                                                               store.selectReceptIndex ===
                                                               index
-                                                                ? "#d0ff49"
+                                                                ? "var(--bg-d0ff49)"
                                                                 : "",
                                                             fontSize: 9,
                                                             height: 24,
@@ -805,7 +805,7 @@ const OrderScreen = observer(() => {
                                                         <div
                                                           style={{
                                                             border:
-                                                              "1px solid black",
+                                                              "1px solid var(--bd-black)",
                                                           }}
                                                           className="оптыл расх"
                                                         >
@@ -937,9 +937,9 @@ const OrderScreen = observer(() => {
                                     <div style={{ display: "flex" }}>
                                       <div
                                         style={{
-                                          border: "1px solid black  ",
+                                          border: "1px solid var(--bd-black)  ",
                                           width: 60,
-                                          backgroundColor: "black",
+                                          backgroundColor: "var(--bg-black)",
                                           color: "white",
                                         }}
                                       >
@@ -947,7 +947,7 @@ const OrderScreen = observer(() => {
                                       </div>
                                       <div
                                         style={{
-                                          border: "1px solid black  ",
+                                          border: "1px solid var(--bd-black)  ",
                                           width: 60,
                                         }}
                                       >
@@ -961,8 +961,8 @@ const OrderScreen = observer(() => {
                               <div
                                 style={{
                                   // border: "1px solid",
-                                  background: "#fafafa",
-                                  border: "1px solid #e2e8f0",
+                                  background: "var(--bg-fafafa)",
+                                  border: "1px solid var(--bd-e2e8f0)",
                                   borderRadius: 8,
                                   padding: 20,
                                   maxWidth: 320,
@@ -976,7 +976,7 @@ const OrderScreen = observer(() => {
                                   style={{
                                     fontSize: 13,
                                     fontWeight: 600,
-                                    color: "#4a5568",
+                                    color: "var(--tx-4a5568)",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
                                     width: "100%",
@@ -1002,10 +1002,10 @@ const OrderScreen = observer(() => {
                                         width: 170,
                                         padding: "11px 36px 11px 14px",
                                         fontSize: 16,
-                                        border: "1px solid #cbd5e1",
+                                        border: "1px solid var(--bd-cbd5e1)",
                                         borderRadius: 6,
-                                        backgroundColor: "#ffffff",
-                                        color: "#1a202c",
+                                        backgroundColor: "var(--bg-ffffff)",
+                                        color: "var(--tx-1a202c)",
                                         outline: "none",
                                         transition:
                                           "border-color 0.2s, box-shadow 0.2s",
@@ -1076,7 +1076,7 @@ const OrderScreen = observer(() => {
                                         position: "relative",
                                         left: -20,
                                         top: 13,
-                                        color: "#1a202c",
+                                        color: "var(--tx-1a202c)",
                                       }}
                                     >
                                       г{" "}
@@ -1217,7 +1217,7 @@ const OrderScreen = observer(() => {
                   >
                     <div style={{}}>
                       <div
-                        style={{ fontSize: 14, color: "#718096", margin: 0 }}
+                        style={{ fontSize: 14, color: "var(--tx-718096)", margin: 0 }}
                       >
                         Поиск компонента по номеру в картотеке
                       </div>
@@ -1266,8 +1266,8 @@ const OrderScreen = observer(() => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between",
-                            background: "#fafafa",
-                            border: "1px solid #e2e8f0",
+                            background: "var(--bg-fafafa)",
+                            border: "1px solid var(--bd-e2e8f0)",
                             borderRadius: 8,
                             width: "100%",
                             padding: 12,
@@ -1283,7 +1283,7 @@ const OrderScreen = observer(() => {
                                 // border: "1px solid",
                                 fontSize: 11,
                                 textTransform: "uppercase",
-                                color: "#718096",
+                                color: "var(--tx-718096)",
                                 fontWeight: 600,
                                 letterSpacing: 0.5,
                               }}
@@ -1292,7 +1292,7 @@ const OrderScreen = observer(() => {
                               style={{
                                 fontSize: 15,
                                 fontWeight: 700,
-                                color: "#1a202c",
+                                color: "var(--tx-1a202c)",
                               }}
                             >
                               {el.privateNumber}
@@ -1307,7 +1307,7 @@ const OrderScreen = observer(() => {
                           >
                             <InputV3
                               label="Вес в рецепте"
-                              labelStyle={{ fontSize: 10, color: "#4a5568" }}
+                              labelStyle={{ fontSize: 10, color: "var(--tx-4a5568)" }}
                               style={{ width: "70px " }}
                               validation={Number().isValid}
                               // initialValue={el.privateNumber}
@@ -1330,8 +1330,8 @@ const OrderScreen = observer(() => {
                                 fontSize: 13,
                                 fontWeight: 500,
                                 borderRadius: 6,
-                                backgroundColor: "#f0f2f5",
-                                color: "#4f46e5",
+                                backgroundColor: "var(--bg-f0f2f5)",
+                                color: "var(--tx-4f46e5)",
                                 // height: 34,
                                 position: "relative",
                                 top: 8,
@@ -1358,8 +1358,8 @@ const OrderScreen = observer(() => {
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "space-between",
-                              background: "#fafafa",
-                              border: "1px solid #e2e8f0",
+                              background: "var(--bg-fafafa)",
+                              border: "1px solid var(--bd-e2e8f0)",
                               borderRadius: 8,
                               width: "100%",
                               padding: 12,
@@ -1373,7 +1373,7 @@ const OrderScreen = observer(() => {
                                 style={{
                                   fontSize: 11,
                                   textTransform: "uppercase",
-                                  color: "#718096",
+                                  color: "var(--tx-718096)",
                                   fontWeight: 600,
                                   letterSpacing: 0.5,
                                 }}
@@ -1453,13 +1453,13 @@ const OrderScreen = observer(() => {
                 key={i}
                 style={{
                   margin: 10,
-                  backgroundColor: "rgb(239 244 252)",
+                  backgroundColor: "var(--bg-rgb-239-244-252)",
                   width: "100%",
                   display: "flex",
                   justifyItems: "center",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  border: "1px solid rgb(213 214 215)",
+                  border: "1px solid var(--bd-rgb-213-214-215)",
                   padding: 10,
                 }}
               >
@@ -1616,7 +1616,7 @@ const ComponentWeight: React.FC<{
     border: "1px solid",
     width: 60,
     boxSizing: "border-box",
-    backgroundColor: store.selectReceptIndex === index ? "#d0ff49" : "",
+    backgroundColor: store.selectReceptIndex === index ? "var(--bg-d0ff49)" : "",
   };
   const isEditable = index === 1 && store.componentsAddInRecept.length === 2;
   if (!isEditable) {
@@ -1652,8 +1652,8 @@ const HistoryButton: React.FC<{
       fontSize: 14,
       fontWeight: 500,
       border: "none",
-      backgroundColor: "rgb(240, 242, 245)",
-      color: "rgb(74, 85, 104)",
+      backgroundColor: "var(--bg-rgb-240-242-245)",
+      color: "var(--tx-rgb-74-85-104)",
       cursor: disabled ? "default" : "pointer",
       opacity: disabled ? 0.4 : 1,
       transition: "opacity 0.2s",
@@ -1723,7 +1723,7 @@ const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
               lineHeight: "16px",
               textAlign: "center",
               // fontWeight: 600,
-              backgroundColor: "#f0f2f5",
+              backgroundColor: "var(--bg-f0f2f5)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1737,8 +1737,8 @@ const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
               <div
                 style={{
                   ...cell,
-                  border: "1px solid black",
-                  backgroundColor: "black",
+                  border: "1px solid var(--bd-black)",
+                  backgroundColor: "var(--bg-black)",
                   color: "white",
                 }}
               >
@@ -1751,8 +1751,8 @@ const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
             <div
               style={{
                 ...cell,
-                border: "1px solid black",
-                background: "black",
+                border: "1px solid var(--bd-black)",
+                background: "var(--bg-black)",
                 color: "white",
                 fontSize: 11,
               }}
@@ -1762,8 +1762,8 @@ const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
             <div
               style={{
                 ...cell,
-                border: "1px solid black",
-                background: "black",
+                border: "1px solid var(--bd-black)",
+                background: "var(--bg-black)",
                 color: "white",
               }}
             >
@@ -1806,10 +1806,10 @@ const ReceptNumber: React.FC<{
         overflow: "hidden",
         cursor: fromDrain !== undefined ? "help" : undefined,
         backgroundColor: isSelected
-          ? "#d0ff49"
+          ? "var(--bg-d0ff49)"
           : fromDrain !== undefined
             ? DRAIN_APPLIED_BG
-            : "#f0f2f5",
+            : "var(--bg-f0f2f5)",
       }}
     >
       Отпыл {number}
@@ -1841,7 +1841,7 @@ const ReceptNumber: React.FC<{
 });
 
 // колонка рецепта, созданная из слива, — зелёная шапка
-const DRAIN_APPLIED_BG = "#bbf7d0";
+const DRAIN_APPLIED_BG = "var(--bg-bbf7d0)";
 const fromDrainHeaderStyle = (m: OrderMapper): React.CSSProperties =>
   m.fromDrain !== undefined && m.fromDrain !== null
     ? { backgroundColor: DRAIN_APPLIED_BG, fontWeight: 600 }
@@ -1895,8 +1895,8 @@ const DrainCell: React.FC<{
         padding: 0,
         borderRadius: 0,
         backgroundColor: disabled
-          ? "#f1f5f9"
-          : style.backgroundColor || "#fff",
+          ? "var(--bg-f1f5f9)"
+          : style.backgroundColor || "var(--bg-fff)",
         color: "inherit",
         outline: "none",
         cursor: disabled ? "not-allowed" : undefined,
@@ -1947,11 +1947,11 @@ const DrainTable: React.FC<{
           height: DRAIN_ROW_H,
           lineHeight: `${DRAIN_ROW_H - 2}px`,
           boxSizing: "border-box",
-          border: "1px dashed #94a3b8",
+          border: "1px dashed var(--bd-94a3b8)",
           borderRadius: 4,
           textAlign: "center",
           fontSize: 12,
-          color: "#4a5568",
+          color: "var(--tx-4a5568)",
           cursor: "pointer",
           userSelect: "none",
         }}
@@ -1986,7 +1986,7 @@ const DrainTable: React.FC<{
         outline: store.isDrainSelectMode
           ? canApply
             ? "3px solid #4f46e5"
-            : "3px dashed #cbd5e1"
+            : "3px dashed var(--bd-cbd5e1)"
           : isApplied
             ? "3px solid #22c55e"
             : undefined,
@@ -2004,7 +2004,7 @@ const DrainTable: React.FC<{
           backgroundColor: isApplied
             ? DRAIN_APPLIED_BG
             : isSelected
-              ? "#d0ff49"
+              ? "var(--bg-d0ff49)"
               : "",
         }}
         title={
@@ -2025,7 +2025,7 @@ const DrainTable: React.FC<{
               // сбрасывает ручную граммовку, пересчитывает итог и сохраняет
               store.resetDrainComponents(index);
             }}
-            style={{ marginLeft: 6, cursor: "pointer", color: "#718096" }}
+            style={{ marginLeft: 6, cursor: "pointer", color: "var(--tx-718096)" }}
           >
             ×
           </span>
@@ -2049,8 +2049,8 @@ const DrainTable: React.FC<{
           <div
             style={{
               ...cell,
-              border: "1px solid black",
-              backgroundColor: "black",
+              border: "1px solid var(--bd-black)",
+              backgroundColor: "var(--bg-black)",
               color: "white",
             }}
           >

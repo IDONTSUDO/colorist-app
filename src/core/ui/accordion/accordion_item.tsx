@@ -20,7 +20,7 @@ export const AccordionItem: React.FC<{
           display: "flex",
           alignContent: "center",
           alignItems: "center",
-          backgroundColor: "#fafafa",
+          backgroundColor: "var(--bg-fafafa)",
         }}
       >
         <Icon type={IconType.right} style={{ height: 15 }} />

@@ -19,7 +19,7 @@ export const SelectV2: React.FC<{
         style={Object.assign({
           fontSize: "12px",
           fontWeight: 600,
-          color: "#4a5568",
+          color: "var(--tx-4a5568)",
           textTransform: "uppercase",
           letterSpacing: "0.5px",
           marginBottom: "6px",
@@ -39,10 +39,10 @@ export const SelectV2: React.FC<{
           fontSize: "15px",
 
           height: 46,
-          border: "1px solid #cbd5e1",
+          border: "1px solid var(--bd-cbd5e1)",
           borderRadius: "6px",
-          backgroundColor: "#ffffff",
-          color: "#1a202c",
+          backgroundColor: "var(--bg-ffffff)",
+          color: "var(--tx-1a202c)",
 
           outline: "none",
           cursor: "pointer",

@@ -80,8 +80,8 @@ export const OrderTabs = observer(({ activeId }: { activeId: number }) => {
               flexShrink: 0,
               fontSize: 13,
               fontWeight: active ? 600 : 500,
-              backgroundColor: active ? "#ffffff" : "#e2e8f0",
-              color: active ? "#1a202c" : "#4a5568",
+              backgroundColor: active ? "var(--bg-ffffff)" : "var(--bg-e2e8f0)",
+              color: active ? "var(--tx-1a202c)" : "var(--tx-4a5568)",
               borderTop: active ? "2px solid #4f46e5" : "2px solid transparent",
               opacity: dragId === tab.id ? 0.5 : 1,
               boxSizing: "border-box",
@@ -111,12 +111,12 @@ export const OrderTabs = observer(({ activeId }: { activeId: number }) => {
                 textAlign: "center",
                 borderRadius: 4,
                 fontSize: 14,
-                color: "#718096",
+                color: "var(--tx-718096)",
                 cursor: "pointer",
                 flexShrink: 0,
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#cbd5e1")
+                (e.currentTarget.style.backgroundColor = "var(--bg-cbd5e1)")
               }
               onMouseLeave={(e) =>
                 (e.currentTarget.style.backgroundColor = "transparent")
@@ -148,7 +148,7 @@ export const OrderTabs = observer(({ activeId }: { activeId: number }) => {
             marginBottom: 3,
             padding: "0 8px",
             fontSize: 13,
-            border: "1px solid #cbd5e1",
+            border: "1px solid var(--bd-cbd5e1)",
             borderRadius: 6,
             outline: "none",
             boxSizing: "border-box",
@@ -167,7 +167,7 @@ export const OrderTabs = observer(({ activeId }: { activeId: number }) => {
             textAlign: "center",
             borderRadius: 6,
             fontSize: 18,
-            color: "#4a5568",
+            color: "var(--tx-4a5568)",
             cursor: "pointer",
             flexShrink: 0,
           }}
