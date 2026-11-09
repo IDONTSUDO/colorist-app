@@ -1535,41 +1535,29 @@ const ComponentWeight: React.FC<{
   paint: PaintComponentViewModel;
   index: number;
   subIndex: number;
-}> = ({ store, paint, index, subIndex }) => {
+}> = observer(({ store, paint, index, subIndex }) => {
+  const style: React.CSSProperties = {
+    border: "1px solid",
+    width: 60,
+    boxSizing: "border-box",
+    backgroundColor: store.selectReceptIndex === index ? "#d0ff49" : "",
+  };
+  const isEditable = index === 1 && store.componentsAddInRecept.length === 2;
+  if (!isEditable) {
+    return (
+      <div className="остаток" style={style}>
+        {paint.weightCalcRecept?.shortToDecimalPlaces(2)}
+      </div>
+    );
+  }
   return (
-    <div
-      onInput={(e) => {
-        const target = e.target as HTMLDivElement;
-        let value = target.innerText;
-
-        value = value.replace(/,/g, ".");
-
-        value = value.replace(/[^0-9.]/g, "");
-
-        const parts = value.split(".");
-        if (parts.length > 2) {
-          value = parts[0] + "." + parts.slice(1).join("");
-        }
-
-        if (target.innerText !== value) {
-          target.innerText = value;
-        }
-
-        store.componenstDefaultReceptUpdate(value, subIndex);
-      }}
-      suppressContentEditableWarning={true}
-      contentEditable={index === 1 && store.componentsAddInRecept.length === 2}
-      className="остаток"
-      style={{
-        border: "1px solid",
-        width: 60,
-        backgroundColor: store.selectReceptIndex === index ? "#d0ff49" : "",
-      }}
-    >
-      {paint.weightCalcRecept?.shortToDecimalPlaces(2)}
-    </div>
+    <DrainCell
+      style={style}
+      value={paint.weightCalcRecept}
+      onChange={(text) => store.componenstDefaultReceptUpdate(text, subIndex)}
+    />
   );
-};
+});
 
 const HistoryButton: React.FC<{
   text: string;
@@ -1631,7 +1619,7 @@ const DrainCell: React.FC<{
         font: "inherit",
         padding: 0,
         borderRadius: 0,
-        backgroundColor: "#fff",
+        backgroundColor: style.backgroundColor || "#fff",
         color: "inherit",
         outline: "none",
       }}
