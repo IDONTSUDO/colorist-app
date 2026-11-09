@@ -11,7 +11,7 @@ import {
   plainToInstance,
   type ClassTransformOptions,
 } from "class-transformer";
-import { OrderViewModel } from "../orders/orders_db_model";
+import { OrderViewModel, applyOrderStatus } from "../orders/orders_db_model";
 import { SnapshotHistory } from "./snapshot_history";
 import { OrderHistoryDbRepository } from "./order_history_db_repository";
 import { calculateManufactureCost } from "./order_finance";
@@ -562,6 +562,10 @@ export class OrderStore extends FormState<OrderViewModel> {
 
   updateWeights = (newWeight: number, i: number) => {
     this.components.at(i)!.weight = newWeight;
+  };
+  updateOrderStatus = (status: string): void => {
+    applyOrderStatus(this.viewModel, status);
+    this.updateOrder();
   };
   selectOrderProcessType = async (type: string) => {
     this.viewModel.orderCharacteristics = type;

@@ -1,7 +1,7 @@
 import makeAutoObservable from "mobx-store-inheritance";
 import { CrudFormLocalDbStore, } from "../../core/store/base_store";
 import { message } from "antd";
-import { OrderViewModel } from "./orders_db_model";
+import { OrderViewModel, applyOrderStatus } from "./orders_db_model";
 import { OrdersDbRepository } from "./orders_db_repository";
 import { ClientsDbRepository } from "../clients/clients_db_repository";
 import type { ClientViewModel } from "../clients/clients_db_model";
@@ -55,7 +55,7 @@ export class OrdersStore extends CrudFormLocalDbStore<
 
   updateOrderStatus = (value: string, index: number): void => {
     const order = this.page?.data.at(index) as OrderViewModel;
-    order.statusOrder = value;
+    applyOrderStatus(order, value);
     this.repository.edit(order);
   };
   onClickFindButtonToSearchPhone = async () => {

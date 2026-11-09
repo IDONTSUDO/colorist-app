@@ -52,6 +52,10 @@ export class OrderViewModel extends ValidationModel {
     @IsInt({ message: "Выберите клиента" })
     client!: number; //ID model Client
     statusOrder: string = "Начат"; //НАЧАТ,ЗАКОНЧЕН
+    // дата готовности (ms): ставится при переходе статуса в «Готов».
+    // Без индекса специально: новая колонка в columns при selective-стратегии
+    // сбросила бы всю таблицу orders.
+    readyAt?: number | null = undefined;
     orderProcess?: string;
     recipeJSON?: string;
     recipe?: RecipesViewModel;
@@ -64,6 +68,19 @@ export class OrderViewModel extends ValidationModel {
     selectReceptPaintFinal: string;
     createdAt = new Date().getTime()
 }
+export const ORDER_STATUS_READY = "Готов";
+
+// смена производственного статуса: при переходе в «Готов» пишем дату готовности,
+// при уходе из «Готов» — сбрасываем (null, т.к. undefined не попадает в JSON)
+export const applyOrderStatus = (order: OrderViewModel, status: string) => {
+    const wasReady = order.statusOrder === ORDER_STATUS_READY;
+    order.statusOrder = status;
+    if (status === ORDER_STATUS_READY) {
+        if (!wasReady || !order.readyAt) order.readyAt = new Date().getTime();
+    } else {
+        order.readyAt = null;
+    }
+};
 // DateRangePicker
 defineEntity(OrderViewModel, {
     tableName: "orders",

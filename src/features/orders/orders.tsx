@@ -79,6 +79,7 @@ export const Orders = observer(() => {
           "orderCreate",
 
           "weightContainers",
+          "readyAt",
           // "financeStatus",
         ]}
         isEditable={false}
@@ -113,6 +114,12 @@ export const Orders = observer(() => {
             },
           },
           {
+            name: "readyAt",
+            mapper: (v) => {
+              return <>{v ? new Date(v).toLocaleDateString() : "-"}</>;
+            },
+          },
+          {
             name: "financeStatus",
             mapper: (v) => {
               return <>{v}</>;
@@ -134,6 +141,7 @@ export const Orders = observer(() => {
           { replace: "Подбор рецепта", name: "orderCharacteristics" },
           { replace: "Финансовый статус", name: "financeStatus" },
           { replace: "Дата создания", name: "createdAt" },
+          { replace: "Дата готовности", name: "readyAt" },
           { replace: "Кто делает заказ", name: "user" },
           { replace: "Производственный статус", name: "statusOrder" },
         ]}

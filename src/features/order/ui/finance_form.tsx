@@ -135,7 +135,7 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                   ))
                 )}
                 <div
-                  onClick={() => store.openReportComponentsModal()}
+                  // onClick={() => store.openReportComponentsModal()}
                   title="подробно по компонентам"
                   style={{
                     fontSize: "14px",

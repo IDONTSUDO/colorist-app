@@ -973,12 +973,9 @@ export const Order = observer(() => {
                                 </label>
                                 <select
                                   value={store.viewModel.statusOrder}
-                                  onChange={(e) => {
-                                    store.updateForm({
-                                      statusOrder: e.target.value,
-                                    });
-                                    store.updateOrder();
-                                  }}
+                                  onChange={(e) =>
+                                    store.updateOrderStatus(e.target.value)
+                                  }
                                   style={{
                                     width: "100%",
                                     padding: "10px 12px",
@@ -1000,6 +997,22 @@ export const Order = observer(() => {
                                   <option value="Готов">Готов</option>
                                   <option value="На паузе">На паузе</option>
                                 </select>
+                                {store.viewModel.readyAt ? (
+                                  <div
+                                    style={{
+                                      marginTop: 8,
+                                      fontSize: 13,
+                                      color: "#4a5568",
+                                    }}
+                                  >
+                                    Дата готовности:{" "}
+                                    {new Date(
+                                      store.viewModel.readyAt,
+                                    ).toLocaleString()}
+                                  </div>
+                                ) : (
+                                  <></>
+                                )}
                               </div>
                             </>
                           ),
