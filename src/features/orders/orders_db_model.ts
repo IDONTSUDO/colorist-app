@@ -61,6 +61,8 @@ export class OrderViewModel extends ValidationModel {
     ignoreManufactureCost?: boolean = false;
     // номера рецептов (шагов), себестоимость производства которых не учитывается
     manufactureExcludedSteps?: number[] = [];
+    // тип краски: «Готовая» / «Густая», необязательно (без индекса, см. readyAt)
+    paintConsistency?: string | null = null;
     orderProcess?: string;
     recipeJSON?: string;
     recipe?: RecipesViewModel;

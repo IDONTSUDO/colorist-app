@@ -369,6 +369,7 @@ export const buildOrderDocx = (store: OrderStore): Document => {
       ["Авто", order.auto],
       ["Цвет", order.color],
       ["Код краски", order.codePaint],
+      ["Тип краски", order.paintConsistency ?? undefined],
       ["Вес тары", `${r2(store.weightContainers)} г`],
     ] as [string, string | undefined][]
   ).filter((el): el is [string, string] => !!el[1] && el[1].trim() !== "");

@@ -88,6 +88,44 @@ export const calculateManufactureCostBySteps = (
   return result;
 };
 
+// Общий расход пигментов (граммы по каждому компоненту) — та же логика, что
+// у себестоимости производства: исходный рецепт + все добавки (колонка
+// «добавка» и «добавить компонент»). Остаток, перешедший в следующий рецепт,
+// и рецепты из слива повторно не считаются. Неприменённые добавки последнего
+// шага не считаются.
+export const calculateComponentsUsage = (
+  steps: ReceptStep[],
+): { privateNumber: string; weight: number }[] => {
+  const usage = new Map<string, number>();
+  const add = (privateNumber: unknown, weight: unknown) => {
+    if (privateNumber === undefined || privateNumber === null) return;
+    const key = String(privateNumber);
+    if (key === "") return;
+    usage.set(key, (usage.get(key) ?? 0) + num(weight));
+  };
+  if (steps.length === 0) return [];
+  const last = steps.length - 1;
+  for (let i = 1; i < Math.max(steps.length, 2); i++) {
+    const step = steps[i] ?? steps[0];
+    if (i === 1) {
+      (step?.balance ?? []).forEach((el) =>
+        add(el?.privateNumber, el?.weightCalcRecept),
+      );
+    } else if (isAddingStep(step, steps[i - 1])) {
+      add(step.add?.privateNumber, step.add?.weight);
+    }
+    if (i !== last && steps[i] !== undefined) {
+      (step?.addingComponents ?? []).forEach((el, j) =>
+        add(el?.privateNumber ?? step.balance?.[j]?.privateNumber, el?.weight),
+      );
+    }
+  }
+  return [...usage.entries()].map(([privateNumber, weight]) => ({
+    privateNumber,
+    weight: round2(weight),
+  }));
+};
+
 // рецепт исключен из себестоимости производства (галочки в «Финансовом учете»).
 // Старый флаг ignoreManufactureCost = исключены все рецепты.
 export const isManufactureStepExcluded = (

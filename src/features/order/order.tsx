@@ -19,6 +19,7 @@ import { FinancialAccountingForm } from "./ui/finance_form";
 import { PaintComponentViewModel } from "../paint_components/paint_components_db_model";
 import { plainToClass } from "class-transformer";
 import { downloadOrderDoc } from "./order_print";
+import { PaintConsistencyPicker } from "../orders/paint_consistency";
 
 export const OrderPath = "/order";
 
@@ -558,6 +559,7 @@ const OrderScreen = observer(() => {
                                           </div>
                                         </>
                                       ))}
+                                    <ComponentsUsageTable store={store} />
                                   </div>
                                   <div style={{ display: "flex" }}>
                                     {/* {store.componentsAddInRecept.map(
@@ -1112,6 +1114,18 @@ const OrderScreen = observer(() => {
                               />
                                */}
                               <OrderForm orderViewModel={store.viewModel} />
+                              <div style={{ height: 10 }}></div>
+                              <div style={{ maxWidth: 400 }}>
+                                <PaintConsistencyPicker
+                                  value={store.viewModel.paintConsistency}
+                                  onChange={(value) => {
+                                    store.updateForm({
+                                      paintConsistency: value,
+                                    });
+                                    store.updateOrder();
+                                  }}
+                                />
+                              </div>
                               <div style={{ height: 10 }}></div>
                               <div
                                 onClick={() => store.resetOrderModalShow()}
@@ -1779,6 +1793,96 @@ const HistoryButton: React.FC<{
 );
 
 // ячейка-поле: пока в фокусе — показывает то, что вводят, иначе — текущее значение из стора
+// высота строки в таблицах сливов и «общий расход пигментов»
+const DRAIN_ROW_H = 26;
+
+// таблица «общий расход пигментов» под столбцом «компоненты»
+const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
+  ({ store }) => {
+    if (store.componentsAddInRecept.length < 2) return <></>;
+    const usage = store.getComponentsUsage();
+    const total = usage.reduce((acc, el) => acc + el.weight, 0);
+    // та же высота строк, что у таблиц сливов — строки пигментов стоят вровень
+    const cell: React.CSSProperties = {
+      border: "1px solid",
+      width: 60,
+      height: DRAIN_ROW_H,
+      boxSizing: "border-box",
+      overflow: "hidden",
+    };
+    return (
+      <>
+        {/* невидимые строки той же высоты, что итоги/«вес остатка»/«отпыл расх»
+            в колонках рецептов — чтобы таблица стояла на уровне таблиц сливов */}
+        <div style={{ visibility: "hidden" }} aria-hidden>
+          <div style={{ border: "1px solid", width: 60 }}>0</div>
+          <div style={{ border: "1px solid", width: 60, height: 24 }} />
+          <div style={{ border: "1px solid", width: 60, height: 24 }} />
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <div
+            style={{
+              ...cell,
+              width: 120,
+              // = шапка «N слив» + строка «грамм по рецепту»
+              height: DRAIN_ROW_H * 2,
+              fontSize: 12,
+              lineHeight: "16px",
+              textAlign: "center",
+              // fontWeight: 600,
+              backgroundColor: "#f0f2f5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="сколько каждого пигмента ушло в заказ: исходный рецепт + все добавки"
+          >
+            общий расход пигментов
+          </div>
+          {usage.map((el) => (
+            <div key={el.privateNumber} style={{ display: "flex" }}>
+              <div
+                style={{
+                  ...cell,
+                  border: "1px solid black",
+                  backgroundColor: "black",
+                  color: "white",
+                }}
+              >
+                {el.privateNumber}
+              </div>
+              <div style={cell}>{el.weight.shortToDecimalPlaces(2)}</div>
+            </div>
+          ))}
+          <div style={{ display: "flex" }}>
+            <div
+              style={{
+                ...cell,
+                border: "1px solid black",
+                background: "black",
+                color: "white",
+                fontSize: 11,
+              }}
+            >
+              всего
+            </div>
+            <div
+              style={{
+                ...cell,
+                border: "1px solid black",
+                background: "black",
+                color: "white",
+              }}
+            >
+              {total.shortToDecimalPlaces(2)}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  },
+);
+
 // номер рецепта (шага) над колонкой — та же нумерация, что у сливов
 const RECEPT_NUMBER_HEIGHT = 26;
 const ReceptNumber: React.FC<{
@@ -1903,8 +2007,9 @@ const DrainTable: React.FC<{
   const cell: React.CSSProperties = {
     border: "1px solid",
     width: 60,
-    minHeight: 24,
+    height: DRAIN_ROW_H,
     boxSizing: "border-box",
+    overflow: "hidden",
   };
 
   return (

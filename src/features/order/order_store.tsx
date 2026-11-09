@@ -15,6 +15,7 @@ import { OrderViewModel, applyOrderStatus } from "../orders/orders_db_model";
 import { SnapshotHistory } from "./snapshot_history";
 import { OrderHistoryDbRepository } from "./order_history_db_repository";
 import {
+  calculateComponentsUsage,
   calculateManufactureCost,
   calculateManufactureCostBySteps,
   isManufactureStepExcluded,
@@ -158,6 +159,18 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.resetOrderModalIsShow = true;
   };
   resetOrderModalIsShow = false;
+  // общий расход пигментов по заказу (в порядке таблицы компонентов)
+  getComponentsUsage = () => {
+    const usage = calculateComponentsUsage(this.componentsAddInRecept);
+    const order = this.getComponentsReceptUniq().map((el) =>
+      String(el.privateNumber),
+    );
+    return usage.sort(
+      (a, b) =>
+        (order.indexOf(a.privateNumber) + 1 || Infinity) -
+        (order.indexOf(b.privateNumber) + 1 || Infinity),
+    );
+  };
   // себестоимость производства по рецептам + исключён ли рецепт галочкой
   getManufactureCostBySteps = () =>
     calculateManufactureCostBySteps(this.componentsAddInRecept).map((el) => ({

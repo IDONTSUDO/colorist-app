@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { PaintConsistencyPicker } from "./paint_consistency";
 import { useStore } from "../../core/helper/use_store";
 import { OrdersStore } from "./orders_store";
 import { ModalV2 } from "../../core/ui/modal/modal";
@@ -116,6 +117,12 @@ export const Orders = observer(() => {
             },
           },
           {
+            name: "paintConsistency",
+            mapper: (v) => {
+              return <>{v ? v : "-"}</>;
+            },
+          },
+          {
             name: "readyAt",
             mapper: (v) => {
               return <>{v ? new Date(v).toLocaleDateString() : "-"}</>;
@@ -144,6 +151,7 @@ export const Orders = observer(() => {
           { replace: "Финансовый статус", name: "financeStatus" },
           { replace: "Дата создания", name: "createdAt" },
           { replace: "Дата готовности", name: "readyAt" },
+          { replace: "Тип краски", name: "paintConsistency" },
           { replace: "Кто делает заказ", name: "user" },
           { replace: "Производственный статус", name: "statusOrder" },
         ]}
@@ -207,6 +215,13 @@ export const Orders = observer(() => {
                 store.updateForm({
                   theVolumeOfPainTheCustomerWant: text,
                 })
+              }
+            />
+            <div style={{ height: 5 }} />
+            <PaintConsistencyPicker
+              value={store.viewModel.paintConsistency}
+              onChange={(value) =>
+                store.updateForm({ paintConsistency: value })
               }
             />
             <div style={{ height: 5 }} />
