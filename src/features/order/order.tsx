@@ -1,12 +1,9 @@
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../core/helper/use_store";
-import {
-  OrderMapper,
-  OrderMode,
-  OrderStore,
-} from "./order_store";
+import { OrderMapper, OrderMode, OrderStore } from "./order_store";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { OrdersPath } from "../orders/orders";
 import { Loader } from "../../core/ui/loader/loader";
 import { TextV2 } from "../../core/ui/text/text";
 import { Button, ButtonType } from "../../core/ui/button/Button";
@@ -24,7 +21,106 @@ import { plainToClass } from "class-transformer";
 
 export const OrderPath = "/order";
 
-export const Order = observer(() => {
+// key={id}: при переходе на другой номер заказа экран и стор создаются заново
+export const Order = () => {
+  const { id } = useParams();
+  return <OrderScreen key={id} />;
+};
+
+const OrderNotFound: React.FC<{ id?: string }> = ({ id }) => {
+  const navigate = useNavigate();
+  const [value, setValue] = useState("");
+  const open = () => {
+    const n = Number(value.trim());
+    if (!Number.isInteger(n) || n <= 0) return;
+    navigate(OrderPath + "/" + n);
+  };
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "70vh",
+        padding: 16,
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "#fafafa",
+          border: "1px solid #e2e8f0",
+          borderRadius: 8,
+          padding: 24,
+          width: "100%",
+          maxWidth: 420,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
+        <div style={{ fontSize: 18, fontWeight: 600, color: "#111111" }}>
+          Заказ {id ? `№${id} ` : ""}не найден
+        </div>
+        <div style={{ fontSize: 14, color: "#4a5568" }}>
+          Такого заказа нет. Введите другой номер заказа.
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            autoFocus
+            inputMode="numeric"
+            placeholder="Номер заказа"
+            value={value}
+            onChange={(e) => setValue(e.target.value.replace(/[^0-9]/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") open();
+            }}
+            style={{
+              flex: 1,
+              padding: "10px 12px",
+              fontSize: 15,
+              border: "1px solid #cbd5e1",
+              borderRadius: 6,
+              backgroundColor: "#ffffff",
+              color: "#1a202c",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          <button
+            type="button"
+            onClick={open}
+            disabled={value === ""}
+            style={{
+              padding: "10px 18px",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 500,
+              border: "none",
+              backgroundColor: value === "" ? "#c7c9f5" : "#4f46e5",
+              color: "#ffffff",
+              cursor: value === "" ? "default" : "pointer",
+            }}
+          >
+            Открыть
+          </button>
+        </div>
+        <div
+          onClick={() => navigate(OrdersPath)}
+          style={{
+            fontSize: 14,
+            color: "#4f46e5",
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}
+        >
+          ← к списку заказов
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const OrderScreen = observer(() => {
   const store = useStore(OrderStore);
   const { id } = useParams();
 
@@ -55,6 +151,7 @@ export const Order = observer(() => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+  if (store.notFound) return <OrderNotFound id={id} />;
   return (
     <>
       {store.isLoading ? (
@@ -831,6 +928,10 @@ export const Order = observer(() => {
                                           "Tab",
                                           ".",
                                           ",",
+                                          "ю",
+                                          "б",
+                                          "Ю",
+                                          "Б",
                                         ];
                                         const isNumber = /[0-9]/.test(
                                           event.key,
@@ -846,10 +947,10 @@ export const Order = observer(() => {
                                         const target =
                                           event.target as HTMLDivElement;
                                         if (
-                                          (event.key === "." ||
-                                            event.key === ",") &&
-                                          (target.innerText.includes(".") ||
-                                            target.innerText.includes(","))
+                                          sanitizeDecimal(event.key) === "." &&
+                                          sanitizeDecimal(
+                                            target.innerText,
+                                          ).includes(".")
                                         ) {
                                           event.preventDefault();
                                         }
@@ -857,8 +958,9 @@ export const Order = observer(() => {
                                       onBlur={(event) => {
                                         const target =
                                           event.target as HTMLDivElement;
-                                        const validValue =
-                                          target.innerText.replace(",", ".");
+                                        const validValue = sanitizeDecimal(
+                                          target.innerText,
+                                        );
                                         store.updateWeightContainers(
                                           validValue,
                                         );
@@ -1409,40 +1511,16 @@ const Dust: React.FC<{
   store: OrderStore;
   index: number;
   ele: OrderMapper;
-}> = ({ store, index, ele }) => {
-  const [s] = useState(ele.dust);
-  const [isNeedEllipses, setIsNeedEllipses] = useState(false);
-
-  return (
-    <div
-      key={index}
-      onClick={() => setIsNeedEllipses(true)}
-      suppressContentEditableWarning={true}
-      contentEditable={true}
-      onInput={(event) => {
-        const target = event.target as HTMLDivElement;
-        let value = target.innerText;
-
-        value = value.replace(/,/g, ".");
-
-        value = value.replace(/[^0-9.]/g, "");
-
-        const parts = value.split(".");
-        if (parts.length > 2) {
-          value = parts[0] + "." + parts.slice(1).join("");
-        }
-
-        if (target.innerText !== value) {
-          target.innerText = value;
-        }
-        store.updateDust(event.currentTarget.innerText, index);
-      }}
-      style={{ border: "1px solid", width: 60 }}
-    >
-      {s !== undefined ? s : isNeedEllipses ? "" : "..."}
-    </div>
-  );
-};
+}> = observer(({ store, index, ele }) => (
+  <DrainCell
+    style={{ border: "1px solid", width: 60, boxSizing: "border-box" }}
+    value={
+      ele.dust !== undefined && ele.dust !== "" ? Number(ele.dust) : undefined
+    }
+    placeholder="..."
+    onChange={(text) => store.updateDust(text, index)}
+  />
+));
 const PaintMapper: React.FC<{
   paint: PaintComponentViewModel;
   orderMapper: OrderMapper;
@@ -1601,18 +1679,30 @@ const HistoryButton: React.FC<{
 );
 
 // ячейка-поле: пока в фокусе — показывает то, что вводят, иначе — текущее значение из стора
+// дробное число из ввода. На Windows с русской раскладкой точка вводится как
+// «,» (Num Del), а клавиша «.» английской раскладки даёт «ю» (Shift — «Ю»),
+// соседняя «,» — «б». Всё это считаем десятичной точкой.
+export const sanitizeDecimal = (raw: string): string => {
+  let v = raw.replace(/[,юбЮБ]/g, ".").replace(/[^0-9.]/g, "");
+  const parts = v.split(".");
+  if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
+  return v;
+};
+
 const DrainCell: React.FC<{
   value?: number;
   onChange: (text: string) => void;
   style: React.CSSProperties;
   title?: string;
-}> = observer(({ value, onChange, style, title }) => {
+  placeholder?: string;
+}> = observer(({ value, onChange, style, title, placeholder }) => {
   const [text, setText] = useState<string | null>(null);
   const shown =
     text ?? (value !== undefined ? String(value.shortToDecimalPlaces(2)) : "");
   return (
     <input
       title={title}
+      placeholder={placeholder}
       value={shown}
       inputMode="decimal"
       onFocus={() => setText(shown)}
@@ -1621,9 +1711,7 @@ const DrainCell: React.FC<{
         if (event.key === "Enter") event.currentTarget.blur();
       }}
       onChange={(event) => {
-        let v = event.target.value.replace(/,/g, ".").replace(/[^0-9.]/g, "");
-        const parts = v.split(".");
-        if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
+        const v = sanitizeDecimal(event.target.value);
         setText(v);
         onChange(v);
       }}

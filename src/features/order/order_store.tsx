@@ -93,12 +93,12 @@ export class OrderMapper {
     this.balance = balance;
     makeAutoObservable(this);
   }
-  getBalance(_: OrderStore) {
+  getBalance(store: OrderStore) {
     return (
       this.balance.reduce((acc, el) => {
         return acc + (el?.weightCalcRecept ?? 0);
       }, 0) -
-      // store.weightContainers -
+      store.weightContainers -
       Number(this.dust ?? 0)
     );
   }
@@ -385,10 +385,13 @@ export class OrderStore extends FormState<OrderViewModel> {
     const total = mapper.drainWeight;
     const current = mapper.getDrain().map((el) => el.weight);
     const edited = mapper.balance.map(
-      (_, i) => mapper.hasDrainOverrides() && (mapper.drainEdited?.[i] ?? false),
+      (_, i) =>
+        mapper.hasDrainOverrides() && (mapper.drainEdited?.[i] ?? false),
     );
     edited[subIndex] = true;
-    const others = mapper.balance.map((_, i) => i).filter((i) => i !== subIndex);
+    const others = mapper.balance
+      .map((_, i) => i)
+      .filter((i) => i !== subIndex);
     let free = others.filter((i) => !edited[i]);
     // все остальные уже зафиксированы — снимаем с них фиксацию
     if (free.length === 0) {
@@ -467,7 +470,9 @@ export class OrderStore extends FormState<OrderViewModel> {
     );
   }
   updateDust = (value: string, index: number): void => {
-    if (!Number(value).isPositive()) {
+    const n = Number(value);
+    // "55." во время ввода — валидно (Number даст 55); 0 тоже допустим
+    if (value.trim() === "" || isNaN(n) || n < 0) {
       return;
     }
     this.componentsAddInRecept.atR(index).map((el) => {
@@ -673,11 +678,25 @@ export class OrderStore extends FormState<OrderViewModel> {
 
     await this.repository.updateOrder(this.viewModel);
   };
+  // заказ с таким id не найден — показываем экран «не найден»
+  notFound = false;
   initParams = async (id: string) => {
-    await this.mapOk(
-      "viewModel",
-      this.repository.getOrderById(Number(id) as any),
+    const orderId = Number(id);
+    if (!Number.isInteger(orderId) || orderId <= 0) {
+      this.notFound = true;
+      return;
+    }
+    this.isLoading = true;
+    const order = (await this.repository.getOrderById(orderId as any)).fold(
+      (el) => el as OrderViewModel | undefined,
+      () => undefined,
     );
+    this.isLoading = false;
+    if (order === undefined) {
+      this.notFound = true;
+      return;
+    }
+    this.viewModel = order;
 
     await this.mapOk(
       "client",
