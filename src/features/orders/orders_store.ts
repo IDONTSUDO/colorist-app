@@ -53,6 +53,24 @@ export class OrdersStore extends CrudFormLocalDbStore<
     makeAutoObservable(this);
   }
 
+  searchDateRange?: [Date, Date];
+  // createdAt — timestamp, текстовый поиск по нему не работает: ищем по периоду
+  private baseFindButton = this.onClickFindButton;
+  onClickFindButton = async (): Promise<void> => {
+    if (this.searchByField !== "createdAt") {
+      return this.baseFindButton();
+    }
+    if (this.searchDateRange === undefined) {
+      message.error("Выберите период");
+      return;
+    }
+    const [from, to] = this.searchDateRange;
+    const orders = await this.repository.getOrdersInPeriod(from, to);
+    if (this.page !== undefined) {
+      this.page.data = orders;
+    }
+  };
+
   updateOrderStatus = (value: string, index: number): void => {
     const order = this.page?.data.at(index) as OrderViewModel;
     applyOrderStatus(order, value);

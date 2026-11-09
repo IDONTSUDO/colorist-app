@@ -11,6 +11,7 @@ export const ModalV2: React.FC<{
     <div
       style={{
         position: "fixed",
+        zIndex: 1000,
         top: 0,
         left: 0,
         right: 0,

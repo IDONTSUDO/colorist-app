@@ -201,10 +201,8 @@ export abstract class CrudFormStore<
   };
 
   selectPage = async (page: number) => {
-    console.log(2000);
     this.page!.currentPage = page;
-    console.log(2001);
-    await this.read();
+    await this.mapOk("page", this.read());
   };
   models = (): V[] | undefined => this.page?.data;
   async init(_?: NavigateFunction): Promise<any> {

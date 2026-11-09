@@ -1,3 +1,4 @@
+import React from "react";
 import { TextV2 } from "../text/text";
 const tdHeight = 20;
 const thHeight = 20;
@@ -9,9 +10,10 @@ export const CoreTable: React.FC<{
   addingColumns?: { name: string; jsx: (el: any) => React.ReactNode }[];
   replacedColumns?: { name: string; replace: string }[];
   onClick?: (index: number) => void;
+  // подсветка строки под курсором (режим удаления/редактирования)
+  rowHoverColor?: string;
   mappedColumns:
-    | { name: string; mapper: (date: any) => React.ReactNode }[]
-    | undefined;
+    { name: string; mapper: (date: any) => React.ReactNode }[] | undefined;
 }> = ({
   columns,
   source,
@@ -20,12 +22,16 @@ export const CoreTable: React.FC<{
   mappedColumns,
   missingKey,
   addingColumns,
+  rowHoverColor,
 }) => {
+  const [hoverIndex, setHoverIndex] = React.useState<number | undefined>();
   return (
     <div
       style={{
         flex: 1,
         minHeight: 0,
+        // z-index липкой шапки действует только внутри таблицы
+        isolation: "isolate",
         border: "1px solid oklch(92.9% 0.013 255.508)",
         borderRadius: 6,
         overflow: "auto",
@@ -141,10 +147,17 @@ export const CoreTable: React.FC<{
 
         {source.map((el, i) => (
           <tr
+            onMouseEnter={() => setHoverIndex(i)}
+            onMouseLeave={() => setHoverIndex(undefined)}
             style={{
-              // height: 50,
-
-              backgroundColor: i % 2 === 0 ? "#fff" : "#F5F5F5",
+              backgroundColor:
+                rowHoverColor !== undefined && hoverIndex === i
+                  ? rowHoverColor
+                  : i % 2 === 0
+                    ? "#fff"
+                    : "#F5F5F5",
+              cursor: rowHoverColor !== undefined ? "pointer" : undefined,
+              transition: "background-color 0.1s",
               borderBottom: "1px solid #D0D0D0",
             }}
           >

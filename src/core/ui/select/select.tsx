@@ -1,5 +1,3 @@
-// import * as React from "react";
-
 import React from "react";
 
 export enum CoreInputType {
@@ -13,6 +11,53 @@ export type SelectOption = {
   value: string;
 };
 
+const colors = {
+  border: "#e2e8f1",
+  borderHover: "#cbd5e1",
+  borderActive: "oklch(20.8% 0.042 265.755)",
+  text: "oklch(37.2% 0.044 257.287)",
+  muted: "#8fa1b9",
+  hover: "#f8fafc",
+  selected: "#f1f5f9",
+};
+
+const Chevron: React.FC<{ open: boolean }> = ({ open }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{
+      flexShrink: 0,
+      color: colors.muted,
+      transform: open ? "rotate(180deg)" : "rotate(0deg)",
+      transition: "transform 0.18s",
+    }}
+  >
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
+
+const Check: React.FC = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ flexShrink: 0 }}
+  >
+    <path d="M5 12l5 5L20 7" />
+  </svg>
+);
+
 export const Select: React.FC<{
   style?: React.CSSProperties;
   label?: string;
@@ -23,7 +68,7 @@ export const Select: React.FC<{
   type?: CoreInputType;
 }> = ({
   style,
-  label = "Выбирите",
+  label = "Выберите",
   options,
   value,
   onChange,
@@ -31,18 +76,19 @@ export const Select: React.FC<{
   type,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isHover, setIsHover] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 
-  const isSmall = type !== undefined && type === CoreInputType.small;
-
+  const isSmall = type === CoreInputType.small;
   const selected = options.find((o) => o.value === value);
+
   React.useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", (e) => handleClick(e));
+    document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
@@ -50,112 +96,149 @@ export const Select: React.FC<{
     <div
       ref={ref}
       style={Object.assign(
-        { position: "relative", fontFamily: "system-ui", height: 46 },
-
+        {
+          position: "relative",
+          fontFamily: "system-ui",
+          height: isSmall ? 36 : 46,
+          flexShrink: 0,
+        },
         style,
       )}
     >
       <div
         onClick={() => setIsOpen((v) => !v)}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
         style={{
           height: "100%",
-          alignContent: "center",
-          justifyItems: "center",
+          boxSizing: "border-box",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          minWidth: isSmall ? 100 : 160,
+          paddingLeft: 14,
+          paddingRight: 12,
+          background: "#fff",
           borderRadius: 6,
           cursor: "pointer",
-          paddingLeft: 12,
-          width: "max-content",
-          border: "1px solid",
-          paddingRight: 12,
-          paddingTop: 10,
-          paddingBottom: 10,
+          userSelect: "none",
+          border: `1px solid ${
+            isOpen
+              ? colors.borderActive
+              : isHover
+                ? colors.borderHover
+                : colors.border
+          }`,
+          boxShadow: isOpen ? "0 0 0 3px rgba(15, 23, 42, 0.06)" : "none",
+          transition: "border-color 0.15s, box-shadow 0.15s",
         }}
       >
-        <span
-          style={{
-            fontSize: isSmall ? 8 : 11,
-            color: "#666",
-            marginBottom: 2,
-          }}
-        >
-          {label}
-        </span>
         <div
           style={{
+            flex: 1,
+            minWidth: 0,
             display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            flexDirection: "column",
+            justifyContent: "center",
           }}
         >
+          {label ? (
+            <span
+              style={{
+                fontSize: isSmall ? 9 : 11,
+                lineHeight: 1.2,
+                color: colors.muted,
+              }}
+            >
+              {label}
+            </span>
+          ) : null}
           <span
             style={{
-              fontSize: 12,
-              color: selected ? "#000" : "#999",
+              fontSize: isSmall ? 13 : 15,
+              fontWeight: 500,
+              lineHeight: 1.3,
+              color: selected ? colors.text : colors.muted,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
-            {selected ? selected.label : (placeholder ?? "Выбрать")}
-          </span>
-          <span
-            style={{
-              fontSize: 18,
-              color: "#000",
-              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-              transition: "transform 0.18s",
-              lineHeight: 1,
-            }}
-          >
-            ▾
+            {selected ? selected.label : (placeholder ?? "Выбрать поле")}
           </span>
         </div>
+        <Chevron open={isOpen} />
       </div>
 
       {isOpen && (
         <div
           style={{
             position: "absolute",
-            top: "calc(100% + 2px)",
-            left: 0,
-            width: "max-content",
+            top: "calc(100% + 6px)",
             right: 0,
+            minWidth: "100%",
+            width: "max-content",
+            maxHeight: 320,
+            overflowY: "auto",
+            boxSizing: "border-box",
+            padding: 4,
             background: "#fff",
-            border: "1px solid #000",
-            borderRadius: "0 0 4px 4px",
-            zIndex: 10,
+            border: `1px solid ${colors.border}`,
+            borderRadius: 8,
+            boxShadow:
+              "0 10px 24px -6px rgba(15, 23, 42, 0.15), 0 2px 6px rgba(15, 23, 42, 0.06)",
+            zIndex: 20,
           }}
         >
-          {options.map((opt, i) => (
+          {options.length === 0 ? (
             <div
-              key={opt.value}
-              onClick={() => {
-                onChange?.(opt.value);
-                setIsOpen(false);
-              }}
               style={{
-                padding: "12px 10px",
-                fontSize: 15,
-                // width: "max-content",
-                fontFamily: "system-ui",
-                cursor: "pointer",
-                width: "100%",
-                color: opt.value === value ? "#fff" : "#000",
-                background: opt.value === value ? "#000" : "transparent",
-                borderBottom:
-                  i < options.length - 1 ? "0.5px solid #e0e0e0" : "none",
-              }}
-              onMouseEnter={(e) => {
-                if (opt.value !== value)
-                  (e.currentTarget as HTMLDivElement).style.background =
-                    "#F5F5F5";
-              }}
-              onMouseLeave={(e) => {
-                if (opt.value !== value)
-                  (e.currentTarget as HTMLDivElement).style.background =
-                    "transparent";
+                padding: "10px 12px",
+                fontSize: 14,
+                color: colors.muted,
               }}
             >
-              {opt.label}
+              Нет вариантов
             </div>
-          ))}
+          ) : (
+            options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <div
+                  key={opt.value}
+                  onClick={() => {
+                    onChange?.(opt.value);
+                    setIsOpen(false);
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected)
+                      e.currentTarget.style.background = colors.hover;
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected)
+                      e.currentTarget.style.background = "transparent";
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    padding: "9px 12px",
+                    borderRadius: 5,
+                    fontSize: 14,
+                    fontWeight: isSelected ? 600 : 400,
+                    color: colors.text,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    background: isSelected ? colors.selected : "transparent",
+                  }}
+                >
+                  {opt.label}
+                  {isSelected ? <Check /> : <span style={{ width: 16 }} />}
+                </div>
+              );
+            })
+          )}
         </div>
       )}
     </div>

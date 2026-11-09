@@ -6,13 +6,13 @@ import { OrdersStore } from "./orders_store";
 import { ModalV2 } from "../../core/ui/modal/modal";
 import { InputV3 } from "../../core/ui/input/input_v3";
 import { Button } from "../../core/ui/button/Button";
-import { ru } from "date-fns/locale";
 import { CrudPage } from "../../core/ui/page/crud_page";
 import { useNavigate } from "react-router-dom";
 import { OrderPath } from "../order/order";
 import { isBackgroundOpen, orderTabsStore } from "../order/order_tabs_store";
-import { DayPicker } from "react-day-picker";
-import "react-day-picker/style.css";
+import { DatePicker } from "antd";
+import ruLocale from "antd/es/date-picker/locale/ru_RU";
+import moment from "moment";
 import { OrderViewModel } from "./orders_db_model";
 import { SelectV2 } from "../../core/ui/select/select_v2";
 import { useEffect, useState } from "react";
@@ -30,12 +30,25 @@ export const Orders = observer(() => {
         searchByField={{
           createdAt: () => (
             <>
-              <DayPicker
-                mode="single"
-                selected={new Date()}
-                onSelect={() => {}}
-                locale={ru}
-                footer={"Pick a day."}
+              <DatePicker.RangePicker
+                locale={ruLocale}
+                format="DD.MM.YYYY"
+                placeholder={["С даты", "По дату"]}
+                style={{ width: "100%", height: 46, borderRadius: 6 }}
+                value={
+                  store.searchDateRange
+                    ? [
+                        moment(store.searchDateRange[0]),
+                        moment(store.searchDateRange[1]),
+                      ]
+                    : null
+                }
+                onChange={(range) =>
+                  (store.searchDateRange =
+                    range?.[0] && range?.[1]
+                      ? [range[0].toDate(), range[1].toDate()]
+                      : undefined)
+                }
               />
             </>
           ),

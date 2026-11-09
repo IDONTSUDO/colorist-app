@@ -12,7 +12,7 @@ import { Pagination } from "../pagination/pagination";
 import { Button, ButtonType } from "../button/Button";
 import type { ClassConstructor } from "class-transformer";
 import { Select } from "../select/select";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Icon, IconType } from "../icon/icon";
 import { useNavigate } from "react-router-dom";
 import { InputV3 } from "../input/input_v3";
@@ -83,7 +83,53 @@ export const CrudPage: React.FC<{
     body,
   }) => {
     const n = useNavigate();
+    const isDeleteMode = store.currentMode === CrudMode.delete;
+    const isEditMode = store.currentMode === CrudMode.edit;
+    const modeInfo = isDeleteMode
+      ? {
+          color: "#e11d48",
+          bg: "#fff1f2",
+          border: "#fecdd3",
+          rowHover: "#ffe4e6",
+          title: "Режим удаления",
+          hint: "нажмите на строку, чтобы удалить запись",
+        }
+      : isEditMode
+        ? {
+            color: "#2563eb",
+            bg: "#eff6ff",
+            border: "#bfdbfe",
+            rowHover: "#dbeafe",
+            title: "Режим редактирования",
+            hint: "нажмите на строку, чтобы изменить запись",
+          }
+        : undefined;
+    // Esc — выйти из режима удаления/редактирования
+    useEffect(() => {
+      if (store.currentMode === undefined) return;
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Escape" && !store.isModalOpen) {
+          store.currentMode = undefined;
+        }
+      };
+      document.addEventListener("keydown", onKey);
+      return () => document.removeEventListener("keydown", onKey);
+    }, [store.currentMode]);
     const fieldReplace = searchByField[store.searchByField ?? ""];
+    // Поля берём из первой записи. Запоминаем их, чтобы при пустом
+    // результате поиска не пропадали варианты в «Выбрать» и выбранное поле.
+    const lastKeys = useRef<string[]>([]);
+    // у сторов страниц без таблицы метода models может не быть
+    const models: any[] | undefined =
+      typeof store.models === "function" ? store.models() : undefined;
+    const firstModel = models?.at(0);
+    if (firstModel !== undefined) {
+      lastKeys.current = Object.keys(firstModel);
+    }
+    const fieldKeys = lastKeys.current.filter(
+      (el) => !missingKey?.includes(el),
+    );
+    const isEmpty = (models?.length ?? 0) === 0;
     useEffect(() => {
       store.feature = feature;
     }, []);
@@ -197,28 +243,26 @@ export const CrudPage: React.FC<{
 
                   <Select
                     style={{ width: "max-content" }}
-                    options={Object.keys(store.models()?.at(0) ?? {})
-                      .filter((el) => !missingKey?.includes(el))
-                      .map((el) => {
-                        return {
-                          value: el,
-                          label:
-                            replacedColumns
-                              ?.rFind<{
-                                name: string;
-                                replace: string;
-                              }>((element) => element.name === el)
-                              .fold(
-                                (s) => s.replace,
-                                (_) => el,
-                              ) ?? "",
-                        };
-                      })}
+                    options={fieldKeys.map((el) => {
+                      return {
+                        value: el,
+                        label:
+                          replacedColumns
+                            ?.rFind<{
+                              name: string;
+                              replace: string;
+                            }>((element) => element.name === el)
+                            .fold(
+                              (s) => s.replace,
+                              (_) => el,
+                            ) ?? "",
+                      };
+                    })}
                     value={store.searchByField ?? ""}
                     onChange={function (value: string): void {
                       store.searchByField = value;
                     }}
-                    label={""}
+                    label="Искать по"
                   />
                 </div>
                 <div
@@ -266,9 +310,13 @@ export const CrudPage: React.FC<{
                         text="Удалить"
                         type={ButtonType.delete}
                         width={100}
-                        color={
-                          store.currentMode === CrudMode.delete
-                            ? "rgb(28 29 38)"
+                        textColor={isDeleteMode ? "#fff" : undefined}
+                        style={
+                          isDeleteMode
+                            ? {
+                                backgroundColor: "#e11d48",
+                                borderColor: "#e11d48",
+                              }
                             : undefined
                         }
                       />
@@ -282,9 +330,13 @@ export const CrudPage: React.FC<{
                         <Button
                           text="Редактировать"
                           width={130}
-                          color={
-                            store.currentMode === CrudMode.edit
-                              ? "rgb(28 29 38)"
+                          textColor={isEditMode ? "#fff" : undefined}
+                          style={
+                            isEditMode
+                              ? {
+                                  backgroundColor: "#2563eb",
+                                  borderColor: "#2563eb",
+                                }
                               : undefined
                           }
                         />
@@ -309,42 +361,101 @@ export const CrudPage: React.FC<{
               paddingBottom: 10,
             }}
           >
-            {store.isLoading &&
-            store.models !== undefined &&
-            store.models()?.at(0) !== undefined ? (
+            {store.isLoading && firstModel !== undefined ? (
               <Loader />
             ) : (
               <>
                 {isNeedTable ? (
                   <>
-                    <div style={{ height: 20 }} className="1"></div>
-                    <CoreTable
-                      addingColumns={addingColumns}
-                      replacedJSXColumns={replacedJSXColumns}
-                      missingKey={missingKey}
-                      replacedColumns={replacedColumns}
-                      mappedColumns={mappedColumns}
-                      onClick={(index) => {
-                        if (store.currentMode === CrudMode.edit) {
-                          store.loadClassInstance(
-                            instanceModel as ClassConstructor<any>,
-                            store.models()!.at(index),
-                          );
-                          // if(this.viewModel)
-                          if (Object.hasOwn(store.viewModel, "fromServer")) {
-                            store.viewModel.fromServer();
+                    {modeInfo !== undefined ? (
+                      <div
+                        style={{
+                          marginTop: 12,
+                          marginBottom: 8,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          padding: "8px 8px 8px 14px",
+                          background: modeInfo.bg,
+                          border: `1px solid ${modeInfo.border}`,
+                          borderLeft: `4px solid ${modeInfo.color}`,
+                          borderRadius: 6,
+                          fontFamily: "system-ui",
+                          fontSize: 14,
+                          color: "oklch(37.2% 0.044 257.287)",
+                        }}
+                      >
+                        <span
+                          style={{ fontWeight: 600, color: modeInfo.color }}
+                        >
+                          {modeInfo.title}
+                        </span>
+                        <span>— {modeInfo.hint}</span>
+                        <span style={{ flex: 1 }} />
+                        <span style={{ color: "#8fa1b9", fontSize: 12 }}>
+                          Esc
+                        </span>
+                        <div
+                          onClick={() => (store.currentMode = undefined)}
+                          style={{
+                            padding: "4px 12px",
+                            borderRadius: 5,
+                            background: "#fff",
+                            border: `1px solid ${modeInfo.border}`,
+                            color: modeInfo.color,
+                            fontWeight: 500,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Отмена
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ height: 20 }} className="1"></div>
+                    )}
+                    {isEmpty ? (
+                      <div
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          border: "1px solid oklch(92.9% 0.013 255.508)",
+                          borderRadius: 6,
+                          color: "#8fa1b9",
+                          fontSize: 18,
+                        }}
+                      >
+                        Ничего не найдено
+                      </div>
+                    ) : (
+                      <CoreTable
+                        rowHoverColor={modeInfo?.rowHover}
+                        addingColumns={addingColumns}
+                        replacedJSXColumns={replacedJSXColumns}
+                        missingKey={missingKey}
+                        replacedColumns={replacedColumns}
+                        mappedColumns={mappedColumns}
+                        onClick={(index) => {
+                          if (store.currentMode === CrudMode.edit) {
+                            store.loadClassInstance(
+                              instanceModel as ClassConstructor<any>,
+                              models!.at(index),
+                            );
+                            // if(this.viewModel)
+                            if (Object.hasOwn(store.viewModel, "fromServer")) {
+                              store.viewModel.fromServer();
+                            }
+                            store.modalShow();
                           }
-                          store.modalShow();
-                        }
-                        if (store.currentMode === CrudMode.delete) {
-                          store.delete(store.models()!.at(index).id);
-                        }
-                      }}
-                      columns={Object.keys(store.models()?.at(0) ?? {}).filter(
-                        (el) => !missingKey?.includes(el),
-                      )}
-                      source={store.models() ?? []}
-                    />
+                          if (store.currentMode === CrudMode.delete) {
+                            store.delete(models!.at(index).id);
+                          }
+                        }}
+                        columns={fieldKeys}
+                        source={models ?? []}
+                      />
+                    )}
                     <Pagination store={store} />
                   </>
                 ) : (
