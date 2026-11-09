@@ -1791,31 +1791,6 @@ const DrainTable: React.FC<{
           />
         </div>
       ))}
-      <div style={{ display: "flex" }}>
-        <div
-          style={{
-            ...cell,
-            border: "1px solid black",
-            background: "black",
-            color: "white",
-            fontSize: 11,
-          }}
-        >
-          итого
-        </div>
-        <div
-          style={{
-            ...cell,
-            border: "1px solid black",
-            background: "black",
-            color: "white",
-          }}
-        >
-          {orderMapper.drainWeight
-            ? orderMapper.drainWeight.shortToDecimalPlaces(2)
-            : "-"}
-        </div>
-      </div>
       {orderMapper.hasDrainOverrides() ? (
         <div
           onClick={() => store.resetDrainComponents(index)}
