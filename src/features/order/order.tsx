@@ -563,7 +563,7 @@ const OrderScreen = observer(() => {
                                                   >
                                                     <div
                                                       style={{
-                                                        fontSize: 12,
+                                                        fontSize: 11,
                                                         width: 60,
                                                         height: 23,
                                                         textAlignLast: "center",
