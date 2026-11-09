@@ -42,7 +42,10 @@ export const CoreTable: React.FC<{
           // height: "100%",
           width: "100%",
           borderCollapse: "collapse",
-          fontFamily: "Roboto, sans-serif",
+          // Manrope подключён в index.html; цифры одной ширины — столбцы ровнее
+          fontFamily: "Manrope, system-ui, -apple-system, sans-serif",
+          fontVariantNumeric: "tabular-nums",
+          WebkitFontSmoothing: "antialiased",
           borderRadius: 6,
         }}
       >
@@ -172,10 +175,11 @@ export const CoreTable: React.FC<{
                   <td
                     className="2"
                     style={{
-                      fontSize: 14,
-                      // borderRight: "1px solid #D0D0D0",
+                      fontSize: 14.5,
+                      fontWeight: 500,
+                      letterSpacing: 0.1,
                       padding: "6px 10px",
-                      color: "var(--tx-000)",
+                      color: "var(--tx-1a202c)",
                       height: tdHeight,
                     }}
                     onClick={() => onClick?.(i)}
@@ -197,11 +201,12 @@ export const CoreTable: React.FC<{
                     <td
                       className="3"
                       style={{
-                        fontSize: 14,
-                        // borderRight: "1px solid #D0D0D0",
+                        fontSize: 14.5,
+                        fontWeight: 500,
+                        letterSpacing: 0.1,
                         padding: "6px 10px",
                         textAlign: "justify",
-                        color: "var(--tx-000)",
+                        color: "var(--tx-1a202c)",
                         height: tdHeight,
                       }}
                     >
