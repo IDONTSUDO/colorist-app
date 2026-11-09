@@ -18,6 +18,7 @@ import { ClientForm } from "./ui/client";
 import { FinancialAccountingForm } from "./ui/finance_form";
 import { PaintComponentViewModel } from "../paint_components/paint_components_db_model";
 import { plainToClass } from "class-transformer";
+import { downloadOrderDoc } from "./order_print";
 
 export const OrderPath = "/order";
 
@@ -176,6 +177,31 @@ const OrderScreen = observer(() => {
                     onClick={() => store.redo()}
                   />
                   <div style={{ width: 20 }}></div>
+                  {store.componentsAddInRecept.isNotEmpty() ? (
+                    <>
+                      <div
+                        title="скачать таблицу рецептов заказа в .doc"
+                        onClick={() => downloadOrderDoc(store)}
+                        style={{
+                          padding: "10px 18px",
+                          borderRadius: "8px",
+                          fontSize: 14,
+                          fontWeight: 500,
+                          alignContent: "center",
+                          cursor: "pointer",
+                          border: "none",
+                          backgroundColor: "rgb(240, 242, 245)",
+                          color: "rgb(74, 85, 104)",
+                          transition: "all 0.2s",
+                        }}
+                      >
+                        распечатать
+                      </div>
+                      <div style={{ width: 10 }}></div>
+                    </>
+                  ) : (
+                    <></>
+                  )}
                   {store.componentsAddInRecept.isEmpty() ? (
                     <>
                       <div
