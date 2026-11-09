@@ -1527,19 +1527,17 @@ const PaintMapper: React.FC<{
         }}
         onInput={(event) => {
           const target = event.target as HTMLDivElement;
-          let value = target.innerText;
-
-          value = value.replace(/,/g, ".");
-
-          value = value.replace(/[^0-9.]/g, "");
-
-          const parts = value.split(".");
-          if (parts.length > 2) {
-            value = parts[0] + "." + parts.slice(1).join("");
-          }
-
+          // «,», «ю», «б» → «.», остальное кроме цифр убираем
+          const value = sanitizeDecimal(target.innerText);
           if (target.innerText !== value) {
             target.innerText = value;
+            // после замены текста курсор уходит в начало — возвращаем в конец
+            const range = document.createRange();
+            range.selectNodeContents(target);
+            range.collapse(false);
+            const sel = window.getSelection();
+            sel?.removeAllRanges();
+            sel?.addRange(range);
           }
           store.isNeedSaveButton = true;
           if (orderMapper.addingComponents.length === 0) {

@@ -9,6 +9,24 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
     db = db;
     abstract entity: ClassConstructor<M>;
 
+    // Сообщение при нарушении уникального индекса (ConstraintError из IndexedDB).
+    // Наследники переопределяют, чтобы показать понятный текст для своих полей.
+    uniqueErrorMessage = async (field: string, _model: M): Promise<string> =>
+        `Запись с таким значением поля «${field}» уже существует`;
+
+    protected errorMessage = async (error: unknown, model: M): Promise<string> => {
+        const e = error as { name?: string; message?: string; inner?: { name?: string; message?: string } };
+        const text = `${e?.message ?? ""} ${e?.inner?.message ?? ""}`;
+        const isConstraint =
+            e?.name === "ConstraintError" || e?.inner?.name === "ConstraintError" || /ConstraintError/.test(text);
+        if (isConstraint) {
+            const field = text.match(/index '([^']+)'/)?.[1];
+            if (field !== undefined) return this.uniqueErrorMessage(field, model);
+            return "Такая запись уже существует";
+        }
+        return e?.message || "Не удалось сохранить запись";
+    };
+
 
     addModel = async (model: M) => {
         try {
@@ -16,8 +34,7 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
             await this.db.getRepository(this.entity).add(JSON.parse(JSON.stringify(n)));
             return Result.ok();
         } catch (error) {
-            // @ts-ignore
-            return Result.error(error.message);
+            return Result.error(await this.errorMessage(error, model));
         }
     }
 
@@ -50,7 +67,7 @@ export abstract class CrudIndexedDbRepository<M extends BaseEntity> {
             await this.db.getRepository(this.entity).where('id').equals(model.id ?? 1).modify(JSON.parse(JSON.stringify(model)));
             return Result.ok(undefined);
         } catch (error) {
-            return Result.error('');
+            return Result.error(await this.errorMessage(error, model));
         }
     }
 

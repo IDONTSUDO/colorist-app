@@ -6,6 +6,23 @@ import { Result } from "../../core/helper/result";
 
 export class ClientsDbRepository extends CrudIndexedDbRepository<ClientViewModel> {
     entity: ClassConstructor<ClientViewModel> = ClientViewModel;
+
+    uniqueErrorMessage = async (field: string, model: ClientViewModel): Promise<string> => {
+        if (field !== "numberPhone") return `Запись с таким значением поля «${field}» уже существует`;
+        const phone = `+7 (${String(model.numberPhone ?? "").replace(" ", ") ")}`;
+        const owner = await this.db
+            .getRepository(this.entity)
+            .where("numberPhone")
+            .equals(model.numberPhone)
+            .first()
+            .catch(() => undefined);
+        const name = owner
+            ? [owner.family, owner.name, owner.surName].filter(Boolean).join(" ")
+            : "";
+        return name
+            ? `Клиент с номером ${phone} уже есть: ${name}`
+            : `Клиент с номером ${phone} уже есть`;
+    };
     findInFio = async (value: string) => {
         const documents = await (await this.db.getRepository(this.entity).toArray())
 
