@@ -66,8 +66,8 @@ export const ClientHoverCard: React.FC<{ clientId?: string | number }> = ({
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const openTimer = useRef<number>();
-  const closeTimer = useRef<number>();
+  const openTimer = useRef<number | undefined>(undefined);
+  const closeTimer = useRef<number | undefined>(undefined);
 
   const hasClient =
     clientId !== undefined && clientId !== null && clientId !== "";
