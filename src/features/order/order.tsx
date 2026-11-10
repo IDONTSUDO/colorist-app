@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../core/helper/use_store";
 import { OrderMapper, OrderMode, OrderStore } from "./order_store";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { OrdersPath } from "../orders/orders";
 import { Loader } from "../../core/ui/loader/loader";
@@ -12,7 +12,7 @@ import { Menu } from "../../core/ui/menu/menu";
 import { Icon, IconType } from "../../core/ui/icon/icon";
 import { ModalV2 } from "../../core/ui/modal/modal";
 import { InputV3 } from "../../core/ui/input/input_v3";
-import { M } from "./ui/modal_add_components";
+import { M, NotFoundComponent } from "./ui/modal_add_components";
 import { FinancialAccountingForm } from "./ui/finance_form";
 import { PaintComponentViewModel } from "../paint_components/paint_components_db_model";
 import { plainToClass } from "class-transformer";
@@ -23,6 +23,9 @@ import { OrderTabs } from "./ui/order_tabs";
 import { OrderDetails } from "./ui/order_details";
 
 export const OrderPath = "/order";
+// пределы масштаба таблиц рецепта
+const ZOOM_MIN = 0.3;
+const ZOOM_MAX = 1.5;
 
 // key={id}: при переходе на другой номер заказа экран и стор создаются заново
 export const Order = () => {
@@ -65,7 +68,9 @@ const OrderNotFound: React.FC<{ id?: string }> = ({ id }) => {
           gap: 16,
         }}
       >
-        <div style={{ fontSize: 18, fontWeight: 600, color: "var(--tx-111111)" }}>
+        <div
+          style={{ fontSize: 18, fontWeight: 600, color: "var(--tx-111111)" }}
+        >
           Заказ {id ? `№${id} ` : ""}не найден
         </div>
         <div style={{ fontSize: 14, color: "var(--tx-4a5568)" }}>
@@ -130,6 +135,63 @@ const OrderNotFound: React.FC<{ id?: string }> = ({ id }) => {
 const OrderScreen = observer(() => {
   const store = useStore(OrderStore);
   const { id } = useParams();
+  // скрыта ли плашка вкладок «Рецепт / Заказ / Финансовый учет» (запоминается)
+  const [tabsHidden, setTabsHidden] = useState(() => {
+    try {
+      return localStorage.getItem("orderTabsHeaderHidden") === "1";
+    } catch {
+      return false;
+    }
+  });
+  // масштаб таблиц рецепта (1 = 100%), запоминается
+  const tablesRef = useRef<HTMLDivElement>(null);
+  const [tablesZoom, setTablesZoomState] = useState(() => {
+    try {
+      const v = Number(localStorage.getItem("orderTablesZoom"));
+      return v >= ZOOM_MIN && v <= ZOOM_MAX ? v : 1;
+    } catch {
+      return 1;
+    }
+  });
+  const setTablesZoom = (v: number) => {
+    const z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(v * 100) / 100));
+    setTablesZoomState(z);
+    try {
+      localStorage.setItem("orderTablesZoom", String(z));
+    } catch {}
+  };
+  // уменьшить/увеличить таблицы так, чтобы они целиком поместились в видимую область
+  const fitTablesToScreen = () => {
+    const el = tablesRef.current;
+    if (!el) return;
+    let container = el.parentElement;
+    while (container && getComputedStyle(container).overflowY !== "auto")
+      container = container.parentElement;
+    if (!container) return;
+    const rect = el.getBoundingClientRect();
+    const box = container.getBoundingClientRect();
+    const cs = getComputedStyle(container);
+    const padR = parseFloat(cs.paddingRight) || 0;
+    const padB = parseFloat(cs.paddingBottom) || 0;
+    // натуральный размер таблиц (getBoundingClientRect уже учитывает zoom)
+    const naturalW = rect.width / tablesZoom;
+    const naturalH = rect.height / tablesZoom;
+    if (naturalW === 0 || naturalH === 0) return;
+    // место от верхнего левого угла таблиц до края области (без учёта прокрутки)
+    const left = rect.left - box.left + container.scrollLeft;
+    const top = rect.top - box.top + container.scrollTop;
+    const availW = container.clientWidth - left - padR;
+    const availH = container.clientHeight - top - padB;
+    setTablesZoom(Math.min(availW / naturalW, availH / naturalH, 1));
+  };
+  const toggleTabsHidden = () => {
+    setTabsHidden((v) => {
+      try {
+        localStorage.setItem("orderTabsHeaderHidden", v ? "0" : "1");
+      } catch {}
+      return !v;
+    });
+  };
 
   useEffect(() => {
     store.initParams(id as string);
@@ -171,6 +233,61 @@ const OrderScreen = observer(() => {
         <>
           <Menu
             top={<OrderTabs activeId={Number(id)} />}
+            hideRight={tabsHidden}
+            topRight={
+              <>
+                {store.orderCharacteristics === "NEW_RECEPT" && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginRight: 16,
+                    }}
+                    title="Масштаб таблиц рецепта"
+                  >
+                    <HistoryButton
+                      text="⤢ Вместить в экран"
+                      title="Уменьшить таблицы так, чтобы они поместились на экране"
+                      disabled={false}
+                      onClick={fitTablesToScreen}
+                    />
+                    <input
+                      type="range"
+                      min={ZOOM_MIN * 100}
+                      max={ZOOM_MAX * 100}
+                      step={5}
+                      value={Math.round(tablesZoom * 100)}
+                      onChange={(e) =>
+                        setTablesZoom(Number(e.target.value) / 100)
+                      }
+                      style={{ width: 140, cursor: "pointer" }}
+                    />
+                    <button
+                      type="button"
+                      title="Вернуть 100%"
+                      onClick={() => setTablesZoom(1)}
+                      style={{
+                        width: 52,
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        fontSize: 14,
+                        color: "var(--tx-rgb-74-85-104)",
+                      }}
+                    >
+                      {Math.round(tablesZoom * 100)}%
+                    </button>
+                  </div>
+                )}
+                <HistoryButton
+                  text={tabsHidden ? "▾ Показать панель" : "▴ Скрыть панель"}
+                  title="Скрыть/показать кнопки и вкладки «Рецепт / Заказ / Финансовый учет»"
+                  disabled={false}
+                  onClick={toggleTabsHidden}
+                />
+              </>
+            }
             right={
               <>
                 <div style={{ display: "flex", width: "max-content" }}>
@@ -367,11 +484,15 @@ const OrderScreen = observer(() => {
                 {store.orderCharacteristics === "NEW_RECEPT" ? (
                   <div className="ee" style={{ width: "max-content" }}>
                     <Tabs
+                      hideHeader={tabsHidden}
                       tabs={[
                         {
                           name: "Рецепт",
                           jsx: (
-                            <>
+                            <div
+                              ref={tablesRef}
+                              style={{ zoom: tablesZoom, width: "max-content" }}
+                            >
                               <div
                                 style={{
                                   display: "flex",
@@ -538,9 +659,12 @@ const OrderScreen = observer(() => {
                                           <div style={{ display: "flex" }}>
                                             <div
                                               style={{
-                                                border: "1px solid var(--bd-black)  ",
+                                                ...cellBox,
+                                                border:
+                                                  "1px solid var(--bd-black)  ",
                                                 width: 60,
-                                                backgroundColor: "var(--bg-black)",
+                                                backgroundColor:
+                                                  "var(--bg-black)",
                                                 color: "white",
                                               }}
                                             >
@@ -556,6 +680,7 @@ const OrderScreen = observer(() => {
                                             </div> */}
                                             <div
                                               style={{
+                                                ...cellBox,
                                                 border: "1px solid",
                                                 width: 60,
                                               }}
@@ -689,6 +814,7 @@ const OrderScreen = observer(() => {
                                                             <div
                                                               className="1"
                                                               style={{
+                                                                ...cellBox,
                                                                 border:
                                                                   "1px solid",
                                                                 width: 60,
@@ -732,10 +858,12 @@ const OrderScreen = observer(() => {
                                                       >
                                                         <div
                                                           style={{
+                                                            ...cellBox,
                                                             width: 60,
                                                             border:
                                                               "1px solid var(--bd-black)",
-                                                            background: "var(--bg-black)",
+                                                            background:
+                                                              "var(--bg-black)",
                                                             color: "white",
                                                           }}
                                                         >
@@ -743,10 +871,12 @@ const OrderScreen = observer(() => {
                                                         </div>
                                                         <div
                                                           style={{
+                                                            ...cellBox,
                                                             width: 60,
                                                             border:
                                                               "1px solid var(--bd-black)",
-                                                            background: "var(--bg-black)",
+                                                            background:
+                                                              "var(--bg-black)",
                                                             color: "white",
                                                           }}
                                                         >
@@ -773,7 +903,11 @@ const OrderScreen = observer(() => {
                                                                 ? "var(--bg-d0ff49)"
                                                                 : "",
                                                             fontSize: 8,
-                                                            height: 24,
+                                                            height: CELL_H,
+                                                            boxSizing:
+                                                              "border-box",
+                                                            overflow: "hidden",
+                                                            lineHeight: 1.2,
                                                           }}
                                                         >
                                                           <div>вес</div>
@@ -790,7 +924,10 @@ const OrderScreen = observer(() => {
                                                                 ? "var(--bg-d0ff49)"
                                                                 : "",
                                                             fontSize: 9,
-                                                            height: 24,
+                                                            height: CELL_H,
+                                                            boxSizing:
+                                                              "border-box",
+                                                            overflow: "hidden",
                                                           }}
                                                         >
                                                           отпыл расх
@@ -804,6 +941,8 @@ const OrderScreen = observer(() => {
                                                         />
                                                         <div
                                                           style={{
+                                                            ...cellBox,
+                                                            width: 60,
                                                             border:
                                                               "1px solid var(--bd-black)",
                                                           }}
@@ -1084,7 +1223,7 @@ const OrderScreen = observer(() => {
                                   </div>
                                 </div>
                               </div>
-                            </>
+                            </div>
                           ),
                         },
 
@@ -1217,7 +1356,11 @@ const OrderScreen = observer(() => {
                   >
                     <div style={{}}>
                       <div
-                        style={{ fontSize: 14, color: "var(--tx-718096)", margin: 0 }}
+                        style={{
+                          fontSize: 14,
+                          color: "var(--tx-718096)",
+                          margin: 0,
+                        }}
                       >
                         Поиск компонента по номеру в картотеке
                       </div>
@@ -1258,6 +1401,7 @@ const OrderScreen = observer(() => {
                 <div style={{ width: "100%", display: "flex" }}>
                   <div style={{ width: "50%" }}>
                     <div style={{ width: "100%" }}>
+                      <NotFoundComponent store={store} />
                       {store.components.map((el, i) => (
                         <div
                           key={i}
@@ -1307,7 +1451,10 @@ const OrderScreen = observer(() => {
                           >
                             <InputV3
                               label="Вес в рецепте"
-                              labelStyle={{ fontSize: 10, color: "var(--tx-4a5568)" }}
+                              labelStyle={{
+                                fontSize: 10,
+                                color: "var(--tx-4a5568)",
+                              }}
                               style={{ width: "70px " }}
                               validation={Number().isValid}
                               // initialValue={el.privateNumber}
@@ -1488,14 +1635,16 @@ const Dust: React.FC<{
   const isLast = index === store.componentsAddInRecept.length - 1;
   return (
     <DrainCell
-      style={{ border: "1px solid", width: 60, boxSizing: "border-box" }}
+      style={{ ...cellBox, border: "1px solid", width: 60 }}
       value={
         ele.dust !== undefined && ele.dust !== "" ? Number(ele.dust) : undefined
       }
       placeholder={isLast ? "..." : ""}
       disabled={!isLast}
       title={
-        isLast ? undefined : "Вес остатка редактируется только на последнем отпыле"
+        isLast
+          ? undefined
+          : "Вес остатка редактируется только на последнем отпыле"
       }
       onChange={(text) => store.updateDust(text, index)}
     />
@@ -1509,6 +1658,20 @@ const PaintMapper: React.FC<{
   index: number;
 }> = observer(({ orderMapper, paint, store, index, isLast }) => {
   const [isNeedEllipses, setIsNeedEllipses] = useState(true);
+  // добавка уже пересчитанного отпыла: правка меняет «вес комп.» следующих
+  if (!isLast) {
+    const stepIndex = store.componentsAddInRecept.indexOf(orderMapper);
+    const w = orderMapper.addingComponents[index]?.weight;
+    return (
+      <DrainCell
+        style={{ ...cellBox, border: "1px solid", width: 60 }}
+        value={w !== undefined && w !== null ? Number(w) : undefined}
+        placeholder="-"
+        title="Изменение добавки пересчитает вес компонентов следующего отпыла"
+        onChange={(text) => store.updatePastAdding(stepIndex, index, text)}
+      />
+    );
+  }
 
   return (
     <>
@@ -1576,9 +1739,9 @@ const PaintMapper: React.FC<{
           store.updateOrder();
         }}
         style={{
+          ...cellBox,
           border: "1px solid",
           width: 60,
-          height: 23.81,
           // backgroundColor:
           //   paint.privateNumber === orderMapper.add.privateNumber
           //     ? "#4f46e540"
@@ -1611,10 +1774,11 @@ const ComponentWeight: React.FC<{
   subIndex: number;
 }> = observer(({ store, paint, index, subIndex }) => {
   const style: React.CSSProperties = {
+    ...cellBox,
     border: "1px solid",
     width: 60,
-    boxSizing: "border-box",
-    backgroundColor: store.selectReceptIndex === index ? "var(--bg-d0ff49)" : "",
+    backgroundColor:
+      store.selectReceptIndex === index ? "var(--bg-d0ff49)" : "",
   };
   const isEditable = index === 1 && store.componentsAddInRecept.length === 2;
   if (!isEditable) {
@@ -1662,6 +1826,16 @@ const HistoryButton: React.FC<{
 );
 
 // ячейка-поле: пока в фокусе — показывает то, что вводят, иначе — текущее значение из стора
+// единая высота строки (вместе с рамкой) в колонке «компоненты» и в отпылах:
+// все ячейки одной высоты, чтобы строки не съезжали относительно друг друга
+const CELL_H = 25;
+const cellBox: React.CSSProperties = {
+  height: CELL_H,
+  boxSizing: "border-box",
+  overflow: "hidden",
+  lineHeight: `${CELL_H - 2}px`,
+  whiteSpace: "nowrap",
+};
 // высота строки в таблицах сливов и «общий расход пигментов»
 const DRAIN_ROW_H = 26;
 
@@ -1678,7 +1852,7 @@ const SpacerRows: React.FC<{ count: number }> = ({ count }) =>
   count > 0 ? (
     <div style={{ visibility: "hidden" }} aria-hidden>
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} style={{ border: "1px solid", width: 60 }}>
+        <div key={i} style={{ ...cellBox, border: "1px solid", width: 60 }}>
           0
         </div>
       ))}
@@ -1706,9 +1880,9 @@ const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
         {/* невидимые строки той же высоты, что итоги/«вес остатка»/«отпыл расх»
             в колонках рецептов — чтобы таблица стояла на уровне таблиц сливов */}
         <div style={{ visibility: "hidden" }} aria-hidden>
-          <div style={{ border: "1px solid", width: 60 }}>0</div>
-          <div style={{ border: "1px solid", width: 60, height: 24 }} />
-          <div style={{ border: "1px solid", width: 60, height: 24 }} />
+          <div style={{ ...cellBox, border: "1px solid", width: 60 }}>0</div>
+          <div style={{ ...cellBox, border: "1px solid", width: 60 }} />
+          <div style={{ ...cellBox, border: "1px solid", width: 60 }} />
         </div>
         <div style={{ marginTop: 10 }}>
           <div
@@ -2023,7 +2197,11 @@ const DrainTable: React.FC<{
               // сбрасывает ручную граммовку, пересчитывает итог и сохраняет
               store.resetDrainComponents(index);
             }}
-            style={{ marginLeft: 6, cursor: "pointer", color: "var(--tx-718096)" }}
+            style={{
+              marginLeft: 6,
+              cursor: "pointer",
+              color: "var(--tx-718096)",
+            }}
           >
             ×
           </span>

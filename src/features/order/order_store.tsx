@@ -104,9 +104,7 @@ export class OrderMapper {
     this.balance = balance;
     makeAutoObservable(this);
   }
-  // отпыл/расход = вес компонентов + вес тары − вес остатка
-  // (остаток взвешивается вместе с тарой). Пока остаток не введён — тару
-  // не учитываем, иначе остаток по компонентам уйдёт в минус.
+  // отпыл/расход = вес компонентов − вес остатка (вес тары не учитывается).
   // остаток по каждому компоненту после отпыла. Расход делится между
   // компонентами пропорционально весу; вес, добавленный уже после отпыла
   // (unsprayed), в распылении не участвовал и остаётся в остатке целиком
@@ -124,12 +122,12 @@ export class OrderMapper {
       (_, i) => (ownTotal === 0 ? 0 : (own[i] / ownTotal) * left) + included[i],
     );
   }
-  getBalance(store: OrderStore) {
+  getBalance(_store: OrderStore) {
     const components = this.balance.reduce((acc, el) => {
       return acc + (el?.weightCalcRecept ?? 0);
     }, 0);
     if (this.dust === undefined || this.dust === "") return components;
-    return components + store.weightContainers - Number(this.dust);
+    return components - Number(this.dust);
   }
 }
 export enum OrderProcessType {
@@ -598,6 +596,64 @@ export class OrderStore extends FormState<OrderViewModel> {
       (_, index) => index !== i,
     );
   }
+  // правка «добавки» у уже пересчитанного (не последнего) отпыла: разница
+  // уходит в «вес комп.» следующего отпыла, а изменившийся остаток следующего
+  // отпыла — дальше по цепочке до последнего
+  updatePastAdding = (index: number, subIndex: number, value: string): void => {
+    const steps = this.componentsAddInRecept;
+    const step = steps.at(index);
+    if (step === undefined || index >= steps.length - 1) return;
+    const text = value.trim();
+    const n = text === "" ? 0 : Number(text);
+    if (isNaN(n) || n < 0) return;
+    const paint = step.balance.at(subIndex);
+    if (paint === undefined) return;
+    const old = Number(step.addingComponents[subIndex]?.weight ?? 0) || 0;
+    const delta = n - old;
+
+    // добавка этого отпыла
+    const adding = step.balance.map((p, i) => {
+      const c = plainToInstance(
+        PaintComponentViewModel,
+        JSON.parse(JSON.stringify(step.addingComponents[i] ?? p)),
+      );
+      if (step.addingComponents[i] === undefined) c.weight = undefined;
+      return c;
+    });
+    adding[subIndex].weight = text === "" ? undefined : n;
+    step.addingComponents = adding;
+    if (delta === 0) {
+      this.updateOrder();
+      return;
+    }
+
+    // изменение веса по номеру компонента, которое надо внести в следующий отпыл
+    let changes = new Map<string, number>([[paint.privateNumber, delta]]);
+    for (let k = index + 1; k < steps.length && changes.size > 0; k++) {
+      const next = steps[k];
+      const before = next.getRemainders(this);
+      next.balance = next.balance.map((p) => {
+        const d = changes.get(p.privateNumber);
+        if (d === undefined) return p;
+        const c = plainToInstance(
+          PaintComponentViewModel,
+          JSON.parse(JSON.stringify(p)),
+        );
+        const w = Number(Math.max((c.weightCalcRecept ?? 0) + d, 0).toFixed(2));
+        c.weightCalcRecept = w;
+        c.weight = w;
+        return c;
+      });
+      const after = next.getRemainders(this);
+      changes = new Map();
+      next.balance.forEach((p, i) => {
+        const d = Number(((after[i] ?? 0) - (before[i] ?? 0)).toFixed(4));
+        if (d !== 0) changes.set(p.privateNumber, d);
+      });
+    }
+    // historyVersion не трогаем: он пересоздаёт колонки, и поле теряет фокус
+    this.updateOrder();
+  };
   updateDust = (value: string, index: number): void => {
     const n = Number(value);
     // "55." во время ввода — валидно (Number даст 55); 0 тоже допустим
@@ -1005,18 +1061,50 @@ export class OrderStore extends FormState<OrderViewModel> {
   updateComponentsField = (text: string): void => {
     this.componentsField = text;
   };
-  findComponents = (): void => {
-    if (this.componentsField === undefined) {
+  // номер, по которому искали и ничего не нашли — его можно сразу добавить в картотеку
+  notFoundComponentNumber?: string;
+  newComponentCostPrice?: number;
+  findComponents = async (): Promise<void> => {
+    const number = this.componentsField?.trim();
+    if (!number) {
       message.error("Введите номер компонента для поиска");
       return;
     }
-    this.mapOk(
-      "components",
-      this.repository.findComponents(this.componentsField),
-    );
+    this.notFoundComponentNumber = undefined;
+    await this.mapOk("components", this.repository.findComponents(number));
+    if (this.components.isEmpty()) {
+      this.notFoundComponentNumber = number;
+      this.newComponentCostPrice = undefined;
+    }
+  };
+  updateNewComponentCostPrice = (price?: number) => {
+    this.newComponentCostPrice = price;
+  };
+  // добавить в картотеку компонент, которого не нашлось в поиске, и сразу показать его
+  createNotFoundComponent = async (): Promise<void> => {
+    const number = this.notFoundComponentNumber;
+    if (number === undefined) return;
+    const model = new PaintComponentViewModel();
+    model.privateNumber = number;
+    model.costPrice = this.newComponentCostPrice;
+    const valid = await model.validMessage();
+    if (valid.isFailure()) return;
+    const result =
+      await this.repository.paintComponentsDbRepository.addModel(model);
+    if (result.isFailure()) {
+      result.fold(
+        () => {},
+        (error) => message.error(String(error)),
+      );
+      return;
+    }
+    message.success(`Компонент ${number} добавлен в картотеку`);
+    this.componentsField = number;
+    await this.findComponents();
   };
   closeComponentsModal = (): void => {
     this.isOpenComponentsModal = false;
+    this.notFoundComponentNumber = undefined;
   };
   openComponentsModal = (): void => {
     this.isOpenComponentsModal = true;

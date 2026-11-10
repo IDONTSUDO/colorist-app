@@ -6,7 +6,11 @@ export const Menu: React.FC<{
   right: React.ReactNode;
   // содержимое полосы над карточкой (например, вкладки заказов)
   top?: React.ReactNode;
-}> = ({ child, right, top }) => {
+  // содержимое справа в верхней полосе (например, кнопка «скрыть панель»)
+  topRight?: React.ReactNode;
+  // скрыть панель кнопок над содержимым
+  hideRight?: boolean;
+}> = ({ child, right, top, topRight, hideRight }) => {
   const n = useNavigate();
   return (
     // экран ровно в высоту окна: прокручивается только область с содержимым,
@@ -57,6 +61,20 @@ export const Menu: React.FC<{
           /> */}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>{top}</div>
+        {topRight && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexShrink: 0,
+              height: 48,
+              paddingRight: 20,
+              paddingLeft: 10,
+            }}
+          >
+            {topRight}
+          </div>
+        )}
       </div>
       <div
         className="app"
@@ -75,6 +93,7 @@ export const Menu: React.FC<{
         <div
           className="topbar"
           style={{
+            display: hideRight ? "none" : undefined,
             // backgroundColor: "#000000",
             height: 50,
             flexShrink: 0,

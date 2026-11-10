@@ -2,13 +2,15 @@ import { useState } from "react";
 
 export const Tabs: React.FC<{
   tabs: { name: string; jsx: React.ReactNode; width?: number }[];
-}> = ({ tabs }) => {
+  // скрыть плашку с названиями вкладок (активная вкладка остаётся видна)
+  hideHeader?: boolean;
+}> = ({ tabs, hideHeader }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   return (
     <div style={{ width: "100%" }}>
       <div
         style={{
-          display: "flex",
+          display: hideHeader ? "none" : "flex",
           gap: 6,
           background: "var(--bg-f0f2f5)",
           padding: 4,
