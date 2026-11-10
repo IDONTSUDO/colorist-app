@@ -18,6 +18,7 @@ import "moment/dist/locale/ru";
 
 import { themeStore } from "./core/store/theme_store";
 import { enableNumpadDecimalPoint } from "./core/helper/numpad_decimal";
+import { setupPwaUpdates } from "./core/helper/pwa_update";
 import { Database } from "@indexeddb-orm/idb-orm";
 import { PaintComponentViewModel } from "./features/paint_components/paint_components_db_model";
 import { ConsumablesViewModel } from "./features/consumables/consumables_db_model";
@@ -50,6 +51,7 @@ export { themeStore };
 
 extensions();
 enableNumpadDecimalPoint();
+setupPwaUpdates();
 moment.locale("ru");
 
 createRoot(document.getElementById("root")!).render(
