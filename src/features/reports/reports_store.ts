@@ -9,9 +9,14 @@ import { OrdersDbRepository } from "../orders/orders_db_repository";
 import type { OrderViewModel } from "../orders/orders_db_model";
 import type { DateRange } from "../../core/ui/callendar/callendar";
 import {
+  calculateManufactureCostBySteps,
   calculateOrderFinance,
+  parseArray,
   type OrderFinance,
+  type ReceptStep,
 } from "../order/order_finance";
+import { ORDER_STATUS_READY } from "../orders/orders_db_model";
+import { orderDate } from "../orders/orders_db_repository";
 
 import { clientFullName } from "../clients/client_picker";
 
@@ -20,6 +25,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 export enum ReportType {
   clientOrders = "clientOrders",
   revenue = "revenue",
+  productivity = "productivity",
 }
 
 export const reportTypes: {
@@ -36,6 +42,12 @@ export const reportTypes: {
       type: ReportType.revenue,
       title: "Выручка",
       description: "Сумма по всем заказам за период с разбивкой по оплате",
+    },
+    {
+      type: ReportType.productivity,
+      title: "Производительность труда",
+      description:
+        "Сколько заказов сделано за период, как быстро и сколько отпылов ушло на подбор",
     },
   ];
 
@@ -62,6 +74,54 @@ export interface RevenueReport {
   byStatus: { status: string; count: number; total: number }[];
 }
 
+export interface ProductivityRow {
+  order: OrderViewModel;
+  clientName: string;
+  leadTimeMs: number; // от создания до готовности
+  attempts: number; // число рецептов (отпылов), 0 — рецепта нет
+  volume: number; // объем краски для клиента, г
+  markup: number; // стоимость работ
+}
+
+export interface ProductivityDay {
+  day: number; // начало дня, ms
+  count: number;
+  volume: number;
+  markup: number;
+}
+
+export interface ProductivityReport {
+  startDate: Date;
+  endDate: Date;
+  rows: ProductivityRow[]; // готовые за период
+  days: ProductivityDay[]; // только дни, когда что-то закончено
+  newCount: number; // создано заказов за период
+  avgLeadTimeMs?: number;
+  avgAttempts?: number;
+  volume: number;
+  markup: number;
+  // готовые заказы без даты готовности (сделаны до появления readyAt) —
+  // в расчет не попадают
+  undatedReadyCount: number;
+}
+
+// "250", "250,5", "250 г" -> число граммов
+const parseGrams = (v: unknown) => {
+  const n = parseFloat(String(v ?? "").replace(",", "."));
+  return Number.isFinite(n) && n > 0 ? n : 0;
+};
+
+const startOfDay = (ts: number) => {
+  const d = new Date(ts);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+};
+
+const avg = (values: number[]) =>
+  values.length === 0
+    ? undefined
+    : values.reduce((a, b) => a + b, 0) / values.length;
+
 export class ReportsStore extends NavigateState {
   clientsDbRepository = new ClientsDbRepository();
   ordersDbRepository = new OrdersDbRepository();
@@ -73,6 +133,7 @@ export class ReportsStore extends NavigateState {
   range: DateRange = { startDate: null, endDate: null };
   report?: ClientOrdersReport;
   revenueReport?: RevenueReport;
+  productivityReport?: ProductivityReport;
 
   constructor() {
     super();
@@ -80,6 +141,7 @@ export class ReportsStore extends NavigateState {
       allClients: observable.ref,
       report: observable.ref,
       revenueReport: observable.ref,
+      productivityReport: observable.ref,
     });
   }
 
@@ -101,6 +163,7 @@ export class ReportsStore extends NavigateState {
     this.range = { startDate: null, endDate: null };
     this.report = undefined;
     this.revenueReport = undefined;
+    this.productivityReport = undefined;
   };
 
   setClient = (client: ClientViewModel | undefined) => {
@@ -188,6 +251,78 @@ export class ReportsStore extends NavigateState {
           count: v.count,
           total: round2(v.total),
         })),
+      };
+    } catch (error) {
+      console.error(error);
+      message.error("Не удалось сформировать отчет");
+    } finally {
+      this.isLoading = false;
+    }
+  };
+  createProductivityReport = async () => {
+    const period = this.getPeriod();
+    if (!period) return;
+    this.isLoading = true;
+    try {
+      const [ready, created] = await Promise.all([
+        this.ordersDbRepository.getOrdersReadyInPeriod(
+          period.startDate,
+          period.endDate,
+        ),
+        this.ordersDbRepository.getOrdersInPeriod(
+          period.startDate,
+          period.endDate,
+        ),
+      ]);
+      const clients = new Map(this.allClients.map((c) => [c.id, c]));
+
+      const rows: ProductivityRow[] = ready.map((order) => {
+        const client = clients.get(order.client);
+        return {
+          order,
+          clientName: client ? clientFullName(client) : "—",
+          leadTimeMs: Math.max(0, order.readyAt! - orderDate(order)),
+          attempts: calculateManufactureCostBySteps(
+            parseArray<ReceptStep>(order.componentsAddInReceptJson),
+          ).length,
+          volume: parseGrams(order.theVolumeOfPainTheCustomerWant),
+          markup: Number(order.markup) || 0,
+        };
+      });
+
+      const days = new Map<number, ProductivityDay>();
+      for (const row of rows) {
+        const day = startOfDay(row.order.readyAt!);
+        const entry = days.get(day) ?? { day, count: 0, volume: 0, markup: 0 };
+        entry.count += 1;
+        entry.volume += row.volume;
+        entry.markup += row.markup;
+        days.set(day, entry);
+      }
+
+      const sum = (pick: (r: ProductivityRow) => number) =>
+        round2(rows.reduce((acc, r) => acc + pick(r), 0));
+
+      this.productivityReport = {
+        ...period,
+        rows,
+        days: [...days.values()]
+          .sort((a, b) => b.day - a.day)
+          .map((d) => ({
+            ...d,
+            volume: round2(d.volume),
+            markup: round2(d.markup),
+          })),
+        newCount: created.length,
+        avgLeadTimeMs: avg(rows.map((r) => r.leadTimeMs)),
+        avgAttempts: avg(
+          rows.filter((r) => r.attempts > 0).map((r) => r.attempts),
+        ),
+        volume: sum((r) => r.volume),
+        markup: sum((r) => r.markup),
+        undatedReadyCount: created.filter(
+          (o) => o.statusOrder === ORDER_STATUS_READY && !o.readyAt,
+        ).length,
       };
     } catch (error) {
       console.error(error);

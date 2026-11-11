@@ -54,6 +54,14 @@ export class OrdersStore extends CrudFormLocalDbStore<
     makeAutoObservable(this);
   }
 
+  // закрытие модалки (крестиком или после создания заказа) очищает форму
+  private baseModalCancel = this.modalCancel;
+  modalCancel = () => {
+    this.viewModel = new OrderViewModel();
+    this.autoCompleteChildren = [];
+    this.baseModalCancel();
+  };
+
   searchDateRange?: [Date, Date];
   // createdAt — timestamp, текстовый поиск по нему не работает: ищем по периоду
   private baseFindButton = this.onClickFindButton;

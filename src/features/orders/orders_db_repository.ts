@@ -61,6 +61,24 @@ export class OrdersDbRepository extends CrudIndexedDbRepository<OrderViewModel> 
             .toArray();
         return orders.sort((a, b) => orderDate(b) - orderDate(a));
     }
+
+    // Заказы, переведённые в «Готов» за период [from, to] включительно,
+    // от новых к старым. readyAt без индекса — фильтруем перебором.
+    getOrdersReadyInPeriod = async (from: Date, to: Date): Promise<OrderViewModel[]> => {
+        const start = new Date(from);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(to);
+        end.setHours(23, 59, 59, 999);
+        const orders = await this.db
+            .getRepository(this.entity)
+            .toCollection()
+            .filter((order: OrderViewModel) =>
+                !!order.readyAt &&
+                order.readyAt >= start.getTime() &&
+                order.readyAt <= end.getTime())
+            .toArray();
+        return orders.sort((a, b) => (b.readyAt ?? 0) - (a.readyAt ?? 0));
+    }
 }
 
 export const orderDate = (order: OrderViewModel) => order.createdAt ?? order.orderCreate;

@@ -159,7 +159,7 @@ export const calculateManufactureCost = (
       .reduce((acc, el) => acc + el.cost, 0),
   );
 
-const parseArray = <T>(json?: string | null): T[] => {
+export const parseArray = <T>(json?: string | null): T[] => {
   if (!json) return [];
   try {
     const value = JSON.parse(json);

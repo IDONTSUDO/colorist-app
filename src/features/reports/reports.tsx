@@ -24,6 +24,18 @@ const formatPhone = (phone?: string) => (phone ? phone.phoneMapper() : "");
 const formatMoney = (n: number) =>
   n.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + " ₽";
 
+const formatNumber = (n: number) =>
+  n.toLocaleString("ru-RU", { maximumFractionDigits: 1 });
+
+const HOUR = 60 * 60 * 1000;
+// < 1 ч / 5 ч / 2,5 дн
+const formatDuration = (ms?: number) => {
+  if (ms === undefined) return "—";
+  if (ms < HOUR) return "< 1 ч";
+  if (ms < 24 * HOUR) return `${Math.round(ms / HOUR)} ч`;
+  return `${formatNumber(ms / (24 * HOUR))} дн`;
+};
+
 type StoreProps = { store: ReportsStore };
 
 export const Reports = observer(() => {
@@ -63,6 +75,9 @@ export const Reports = observer(() => {
               )}
               {store.reportType === ReportType.revenue && (
                 <RevenueReportView store={store} />
+              )}
+              {store.reportType === ReportType.productivity && (
+                <ProductivityReportView store={store} />
               )}
             </>
           )}
@@ -275,6 +290,151 @@ const RevenueReportView = observer(({ store }: StoreProps) => {
                 </tr>
               ))}
             </Table>
+          )}
+        </div>
+      )}
+    </>
+  );
+});
+
+const ProductivityReportView = observer(({ store }: StoreProps) => {
+  const report = store.productivityReport;
+  const workDays = report?.days.length ?? 0;
+  return (
+    <>
+      <div style={{ ...card, maxWidth: 680 }}>
+        <PeriodField store={store} label="Период" />
+        <div style={{ color: muted, fontSize: 13, marginTop: 8 }}>
+          Заказ попадает в отчет по дате, когда его перевели в «Готов»
+        </div>
+        <div style={{ height: 20 }} />
+        <SubmitButton
+          store={store}
+          ready={!!store.range.startDate}
+          onClick={() => store.createProductivityReport()}
+        />
+      </div>
+
+      {report && (
+        <div style={card}>
+          <TextV2 style={{ fontSize: 18 }} text="Производительность труда" />
+          <div style={{ color: muted, marginTop: 4 }}>
+            период {formatDate(report.startDate)} — {formatDate(report.endDate)}{" "}
+            · рабочих дней: {workDays}
+          </div>
+          <div style={{ height: 16 }} />
+
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Stat
+              label="Готово заказов"
+              value={String(report.rows.length)}
+              accent
+            />
+            <Stat label="Новых заказов" value={String(report.newCount)} />
+            <Stat
+              label="Срок выполнения, в среднем"
+              value={formatDuration(report.avgLeadTimeMs)}
+            />
+            <Stat
+              label="Отпылов на заказ, в среднем"
+              value={
+                report.avgAttempts === undefined
+                  ? "—"
+                  : formatNumber(report.avgAttempts)
+              }
+            />
+            <Stat
+              label="Сделано краски"
+              value={`${formatNumber(report.volume)} г`}
+            />
+            <Stat label="Стоимость работ" value={formatMoney(report.markup)} />
+          </div>
+
+          {workDays > 0 && (
+            <>
+              <div style={{ height: 16 }} />
+              <TextV2 color={muted} text="На рабочий день" />
+              <div style={{ height: 6 }} />
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <Stat
+                  label="Заказов"
+                  value={formatNumber(report.rows.length / workDays)}
+                />
+                <Stat
+                  label="Краски"
+                  value={`${formatNumber(report.volume / workDays)} г`}
+                />
+                <Stat
+                  label="Стоимость работ"
+                  value={formatMoney(report.markup / workDays)}
+                />
+              </div>
+            </>
+          )}
+
+          {report.undatedReadyCount > 0 && (
+            <div style={{ color: muted, fontSize: 13, marginTop: 12 }}>
+              Не учтено готовых заказов без даты готовности:{" "}
+              {report.undatedReadyCount}. Это заказы, закрытые до того, как
+              дата готовности стала сохраняться.
+            </div>
+          )}
+
+          <div style={{ height: 16 }} />
+          {report.rows.length === 0 ? (
+            <div style={{ color: muted }}>
+              За выбранный период готовых заказов нет
+            </div>
+          ) : (
+            <>
+              <TextV2 color={muted} text="По дням" />
+              <div style={{ height: 6 }} />
+              <Table headers={["День", "Готово", "Краски", "Стоимость работ"]}>
+                {report.days.map((d) => (
+                  <tr key={d.day}>
+                    <td style={td}>{formatDate(d.day)}</td>
+                    <td style={tdNum}>{d.count}</td>
+                    <td style={tdNum}>{formatNumber(d.volume)} г</td>
+                    <td style={tdNum}>{formatMoney(d.markup)}</td>
+                  </tr>
+                ))}
+              </Table>
+
+              <div style={{ height: 16 }} />
+              <TextV2 color={muted} text="Заказы" />
+              <div style={{ height: 6 }} />
+              <Table
+                headers={[
+                  "Готов",
+                  "Создан",
+                  "Срок",
+                  "Клиент",
+                  "Авто",
+                  "Отпылов",
+                  "Объем",
+                  "Стоимость работ",
+                  "",
+                ]}
+              >
+                {report.rows.map((r) => (
+                  <tr key={r.order.id}>
+                    <td style={td}>{formatDate(r.order.readyAt!)}</td>
+                    <td style={td}>{formatDate(orderDate(r.order))}</td>
+                    <td style={tdNum}>{formatDuration(r.leadTimeMs)}</td>
+                    <td style={td}>{r.clientName || "—"}</td>
+                    <td style={td}>{r.order.auto || "—"}</td>
+                    <td style={tdNum}>{r.attempts || "—"}</td>
+                    <td style={tdNum}>
+                      {r.volume ? `${formatNumber(r.volume)} г` : "—"}
+                    </td>
+                    <td style={tdNum}>{formatMoney(r.markup)}</td>
+                    <td style={td}>
+                      <OpenOrderLink id={r.order.id!} />
+                    </td>
+                  </tr>
+                ))}
+              </Table>
+            </>
           )}
         </div>
       )}

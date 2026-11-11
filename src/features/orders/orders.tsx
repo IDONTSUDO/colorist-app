@@ -13,7 +13,6 @@ import { isBackgroundOpen, orderTabsStore } from "../order/order_tabs_store";
 import { DatePicker } from "antd";
 import ruLocale from "antd/es/date-picker/locale/ru_RU";
 import moment from "moment";
-import { OrderViewModel } from "./orders_db_model";
 import { SelectV2 } from "../../core/ui/select/select_v2";
 import { useState } from "react";
 import { ClientPicker } from "../clients/client_picker";
@@ -195,11 +194,7 @@ export const Orders = observer(() => {
       <ModalV2
         style={{ overflow: "auto", maxHeight: "100%" }}
         isOpen={store.isModalOpen}
-        onClose={() => {
-          store.viewModel = new OrderViewModel();
-          store.autoCompleteChildren = [];
-          store.modalCancel();
-        }}
+        onClose={() => store.modalCancel()}
         children={
           <>
             <CarPicker
