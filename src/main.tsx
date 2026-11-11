@@ -11,8 +11,6 @@ import { configure } from "mobx";
 import { ConfigProvider } from "antd";
 import ruRU from "antd/es/locale/ru_RU";
 import moment from "moment";
-// ESM-версия локали: регистрируется в том же экземпляре moment, что использует antd
-// (moment/locale/ru тянет CommonJS-копию moment, и локаль туда не попадает)
 // @ts-ignore — у moment/dist/locale нет типов
 import "moment/dist/locale/ru";
 
