@@ -18,6 +18,7 @@ import { useState } from "react";
 import { ClientPicker } from "../clients/client_picker";
 import { STATUSES } from "../order/ui/order_details";
 import { ClientHoverCard } from "../clients/client_hover_card";
+import { ExcelImportPanel } from "./excel_import/excel_import_panel";
 export const OrdersPath = "/orders";
 
 export const Orders = observer(() => {
@@ -197,6 +198,7 @@ export const Orders = observer(() => {
         onClose={() => store.modalCancel()}
         children={
           <>
+            <ExcelImportPanel store={store} />
             <CarPicker
               value={store.viewModel.auto?.toString()}
               onChange={(text) => store.updateForm({ auto: text })}
@@ -250,7 +252,7 @@ export const Orders = observer(() => {
               }
             />
             <div style={{ height: 16 }} />
-            <Button text="Новый заказ" onClick={() => store.createOrUpdate()} />
+            <Button text="Новый заказ" onClick={() => store.createOrder()} />
           </>
         }
       />

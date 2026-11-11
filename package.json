@@ -8,6 +8,7 @@
     "@mui/material": "^7.3.2",
     "dexie-react-hooks": "^4.2.0",
     "docx": "^9.5.1",
+    "jszip": "^3.10.2",
     "minisearch": "^7.2.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -104,5 +105,5 @@
     }
   },
   "type": "module",
-  "version": "0.0.8"
+  "version": "0.0.9"
 }
