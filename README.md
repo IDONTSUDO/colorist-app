@@ -98,3 +98,7 @@ Pre-commit хук [.githooks/pre-commit](.githooks/pre-commit) при каждо
 ```bash
 SKIP_VERSION_BUMP=1 git commit -m "..."
 ```
+
+## Лицензия
+
+[MIT](LICENSE)
