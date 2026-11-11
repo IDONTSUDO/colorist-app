@@ -1,61 +1,100 @@
-# Dexie ORM Demo App
+# Colorist calc
 
-A demonstration app showcasing the capabilities of the **Dexie ORM for IndexedDB** library.
+Калькулятор колориста для подбора автомобильной краски. Ведёт заказы, рецепты, сливы, себестоимость и клиентов прямо в браузере, без сервера. Все данные хранятся локально в IndexedDB, приложение ставится как PWA и работает офлайн.
 
-## Library Features
+**Демо:** https://idontsudo.github.io/colorist-app/
 
-- **Entity Configuration** - define entities using `defineEntity()`
-- **Automatic Schema** - automatic schema generation with primary keys and indexes
-- **Relations** - entity relationships with helpers
-- **Zod Validation** - runtime validation
-- **Aggregations** - aggregate functions (count, avg, sum)
-- **Live Queries** - reactive queries with `useLiveQuery()`
-- **TypeScript** - full type safety
-- **Cloud Sync** - synchronization with Dexie Cloud
+## Возможности
 
-## Quick Start
+### Заказы
+- Список заказов с поиском, фильтрами, пагинацией и карточкой клиента при наведении.
+- Вкладки открытых заказов, как в браузере: между ними можно переключаться, не теряя состояние.
+- Статусы заказа. При переходе в «Готов» автоматически ставится дата готовности.
+- Поле «Авто» с поиском по справочнику автомобилей, выбор клиента, консистенция краски («Готовая» / «Густая»).
 
-### Requirements
-- Node.js 18+
-- npm or yarn
+### Рецепт и отпылы
+- Таблица рецепта по шагам («отпылам»): вес компонентов, вес остатка, добавки, расход с учётом тары.
+- Сливы: таблица слива открывается кнопкой «+ слив», а режим «выбрать слив» переносит граммовку слива в добавку и создаёт новый отпыл.
+- Таблица общего расхода пигментов по всему заказу.
+- Undo / redo, сброс заказа, масштабирование таблиц под экран.
+- Выгрузка таблицы рецептов в Word (`.docx`) для печати.
 
-### Installation and Running
+### Финансы и отчёты
+- Себестоимость производства по каждому рецепту и по каждому сливу. Отдельные рецепты можно исключить из итога.
+- Стоимость работ, статус оплаты.
+- Отчёты за период: заказы клиента, выручка с разбивкой по оплате.
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+### Справочники
+- Клиенты (уникальный номер телефона, нечёткий поиск по ФИО).
+- Компоненты краски (пигменты) с ценой.
+- Автомобили.
 
-2. **Run in development mode:**
-   ```bash
-   npm run dev
-   ```
+### Прочее
+- Светлая и тёмная тема.
+- Выгрузка и загрузка базы в JSON на странице «Настройки»: так данные можно перенести на другое устройство или сохранить резервную копию.
+- Клавиша «.» на цифровом блоке вводит точку даже в русской раскладке.
+- Автообновление PWA: при выходе новой версии появляется уведомление.
 
-3. **Open in browser:**
-   ```
-   http://localhost:5173
-   ```
+## Стек
 
-### Production Build
+- **React 19** + **TypeScript**, сборка **Vite**
+- **MobX** для состояния (сторы на классах)
+- **[@indexeddb-orm/idb-orm](https://idb-orm.com)** (обёртка над Dexie) для хранения в IndexedDB
+- **class-validator / class-transformer** для моделей и валидации
+- **antd** для отдельных UI-компонентов, остальной UI написан свой (`src/core/ui`)
+- **MiniSearch** для нечёткого поиска
+- **docx** для генерации Word-документов
+- **vite-plugin-pwa** для service worker и офлайн-режима
+
+## Запуск
+
+Нужен Node.js 20+.
 
 ```bash
-npm run build
+npm install      # заодно подключит git-хуки из .githooks
+npm run dev      # dev-сервер на http://localhost:5173
 ```
 
-## App Features
+| Команда           | Что делает                           |
+| ----------------- | ------------------------------------ |
+| `npm run dev`     | dev-сервер с hot reload              |
+| `npm run build`   | проверка типов и продакшн-сборка в `dist/` |
+| `npm run preview` | локальный просмотр собранной версии  |
+| `npm run lint`    | ESLint                               |
 
-### Admin Tab
-- **Overview** - library capabilities overview
-- **Admin Actions** - function testing buttons
-- **Live Query Demo** - reactive queries demonstration
-- **TypeScript Demo** - type safety testing
-- **Posts Demo** - advanced queries and aggregations
+## Структура
 
-### Cloud Sync Tab
-- **Sync Status** - synchronization status
-- **Sync Controls** - synchronization management buttons
-- **Instructions** - configuration instructions
+```
+src/
+├── main.tsx              # точка входа, инициализация БД и сущностей
+├── theme.css             # тема и CSS-переменные (светлая/тёмная)
+├── core/
+│   ├── extensions/       # расширения прототипов (number, string, array…)
+│   ├── helper/           # Result, debounce, PWA-обновления, numpad-точка
+│   ├── repository/       # базовый IndexedDB-репозиторий, localStorage
+│   ├── store/            # базовый CRUD-стор, стор темы
+│   ├── routers/          # hash-роутинг
+│   └── ui/               # свои компоненты: таблица, поля, модалки, меню…
+└── features/
+    ├── orders/           # список заказов, модель заказа
+    ├── order/            # экран заказа: рецепт, сливы, финансы, печать, вкладки
+    ├── clients/          # клиенты
+    ├── paint_components/ # компоненты краски
+    ├── cars/             # справочник авто
+    ├── reports/          # отчёты
+    └── settings/         # импорт/экспорт базы
+```
 
-## More Information
+Каждая фича устроена одинаково: `*_db_model.ts` (модель), `*_db_repository.ts` (доступ к IndexedDB), `*_store.ts` (MobX-стор) и экран `*.tsx`.
 
-For more information visit our official [page](https://idb-orm.com).
+## Деплой
+
+При пуше в `main` GitHub Actions ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)) собирает проект и публикует его на GitHub Pages. Базовый путь `/colorist-app/` задан в [vite.config.ts](vite.config.ts), роутинг hash-based, поэтому прямые ссылки работают и на Pages.
+
+## Версии
+
+Pre-commit хук [.githooks/pre-commit](.githooks/pre-commit) при каждом коммите поднимает patch-версию в `package.json`. Текущая версия показана на странице «Настройки». Пропустить повышение можно так:
+
+```bash
+SKIP_VERSION_BUMP=1 git commit -m "..."
+```
