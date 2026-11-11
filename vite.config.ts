@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import react from "@vitejs/plugin-react";
+import pkg from "./package.json";
 
 export default defineConfig(({ mode }) => {
   const isProduction = mode === "production";
@@ -82,6 +83,9 @@ export default defineConfig(({ mode }) => {
         },
       }),
     ],
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    },
     base: isProduction ? '/colorist-app/' : '',
     resolve: {
       dedupe: ["dexie"],

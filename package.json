@@ -79,7 +79,8 @@
     "dev": "vite",
     "deploy": "gh-pages -d dist",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "main": "index.js",
   "build": {
@@ -102,5 +103,5 @@
     }
   },
   "type": "module",
-  "version": "0.0.2"
+  "version": "0.0.3"
 }

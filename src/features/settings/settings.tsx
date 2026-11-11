@@ -193,6 +193,29 @@ export const Settings = observer(() => {
               </>
             )}
           </div>
+
+          <div
+            style={{
+              maxWidth: 520,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
+              padding: "0 4px 20px",
+              color: "var(--tx-8fa1b9)",
+            }}
+          >
+            <span>Версия {__APP_VERSION__}</span>
+            <a
+              href="https://github.com/IDONTSUDO/colorist-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "inherit", textDecoration: "underline" }}
+            >
+              Исходный код на GitHub
+            </a>
+          </div>
         </div>
       }
     />

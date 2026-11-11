@@ -1,0 +1,8 @@
+#!/bin/sh
+# Поднимает patch-версию в package.json при каждом коммите.
+# Пропустить: SKIP_VERSION_BUMP=1 git commit ...
+[ -n "$SKIP_VERSION_BUMP" ] && exit 0
+
+npm version patch --no-git-tag-version --silent >/dev/null || exit 1
+git add package.json package-lock.json
+echo "version -> $(node -p "require('./package.json').version")"
