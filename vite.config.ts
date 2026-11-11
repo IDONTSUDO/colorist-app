@@ -22,16 +22,23 @@ export default defineConfig(({ mode }) => {
         registerType: "prompt",
         injectRegister: false,
         includeAssets: [
-          "favicon.ico",
-          "apple-touch-icon.png",
-          "mask-icon.svg",
+          "icons/favicon.ico",
+          "icons/icon.svg",
+          "icons/apple-touch-icon.png",
         ],
         manifest: {
           name: "Colorist calc",
           short_name: "Colorist calc",
           description: "Colorist calc",
-          theme_color: "#ffffff",
+          theme_color: "#1f2430",
+          background_color: "#1f2430",
           icons: [
+            {
+              src: "/colorist-app/icons/android-chrome-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any",
+            },
             {
               src: "/colorist-app/icons/android-chrome-512x512.png",
               sizes: "512x512",
@@ -39,7 +46,7 @@ export default defineConfig(({ mode }) => {
               purpose: "any",
             },
             {
-              src: "/colorist-app/icons/android-chrome-512x512.png",
+              src: "/colorist-app/icons/maskable-512x512.png",
               sizes: "512x512",
               type: "image/png",
               purpose: "maskable",
