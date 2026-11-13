@@ -8,6 +8,7 @@ import type { ExcelOrder } from "./excel_order_parser";
 //   addingComponents — «ДОБАВКА» после этого подбора
 //   dust             — «Вес остатка» без тары (в приложении тара отдельно)
 //   drainWeight      — слив («гр.» под таблицей пигментов)
+//   drainAppliedTo / fromDrain — куда влит слив (определяется по добавке)
 
 export const componentKey = (privateNumber: string) =>
   String(privateNumber ?? "").trim().toLowerCase();
@@ -81,6 +82,16 @@ export const buildOrderRecept = (
       });
     }
     steps.push(mapper);
+  });
+
+  // слив, влитый в добавку подбора M, создаёт следующий отпыл (M + 1) —
+  // как «выбрать слив» в приложении. Индексы рецепта сдвинуты на 1 (0 — стандарт)
+  order.steps.forEach((step, i) => {
+    if (step.drainInto === undefined) return;
+    const created = steps[step.drainInto + 2];
+    if (created === undefined) return;
+    steps[i + 1].drainAppliedTo = step.drainInto + 2;
+    created.fromDrain = i + 1;
   });
 
   return {

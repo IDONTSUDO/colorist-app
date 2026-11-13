@@ -20,6 +20,9 @@ export interface ExcelOrderStep {
   additions: (number | undefined)[];
   // сколько грамм слили по этому подбору
   drain?: number;
+  // индекс подбора (в steps), в «ДОБАВКУ» которого влили этот слив;
+  // undefined — слив никуда не вливали (или не удалось определить)
+  drainInto?: number;
 }
 
 export interface ExcelOrder {
@@ -141,6 +144,54 @@ const headerValue = (grid: Grid, label: string) => {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+// раскладка слива по компонентам — как «Пигмент N» в Excel:
+// вес компонента подбора / итог подбора × грамм слива
+export const drainBreakdown = (step: ExcelOrderStep): number[] => {
+  const total = step.weights.reduce((acc, w) => acc + w, 0);
+  return step.weights.map((w) => (total === 0 ? 0 : (w / total) * (step.drain ?? 0)));
+};
+
+// компонент добавки совпадает с компонентом слива
+const sameWeight = (adding: number | undefined, drain: number) =>
+  adding !== undefined &&
+  adding > 0 &&
+  Math.abs(adding - drain) <= Math.max(drain * 0.05, 0.15);
+
+// В Excel слив не связан с подбором, куда его влили. Определяем по добавке:
+// слив N влит в добавку подбора M (M ≥ N, после M есть следующий подбор),
+// если хотя бы половина ненулевых компонентов слива совпадает с добавкой
+// (колорист может не долить часть компонентов или добавить свои).
+// Одну добавку получает один слив — с лучшим совпадением.
+const linkDrains = (steps: ExcelOrderStep[]) => {
+  const candidates: { from: number; into: number; ratio: number; share: number }[] = [];
+  steps.forEach((step, from) => {
+    if (!step.drain) return;
+    const drain = drainBreakdown(step);
+    const used = drain.filter((w) => w > 0).length;
+    if (used === 0) return;
+    for (let into = from; into < steps.length - 1; into++) {
+      const additions = steps[into].additions;
+      let count = 0;
+      let weight = 0;
+      drain.forEach((w, i) => {
+        if (w > 0 && sameWeight(additions[i], w)) {
+          count++;
+          weight += w;
+        }
+      });
+      const ratio = count / used;
+      if (ratio >= 0.5) candidates.push({ from, into, ratio, share: weight / step.drain });
+    }
+  });
+  candidates.sort((a, b) => b.ratio - a.ratio || b.share - a.share || a.into - b.into);
+  const takenInto = new Set<number>();
+  for (const c of candidates) {
+    if (steps[c.from].drainInto !== undefined || takenInto.has(c.into)) continue;
+    steps[c.from].drainInto = c.into;
+    takenInto.add(c.into);
+  }
+};
+
 const parseOrder = (grid: Grid, sheetName: string): ExcelOrder => {
   const header = findLabel(grid, "СТАНДАРТ");
   if (header === undefined) {
@@ -211,6 +262,7 @@ const parseOrder = (grid: Grid, sheetName: string): ExcelOrder => {
       additions: components.map(() => undefined),
     });
   }
+  linkDrains(steps);
 
   return {
     sheetName,
