@@ -860,8 +860,17 @@ const OrderScreen = observer(() => {
                                                           title="Общий вес компонентов"
                                                           content={
                                                             <>
-                                                              Вес краски в отпыле до распыления.<br />
-                                                              Считается как сумма колонки <b>«вес комп.»</b> по всем компонентам.
+                                                              Вес краски в
+                                                              отпыле до
+                                                              распыления.
+                                                              <br />
+                                                              Считается как
+                                                              сумма колонки{" "}
+                                                              <b>
+                                                                «вес комп.»
+                                                              </b>{" "}
+                                                              по всем
+                                                              компонентам.
                                                             </>
                                                           }
                                                         >
@@ -883,10 +892,21 @@ const OrderScreen = observer(() => {
                                                           title="Расчётный остаток"
                                                           content={
                                                             <>
-                                                              Сколько краски осталось после отпыла по расчёту.<br />
-                                                              Сумма колонки <b>«остаток»</b>, где остаток компонента =<br />
-                                                              вес комп. × (1 − отпыл %).<br />
-                                                              Отпыл % = отпыл расх ÷ (общий вес компонентов + вес тары).
+                                                              Сколько краски
+                                                              осталось после
+                                                              отпыла по расчёту.
+                                                              <br />
+                                                              Сумма колонки{" "}
+                                                              <b>«остаток»</b>,
+                                                              где остаток
+                                                              компонента =<br />
+                                                              вес комп. × (1 −
+                                                              отпыл %).
+                                                              <br />
+                                                              Отпыл % = отпыл
+                                                              расх ÷ (общий вес
+                                                              компонентов + вес
+                                                              тары).
                                                             </>
                                                           }
                                                         >
@@ -919,14 +939,19 @@ const OrderScreen = observer(() => {
                                                           title="Вес остатка"
                                                           content={
                                                             <>
-                                                              Фактический вес краски, оставшейся после отпыла.<br />
-                                                              Взвешивается и вводится вручную.
+                                                              Фактический вес
+                                                              краски, оставшейся
+                                                              после отпыла.
+                                                              <br />
+                                                              Взвешивается и
+                                                              вводится вручную.
                                                             </>
                                                           }
                                                         >
                                                           <div
                                                             style={{
-                                                              border: "1px solid",
+                                                              border:
+                                                                "1px solid",
                                                               width: 60,
                                                               backgroundColor:
                                                                 store.selectReceptIndex ===
@@ -937,7 +962,8 @@ const OrderScreen = observer(() => {
                                                               height: CELL_H,
                                                               boxSizing:
                                                                 "border-box",
-                                                              overflow: "hidden",
+                                                              overflow:
+                                                                "hidden",
                                                               lineHeight: 1.2,
                                                             }}
                                                           >
@@ -950,14 +976,20 @@ const OrderScreen = observer(() => {
                                                           title="Отпыл расх"
                                                           content={
                                                             <>
-                                                              Сколько краски ушло на отпыл.<br />
-                                                              Считается как общий вес компонентов − вес остатка.
+                                                              Сколько краски
+                                                              ушло на отпыл.
+                                                              <br />
+                                                              Считается как
+                                                              общий вес
+                                                              компонентов − вес
+                                                              остатка.
                                                             </>
                                                           }
                                                         >
                                                           <div
                                                             style={{
-                                                              border: "1px solid",
+                                                              border:
+                                                                "1px solid",
                                                               width: 60,
                                                               backgroundColor:
                                                                 store.selectReceptIndex ===
@@ -968,7 +1000,8 @@ const OrderScreen = observer(() => {
                                                               height: CELL_H,
                                                               boxSizing:
                                                                 "border-box",
-                                                              overflow: "hidden",
+                                                              overflow:
+                                                                "hidden",
                                                             }}
                                                           >
                                                             отпыл расх
@@ -1749,6 +1782,8 @@ const AddingTotal: React.FC<{ orderMapper: OrderMapper }> = observer(
             border: "1px solid var(--bd-black)",
             background: "var(--bg-black)",
             color: "white",
+            height: 27,
+            lineHeight: "25px",
           }}
         >
           {total === 0 ? "–" : total.shortToDecimalPlaces(2)}
@@ -1935,7 +1970,7 @@ const HistoryButton: React.FC<{
 // ячейка-поле: пока в фокусе — показывает то, что вводят, иначе — текущее значение из стора
 // единая высота строки (вместе с рамкой) в колонке «компоненты» и в отпылах:
 // все ячейки одной высоты, чтобы строки не съезжали относительно друг друга
-const CELL_H = 25;
+const CELL_H = 26 ;
 const cellBox: React.CSSProperties = {
   height: CELL_H,
   boxSizing: "border-box",
