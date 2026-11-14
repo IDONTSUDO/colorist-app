@@ -104,22 +104,33 @@ export class OrderMapper {
     this.balance = balance;
     makeAutoObservable(this);
   }
-  // отпыл/расход = вес компонентов − вес остатка (вес тары не учитывается).
-  // остаток по каждому компоненту после отпыла. Расход делится между
-  // компонентами пропорционально весу; вес, добавленный уже после отпыла
+  // «отпыл %» как в Excel: отпыл расх ÷ общий вес С ТАРОЙ
+  // (Excel: C25÷C23, где C23 = вес компонентов + вес тары)
+  getDustPercent(store: OrderStore): number {
+    const own = this.getOwnWeights();
+    const gross = own.reduce((acc, el) => acc + el, 0) + (store.weightContainers || 0);
+    if (gross === 0) return 0;
+    // остаток не взвешен — как в Excel, отпыл = 100 %, остаток 0
+    if (this.dust === undefined || this.dust === "") return 1;
+    return this.getBalance(store) / gross;
+  }
+  // вес компонентов без части, добавленной уже после отпыла (unsprayed)
+  private getOwnWeights(): number[] {
+    return this.balance.map((el, i) =>
+      Math.max(
+        (el.weightCalcRecept ?? 0) - (Number(this.unsprayed?.[i] ?? 0) || 0),
+        0,
+      ),
+    );
+  }
+  // остаток по каждому компоненту после отпыла — формула Excel:
+  // ОСТАТОК = ВЕС КОМП. × (1 − отпыл %). Вес, добавленный уже после отпыла
   // (unsprayed), в распылении не участвовал и остаётся в остатке целиком
   getRemainders(store: OrderStore): number[] {
-    const included = this.balance.map(
-      (_, i) => Number(this.unsprayed?.[i] ?? 0) || 0,
-    );
-    const own = this.balance.map((el, i) =>
-      Math.max((el.weightCalcRecept ?? 0) - included[i], 0),
-    );
-    const ownTotal = own.reduce((acc, el) => acc + el, 0);
-    const spent = this.getBalance(store);
-    const left = ownTotal - spent;
+    const own = this.getOwnWeights();
+    const k = 1 - this.getDustPercent(store);
     return this.balance.map(
-      (_, i) => (ownTotal === 0 ? 0 : (own[i] / ownTotal) * left) + included[i],
+      (_, i) => own[i] * k + (Number(this.unsprayed?.[i] ?? 0) || 0),
     );
   }
   getBalance(_store: OrderStore) {
@@ -247,7 +258,7 @@ export class OrderStore extends FormState<OrderViewModel> {
         PaintComponentViewModel,
         JSON.parse(JSON.stringify(lastRecept.balance.at(i))),
       );
-      newComponentWeight = Number(newComponentWeight.toFixed(2));
+      // без округления, как в Excel (на экране показываем 2 знака)
       newComponent.weightCalcRecept = newComponentWeight;
       newComponent.weight = newComponentWeight;
       newComponents.push(newComponent);
@@ -639,7 +650,7 @@ export class OrderStore extends FormState<OrderViewModel> {
           PaintComponentViewModel,
           JSON.parse(JSON.stringify(p)),
         );
-        const w = Number(Math.max((c.weightCalcRecept ?? 0) + d, 0).toFixed(2));
+        const w = Math.max((c.weightCalcRecept ?? 0) + d, 0);
         c.weightCalcRecept = w;
         c.weight = w;
         return c;

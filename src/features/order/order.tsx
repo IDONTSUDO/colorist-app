@@ -856,34 +856,56 @@ const OrderScreen = observer(() => {
                                                           display: "flex",
                                                         }}
                                                       >
-                                                        <div
-                                                          style={{
-                                                            ...cellBox,
-                                                            width: 60,
-                                                            border:
-                                                              "1px solid var(--bd-black)",
-                                                            background:
-                                                              "var(--bg-black)",
-                                                            color: "white",
-                                                          }}
+                                                        <HintPopover
+                                                          title="Общий вес компонентов"
+                                                          content={
+                                                            <>
+                                                              Вес краски в отпыле до распыления.<br />
+                                                              Считается как сумма колонки <b>«вес комп.»</b> по всем компонентам.
+                                                            </>
+                                                          }
                                                         >
-                                                          {orderMapper.getCommonW()}
-                                                        </div>
-                                                        <div
-                                                          style={{
-                                                            ...cellBox,
-                                                            width: 60,
-                                                            border:
-                                                              "1px solid var(--bd-black)",
-                                                            background:
-                                                              "var(--bg-black)",
-                                                            color: "white",
-                                                          }}
+                                                          <div
+                                                            style={{
+                                                              ...cellBox,
+                                                              width: 60,
+                                                              border:
+                                                                "1px solid var(--bd-black)",
+                                                              background:
+                                                                "var(--bg-black)",
+                                                              color: "white",
+                                                            }}
+                                                          >
+                                                            {orderMapper.getCommonW()}
+                                                          </div>
+                                                        </HintPopover>
+                                                        <HintPopover
+                                                          title="Расчётный остаток"
+                                                          content={
+                                                            <>
+                                                              Сколько краски осталось после отпыла по расчёту.<br />
+                                                              Сумма колонки <b>«остаток»</b>, где остаток компонента =<br />
+                                                              вес комп. × (1 − отпыл %).<br />
+                                                              Отпыл % = отпыл расх ÷ (общий вес компонентов + вес тары).
+                                                            </>
+                                                          }
                                                         >
-                                                          {orderMapper.getCommonL(
-                                                            store,
-                                                          )}
-                                                        </div>
+                                                          <div
+                                                            style={{
+                                                              ...cellBox,
+                                                              width: 60,
+                                                              border:
+                                                                "1px solid var(--bd-black)",
+                                                              background:
+                                                                "var(--bg-black)",
+                                                              color: "white",
+                                                            }}
+                                                          >
+                                                            {orderMapper.getCommonL(
+                                                              store,
+                                                            )}
+                                                          </div>
+                                                        </HintPopover>
                                                       </div>
                                                     </div>
                                                     <div></div>
@@ -893,45 +915,65 @@ const OrderScreen = observer(() => {
                                                       }}
                                                     >
                                                       <div>
-                                                        <div
-                                                          style={{
-                                                            border: "1px solid",
-                                                            width: 60,
-                                                            backgroundColor:
-                                                              store.selectReceptIndex ===
-                                                              index
-                                                                ? "var(--bg-d0ff49)"
-                                                                : "",
-                                                            fontSize: 8,
-                                                            height: CELL_H,
-                                                            boxSizing:
-                                                              "border-box",
-                                                            overflow: "hidden",
-                                                            lineHeight: 1.2,
-                                                          }}
+                                                        <HintPopover
+                                                          title="Вес остатка"
+                                                          content={
+                                                            <>
+                                                              Фактический вес краски, оставшейся после отпыла.<br />
+                                                              Взвешивается и вводится вручную.
+                                                            </>
+                                                          }
                                                         >
-                                                          <div>вес</div>
-                                                          <div>остатка</div>
-                                                        </div>
+                                                          <div
+                                                            style={{
+                                                              border: "1px solid",
+                                                              width: 60,
+                                                              backgroundColor:
+                                                                store.selectReceptIndex ===
+                                                                index
+                                                                  ? "var(--bg-d0ff49)"
+                                                                  : "",
+                                                              fontSize: 8,
+                                                              height: CELL_H,
+                                                              boxSizing:
+                                                                "border-box",
+                                                              overflow: "hidden",
+                                                              lineHeight: 1.2,
+                                                            }}
+                                                          >
+                                                            <div>вес</div>
+                                                            <div>остатка</div>
+                                                          </div>
+                                                        </HintPopover>
 
-                                                        <div
-                                                          style={{
-                                                            border: "1px solid",
-                                                            width: 60,
-                                                            backgroundColor:
-                                                              store.selectReceptIndex ===
-                                                              index
-                                                                ? "var(--bg-d0ff49)"
-                                                                : "",
-                                                            fontSize: 9,
-                                                            height: CELL_H,
-                                                            boxSizing:
-                                                              "border-box",
-                                                            overflow: "hidden",
-                                                          }}
+                                                        <HintPopover
+                                                          title="Отпыл расх"
+                                                          content={
+                                                            <>
+                                                              Сколько краски ушло на отпыл.<br />
+                                                              Считается как общий вес компонентов − вес остатка.
+                                                            </>
+                                                          }
                                                         >
-                                                          отпыл расх
-                                                        </div>
+                                                          <div
+                                                            style={{
+                                                              border: "1px solid",
+                                                              width: 60,
+                                                              backgroundColor:
+                                                                store.selectReceptIndex ===
+                                                                index
+                                                                  ? "var(--bg-d0ff49)"
+                                                                  : "",
+                                                              fontSize: 9,
+                                                              height: CELL_H,
+                                                              boxSizing:
+                                                                "border-box",
+                                                              overflow: "hidden",
+                                                            }}
+                                                          >
+                                                            отпыл расх
+                                                          </div>
+                                                        </HintPopover>
                                                       </div>
                                                       <div>
                                                         <Dust
@@ -947,12 +989,39 @@ const OrderScreen = observer(() => {
                                                               "1px solid var(--bd-black)",
                                                           }}
                                                           className="оптыл расх"
+                                                          title={`отпыл ${(
+                                                            orderMapper.getDustPercent(
+                                                              store,
+                                                            ) * 100
+                                                          ).shortToDecimalPlaces(
+                                                            2,
+                                                          )} % (отпыл расх ÷ общий вес с тарой)`}
                                                         >
                                                           {orderMapper
                                                             .getBalance(store)
                                                             .shortToDecimalPlaces(
                                                               2,
                                                             )}{" "}
+                                                          {orderMapper.dust !==
+                                                            undefined &&
+                                                            orderMapper.dust !==
+                                                              "" && (
+                                                              <span
+                                                                style={{
+                                                                  fontSize: 9,
+                                                                  opacity: 0.7,
+                                                                }}
+                                                              >
+                                                                {(
+                                                                  orderMapper.getDustPercent(
+                                                                    store,
+                                                                  ) * 100
+                                                                ).shortToDecimalPlaces(
+                                                                  1,
+                                                                )}
+                                                                %
+                                                              </span>
+                                                            )}
                                                         </div>
                                                       </div>
                                                     </div>
@@ -1035,6 +1104,11 @@ const OrderScreen = observer(() => {
                                                           </>
                                                         ),
                                                       )}
+                                                      <AddingTotal
+                                                        orderMapper={
+                                                          orderMapper
+                                                        }
+                                                      />
                                                     </div>
                                                     {/*todo */}
                                                   </div>
@@ -1650,6 +1724,39 @@ const Dust: React.FC<{
     />
   );
 });
+// итог колонки «добавка» — сколько всего грамм добавили в этом отпыле
+const AddingTotal: React.FC<{ orderMapper: OrderMapper }> = observer(
+  ({ orderMapper }) => {
+    const total = orderMapper.addingComponents.reduce(
+      (acc, el) => acc + (Number(el?.weight) || 0),
+      0,
+    );
+    return (
+      <HintPopover
+        title="Общий объём добавок"
+        content={
+          <>
+            Сколько всего грамм добавили в этом отпыле.
+            <br />
+            Сумма колонки <b>«добавка»</b> по всем компонентам.
+          </>
+        }
+      >
+        <div
+          style={{
+            ...cellBox,
+            width: 60,
+            border: "1px solid var(--bd-black)",
+            background: "var(--bg-black)",
+            color: "white",
+          }}
+        >
+          {total === 0 ? "–" : total.shortToDecimalPlaces(2)}
+        </div>
+      </HintPopover>
+    );
+  },
+);
 const PaintMapper: React.FC<{
   paint: PaintComponentViewModel;
   orderMapper: OrderMapper;
@@ -1942,6 +2049,13 @@ const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
               {total.shortToDecimalPlaces(2)}
             </div>
           </div>
+          {/* как в Excel: Разбавитель = SUM(расход) × 0.7 */}
+          <div style={{ display: "flex" }}>
+            <div style={{ ...cell, fontSize: 9 }}>разбавитель</div>
+            <div style={cell} title="всего × 0.7">
+              {(total * 0.7).shortToDecimalPlaces(2)}
+            </div>
+          </div>
         </div>
       </>
     );
@@ -2011,6 +2125,23 @@ const ReceptNumber: React.FC<{
     </Popover>
   );
 });
+
+// подсказка при наведении на ячейку: что это и как считается
+const HintPopover: React.FC<{
+  title: string;
+  content: React.ReactNode;
+  children: React.ReactElement;
+}> = ({ title, content, children }) => (
+  <Popover
+    trigger="hover"
+    placement="top"
+    mouseEnterDelay={0.15}
+    title={title}
+    content={<div style={{ fontSize: 13, maxWidth: 320 }}>{content}</div>}
+  >
+    {children}
+  </Popover>
+);
 
 // колонка рецепта, созданная из слива, — зелёная шапка
 const DRAIN_APPLIED_BG = "var(--bg-bbf7d0)";
