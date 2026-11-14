@@ -943,8 +943,11 @@ const OrderScreen = observer(() => {
                                                               краски, оставшейся
                                                               после отпыла.
                                                               <br />
-                                                              Взвешивается и
-                                                              вводится вручную.
+                                                              Взвешивается
+                                                              вместе с тарой и
+                                                              вводится вручную —
+                                                              вес тары вычитается
+                                                              автоматически.
                                                             </>
                                                           }
                                                         >
@@ -1740,11 +1743,15 @@ const Dust: React.FC<{
 }> = observer(({ store, index, ele }) => {
   // вес остатка правим только у последнего отпыла
   const isLast = index === store.componentsAddInRecept.length - 1;
+  // вводим вес остатка вместе с тарой (как на весах), а храним без тары
+  const tare = store.weightContainers || 0;
   return (
     <DrainCell
       style={{ ...cellBox, border: "1px solid", width: 60 }}
       value={
-        ele.dust !== undefined && ele.dust !== "" ? Number(ele.dust) : undefined
+        ele.dust !== undefined && ele.dust !== ""
+          ? Number(ele.dust) + tare
+          : undefined
       }
       placeholder={isLast ? "..." : ""}
       disabled={!isLast}
@@ -1753,7 +1760,14 @@ const Dust: React.FC<{
           ? undefined
           : "Вес остатка редактируется только на последнем отпыле"
       }
-      onChange={(text) => store.updateDust(text, index)}
+      onChange={(text) => {
+        const gross = Number(text);
+        if (text.trim() === "" || isNaN(gross)) return;
+        store.updateDust(
+          String(Number(Math.max(gross - tare, 0).toFixed(2))),
+          index,
+        );
+      }}
     />
   );
 });

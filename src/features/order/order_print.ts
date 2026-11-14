@@ -268,7 +268,13 @@ const buildGrid = (store: OrderStore): Cell[][] => {
   grid.push(
     perStep((m) => [
       { text: "вес остатка", small: true },
-      { text: m.dust !== undefined && m.dust !== "" ? m.dust : "..." },
+      // вес остатка показываем с тарой — как его взвешивают и вводят
+      {
+        text:
+          m.dust !== undefined && m.dust !== ""
+            ? String(r2(Number(m.dust) + (store.weightContainers || 0)))
+            : "...",
+      },
       gap,
     ]),
   );
