@@ -685,11 +685,11 @@ const OrderScreen = observer(() => {
                                                 width: 60,
                                               }}
                                             >
-                                              {isNaN(el.weightCalcRecept!)
-                                                ? "-"
-                                                : el.weightCalcRecept?.shortToDecimalPlaces(
-                                                    2,
-                                                  )}
+                                              {/* только исходный рецепт: компонент, добавленный
+                                                  позже, здесь показываем прочерком */}
+                                              {store.getBaseReceptWeight(
+                                                el.privateNumber,
+                                              ) ?? "-"}
                                             </div>
                                           </div>
                                         </>
@@ -1083,7 +1083,8 @@ const OrderScreen = observer(() => {
                                                     className="3"
                                                     style={{ width: 60 }}
                                                   >
-                                                    {/* пустое место над «добавка» под строку номера */}
+                                                    {/* пустое место над «добавка» под строку номера:
+                                                        его перекрывает шапка следующего отпыла */}
                                                     <div
                                                       style={{
                                                         height:
@@ -1140,6 +1141,15 @@ const OrderScreen = observer(() => {
                                                           </>
                                                         ),
                                                       )}
+                                                      <SpacerRows
+                                                        count={
+                                                          maxComponentRows(
+                                                            store,
+                                                          ) -
+                                                          orderMapper.balance
+                                                            .length
+                                                        }
+                                                      />
                                                       <AddingTotal
                                                         orderMapper={
                                                           orderMapper
@@ -2113,6 +2123,8 @@ const ComponentsUsageTable: React.FC<{ store: OrderStore }> = observer(
 
 // номер рецепта (шага) над колонкой — та же нумерация, что у сливов
 const RECEPT_NUMBER_HEIGHT = 26;
+// ширина колонки «добавка»
+const ADDING_COL_W = 60;
 const ReceptNumber: React.FC<{
   number: number;
   orderMapper: OrderMapper;
@@ -2127,9 +2139,13 @@ const ReceptNumber: React.FC<{
     <div
       style={{
         height: RECEPT_NUMBER_HEIGHT,
-        // ширина — по двум столбцам под ней, подпись не растягивает колонку
+        // ширина — по двум столбцам под ней, подпись не растягивает колонку;
+        // с отпыла 2 шапка захватывает и «добавку» предыдущего отпыла
         width: 0,
-        minWidth: "100%",
+        minWidth: number >= 2 ? `calc(100% + ${ADDING_COL_W}px)` : "100%",
+        marginLeft: number >= 2 ? -ADDING_COL_W : undefined,
+        position: "relative",
+        zIndex: 1,
         boxSizing: "border-box",
         border: "1px solid",
         borderBottom: "none",

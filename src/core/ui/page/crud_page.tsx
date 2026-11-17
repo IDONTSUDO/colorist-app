@@ -44,6 +44,8 @@ export const CrudPage: React.FC<{
   body?: React.ReactNode;
   store: CrudFormStore<any, any> | CrudFormLocalDbStore<any, any>;
   missingKey?: string[];
+  // эти колонки идут первыми в указанном порядке, остальные — после них
+  columnsOrder?: string[];
   pageName?: string;
   instanceModel?: object;
   isEditable?: boolean;
@@ -68,6 +70,7 @@ export const CrudPage: React.FC<{
   ({
     store,
     missingKey,
+    columnsOrder,
     replacedColumns,
     isEditable = true,
     searchByField = {},
@@ -123,9 +126,15 @@ export const CrudPage: React.FC<{
     // у сторов страниц без таблицы метода models может не быть
     const models: any[] | undefined =
       typeof store.models === "function" ? store.models() : undefined;
-    const firstModel = models?.at(0);
-    if (firstModel !== undefined) {
-      lastKeys.current = Object.keys(firstModel);
+    // колонки — поля всех записей страницы (в порядке появления), а не только
+    // первой: у первой записи может не быть необязательного поля
+    if (models !== undefined && models.length > 0) {
+      const keys = new Set<string>();
+      models.forEach((m) => Object.keys(m ?? {}).forEach((k) => keys.add(k)));
+      lastKeys.current = [
+        ...(columnsOrder ?? []).filter((k) => keys.has(k)),
+        ...[...keys].filter((k) => !columnsOrder?.includes(k)),
+      ];
     }
     const fieldKeys = lastKeys.current.filter(
       (el) => !missingKey?.includes(el),
@@ -381,7 +390,7 @@ export const CrudPage: React.FC<{
               paddingBottom: 10,
             }}
           >
-            {store.isLoading && firstModel !== undefined ? (
+            {store.isLoading && models?.at(0) !== undefined ? (
               <Loader />
             ) : (
               <>

@@ -23,6 +23,7 @@ export const PaintsComponent = observer(() => {
         { name: "currentBalance", replace: "Текущий баланс" },
       ]}
       missingKey={["id"]}
+      columnsOrder={["privateNumber", "costPrice"]}
       editableComponent={
         <div>
           <InputV3

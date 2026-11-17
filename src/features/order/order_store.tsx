@@ -359,7 +359,8 @@ export class OrderStore extends FormState<OrderViewModel> {
   weightContainers = 0;
   repository = new IOrderDbRepository();
   viewModel: OrderViewModel = new OrderViewModel();
-  client: ClientViewModel = new ClientViewModel();
+  // undefined — клиент в заказе не указан
+  client?: ClientViewModel = undefined;
   recipes: RecipesViewModel[] = [];
   receptField?: string;
   consumablesField?: string;
@@ -746,6 +747,15 @@ export class OrderStore extends FormState<OrderViewModel> {
       return acc + el.weightCalcRecept!;
     }, 0) + this.weightContainers;
 
+  // вес компонента в исходном рецепте (колонка «компоненты»);
+  // undefined — компонента в исходном рецепте не было (добавлен позже)
+  getBaseReceptWeight = (privateNumber: string): number | undefined => {
+    const w = this.componentsAddInRecept
+      .at(0)
+      ?.balance.find((el) => el.privateNumber === privateNumber)
+      ?.weightCalcRecept;
+    return w === undefined || isNaN(w) ? undefined : w.shortToDecimalPlaces(2);
+  };
   getComponentsReceptUniq = () =>
     this.componentsAddInRecept
       .map((el) => {
@@ -766,6 +776,12 @@ export class OrderStore extends FormState<OrderViewModel> {
 
   updateWeights = (newWeight: number, i: number) => {
     this.components.at(i)!.weight = newWeight;
+  };
+  // выбрать (или сменить/убрать) клиента уже созданного заказа
+  setOrderClient = (client: ClientViewModel | undefined): void => {
+    this.viewModel.client = client?.id ?? null;
+    this.client = client;
+    this.updateOrder();
   };
   updateOrderStatus = (status: string): void => {
     applyOrderStatus(this.viewModel, status);
@@ -900,10 +916,14 @@ export class OrderStore extends FormState<OrderViewModel> {
     this.isLoading = false;
     this.viewModel = order;
 
-    await this.mapOk(
-      "client",
-      this.repository.getClientById(this.viewModel.client),
-    );
+    // клиент может быть не указан — тогда в заказе показываем его выбор
+    this.client = undefined;
+    if (this.viewModel.client !== undefined && this.viewModel.client !== null) {
+      await this.mapOk(
+        "client",
+        this.repository.getClientById(this.viewModel.client),
+      );
+    }
     if (this.viewModel.addingComponentsTableJson) {
       this.addingComponentsTable = JSON.parse(
         this.viewModel.addingComponentsTableJson,

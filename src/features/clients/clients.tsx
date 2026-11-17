@@ -38,11 +38,11 @@ export const Clients = observer(() => {
       mappedColumns={[
         {
           name: "createDate",
-          mapper: (date) => new Date(date).formatDate(),
+          mapper: (date) => (date ? new Date(date).formatDate() : "—"),
         },
         {
           name: "numberPhone",
-          mapper: (phone) => <div>{phone.phoneMapper()}</div>,
+          mapper: (phone) => <div>{phone ? phone.phoneMapper() : "—"}</div>,
         },
       ]}
       missingKey={["id"]}

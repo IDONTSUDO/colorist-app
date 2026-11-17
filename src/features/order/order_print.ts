@@ -244,7 +244,8 @@ const buildGrid = (store: OrderStore): Cell[][] => {
     const c = uniq[i];
     grid.push([
       num(c?.privateNumber),
-      { text: c ? r2(c.weightCalcRecept ?? 0) : "" },
+      // исходный рецепт: компонент, добавленный позже, — прочерк
+      { text: c ? (store.getBaseReceptWeight(c.privateNumber) ?? "-") : "" },
       ...steps.flatMap(({ m }) => {
         const paint = m.balance[i];
         if (!paint) return [{}, {}, {}];

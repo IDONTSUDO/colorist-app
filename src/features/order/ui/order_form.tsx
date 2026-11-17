@@ -21,7 +21,7 @@ export const OrderForm: React.FC<{
       auto: orderViewModel.auto,
       color: orderViewModel.color,
       paintCode: orderViewModel.codePaint,
-      volume: orderViewModel.theVolumeOfPainTheCustomerWant.toString(),
+      volume: orderViewModel.theVolumeOfPainTheCustomerWant?.toString() ?? "",
     });
 
     // Состояние фокуса для каждого поля, чтобы сделать красивую обводку

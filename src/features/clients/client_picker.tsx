@@ -28,7 +28,7 @@ const loadClients = async () => {
  * Выбранный клиент показывается карточкой с кнопкой «Изменить».
  */
 export const ClientPicker: React.FC<{
-  value?: number;
+  value?: number | null;
   onChange: (client: ClientViewModel | undefined) => void;
   label?: string;
 }> = ({ value, onChange, label = "Клиент" }) => {
@@ -64,7 +64,7 @@ export const ClientPicker: React.FC<{
   return (
     <div>
       <div style={{ marginBottom: 6 }}>{label}</div>
-      {value !== undefined && value !== 0 ? (
+      {value !== undefined && value !== null && value !== 0 ? (
         <div
           style={{
             display: "flex",

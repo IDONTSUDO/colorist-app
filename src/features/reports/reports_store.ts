@@ -220,7 +220,8 @@ export class ReportsStore extends NavigateState {
       );
       const clients = new Map(this.allClients.map((c) => [c.id, c]));
       const rows: RevenueRow[] = orders.map((order) => {
-        const client = clients.get(order.client);
+        const client =
+          order.client != null ? clients.get(order.client) : undefined;
         return {
           order,
           clientName: client ? clientFullName(client) : "—",
@@ -277,7 +278,8 @@ export class ReportsStore extends NavigateState {
       const clients = new Map(this.allClients.map((c) => [c.id, c]));
 
       const rows: ProductivityRow[] = ready.map((order) => {
-        const client = clients.get(order.client);
+        const client =
+          order.client != null ? clients.get(order.client) : undefined;
         return {
           order,
           clientName: client ? clientFullName(client) : "—",

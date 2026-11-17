@@ -3,6 +3,7 @@ import React from "react";
 import { PAINT_CONSISTENCY_OPTIONS } from "../../orders/paint_consistency";
 import type { OrderStore } from "../order_store";
 import { ClientForm } from "./client";
+import { ClientPicker } from "../../clients/client_picker";
 import { OrderForm } from "./order_form";
 
 // Вкладка «Заказ»: карточки «Автомобиль и краска», «Клиент», «Производство»
@@ -137,7 +138,21 @@ export const OrderDetails: React.FC<{ store: OrderStore }> = observer(
             <OrderForm orderViewModel={vm} bare />
           </Card>
           <Card title="Клиент">
-            <ClientForm orderViewModel={store.client} bare />
+            {store.client ? (
+              <ClientForm
+                // при смене клиента форма пересоздаётся с его данными
+                key={store.client.id}
+                orderViewModel={store.client}
+                bare
+              />
+            ) : (
+              // клиент не указан при создании — выбираем здесь
+              <ClientPicker
+                label="Клиент не указан — выберите его"
+                value={vm.client}
+                onChange={(client) => store.setOrderClient(client)}
+              />
+            )}
           </Card>
           <Card title="Производство" style={{ gridColumn: "1 / -1" }}>
             <div

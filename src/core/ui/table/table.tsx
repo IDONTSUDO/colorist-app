@@ -164,8 +164,12 @@ export const CoreTable: React.FC<{
               borderBottom: "1px solid var(--bd-d0d0d0)",
             }}
           >
-            {Object.entries(el)
-              .map(([k, v]) => {
+            {/* ячейки идём по колонкам шапки, а не по полям записи: у записи
+                может не быть поля (например, клиент без телефона) или поля
+                могут лежать в другом порядке — тогда строка съезжала */}
+            {columns
+              .map((k) => {
+                const v = (el as any)[k];
                 const hasMissKey = missingKey?.hasIncludeElement(k) ?? false;
                 const item = (el as any)[k];
 

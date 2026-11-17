@@ -1,5 +1,5 @@
 import { defineEntity } from "@indexeddb-orm/idb-orm";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { ValidationModel } from "../../core/model/validation_model";
 export class ClientViewModel extends ValidationModel {
     // @IsNotEmpty({ message: "Поле фамиля не может быть пустым" })
@@ -8,9 +8,11 @@ export class ClientViewModel extends ValidationModel {
     @IsNotEmpty({ message: "Поле имя не может быть пустым" })
     @IsString({ message: "Поле имя обязательно" })
     name: string;
-    @IsNotEmpty({ message: "Поле номер телефона не может быть пустым" })
+    // телефон необязателен; пустой не храним вовсе (undefined), иначе
+    // уникальный индекс не даст завести второго клиента без телефона
+    @IsOptional()
     @IsString({ message: "Поле номер телефона обязательно" })
-    numberPhone: string;
+    numberPhone?: string;
     // @IsNotEmpty({ message: "Поле отчество не может быть пустым" })
     // @IsString({ message: "Поле отчество обязательно" })
     surName: string;

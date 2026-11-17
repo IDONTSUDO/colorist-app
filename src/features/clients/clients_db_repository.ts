@@ -7,13 +7,37 @@ import { Result } from "../../core/helper/result";
 export class ClientsDbRepository extends CrudIndexedDbRepository<ClientViewModel> {
     entity: ClassConstructor<ClientViewModel> = ClientViewModel;
 
+    // пустой телефон («», «+7 ( ) » без цифр) → поле убираем
+    private static normalizePhone = (model: ClientViewModel) => {
+        if (!/\d/.test(model.numberPhone ?? "")) delete model.numberPhone;
+        return model;
+    };
+    private baseAddModel = this.addModel;
+    addModel = async (model: ClientViewModel): Promise<Result<string, void>> =>
+        this.baseAddModel(ClientsDbRepository.normalizePhone(model));
+    private baseEdit = this.edit;
+    edit = async (model: ClientViewModel): Promise<Result<string, void>> => {
+        ClientsDbRepository.normalizePhone(model);
+        const result: Result<string, void> = await this.baseEdit(model);
+        // modify() не удаляет отсутствующие поля — стёртый телефон убираем явно
+        if (!result.isFailure() && model.numberPhone === undefined && model.id !== undefined) {
+            await this.db
+                .getRepository(this.entity)
+                .where("id")
+                .equals(model.id)
+                .modify((c: ClientViewModel) => {
+                    delete c.numberPhone;
+                });
+        }
+        return result;
+    };
     uniqueErrorMessage = async (field: string, model: ClientViewModel): Promise<string> => {
         if (field !== "numberPhone") return `Запись с таким значением поля «${field}» уже существует`;
         const phone = `+7 (${String(model.numberPhone ?? "").replace(" ", ") ")}`;
         const owner = await this.db
             .getRepository(this.entity)
             .where("numberPhone")
-            .equals(model.numberPhone)
+            .equals(model.numberPhone ?? "")
             .first()
             .catch(() => undefined);
         const name = owner

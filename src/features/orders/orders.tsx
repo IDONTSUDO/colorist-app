@@ -229,7 +229,7 @@ export const Orders = observer(() => {
             <InputV3
               // validation={(e) => Number(e).isPositive()}
               // error="только числа"
-              label="Обьем краски которую хочет клиент в грамах"
+              label="Обьем краски которую хочет клиент в грамах (необязательно)"
               value={store.viewModel.theVolumeOfPainTheCustomerWant}
               onChange={(text) =>
                 store.updateForm({
@@ -246,6 +246,7 @@ export const Orders = observer(() => {
             />
             <div style={{ height: 5 }} />
             <ClientPicker
+              label="Клиент (можно выбрать позже в заказе)"
               value={store.viewModel.client}
               onChange={(client) =>
                 store.updateForm({ client: client?.id as number })

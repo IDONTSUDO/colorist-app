@@ -21,7 +21,7 @@ export const ClientForm: React.FC<{
       firstName: orderViewModel.name,
       lastName: orderViewModel.family,
       middleName: orderViewModel.surName,
-      phone: orderViewModel.numberPhone.phoneMapper(),
+      phone: orderViewModel.numberPhone?.phoneMapper() ?? "",
     });
 
     // Отслеживаем активное поле для эффекта фокуса

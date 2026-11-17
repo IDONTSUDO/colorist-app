@@ -1,4 +1,4 @@
-import { IsString, IsInt, } from "class-validator";
+import { IsString, IsInt, IsOptional } from "class-validator";
 import { ValidationModel } from "../../core/model/validation_model";
 import makeAutoObservable from "mobx-store-inheritance";
 import { defineEntity } from "@indexeddb-orm/idb-orm";
@@ -45,12 +45,16 @@ export class OrderViewModel extends ValidationModel {
     codePaint!: string; //КОД КРАСКИ
     @IsString({ message: "Поле цвет краски является обязательным" })
     color!: string; //ЦВЕТ
+    // необязательное поле
+    @IsOptional()
     @IsString({
-        message: "Поле обьем краски которую хочет клиент является обязательным",
+        message: "Поле обьем краски которую хочет клиент должно быть строкой",
     })
-    theVolumeOfPainTheCustomerWant!: string; //ОБЬЕМ КРАСКИ КОТОРУЮ ХОЧЕТ КЛИЕНТ в граммах
+    theVolumeOfPainTheCustomerWant?: string; //ОБЬЕМ КРАСКИ КОТОРУЮ ХОЧЕТ КЛИЕНТ в граммах
+    // клиента можно не указывать при создании и выбрать потом в заказе
+    @IsOptional()
     @IsInt({ message: "Выберите клиента" })
-    client!: number; //ID model Client
+    client?: number | null; //ID model Client
     statusOrder: string = "Начат"; //НАЧАТ,ЗАКОНЧЕН
     // дата готовности (ms): ставится при переходе статуса в «Готов».
     // Без индекса специально: новая колонка в columns при selective-стратегии
