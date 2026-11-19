@@ -202,26 +202,45 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                     сливы не заданы — введите граммы в таблицах слива
                   </div>
                 ) : (
-                  store.getDrainsCost().map((el) => (
-                    <div
-                      key={el.number}
-                      style={{
-                        fontSize: "14px",
-                        color: "var(--tx-4a5568)",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        padding: "10px 14px",
-                        borderBottom: "1px solid var(--bd-e2e8f0)",
-                      }}
-                    >
-                      <span>
-                        {el.number} слив · {el.weight.shortToDecimalPlaces(2)} г
-                      </span>
-                      <strong style={{ color: "var(--tx-1a202c)" }}>
-                        {el.cost.shortToDecimalPlaces(2)} ₽
-                      </strong>
-                    </div>
-                  ))
+                  store.getDrainsCost().map((el) => {
+                    const off: React.CSSProperties = {
+                      opacity: el.excluded ? 0.5 : 1,
+                      textDecoration: el.excluded ? "line-through" : undefined,
+                    };
+                    return (
+                      <label
+                        key={el.number}
+                        title="отметьте, чтобы не учитывать себестоимость этого слива"
+                        style={{
+                          fontSize: "14px",
+                          color: "var(--tx-4a5568)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          padding: "10px 14px",
+                          borderBottom: "1px solid var(--bd-e2e8f0)",
+                          cursor: "pointer",
+                          userSelect: "none",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={el.excluded}
+                          onChange={(e) =>
+                            store.toggleDrain(el.number, e.target.checked)
+                          }
+                          style={{ width: 16, height: 16, cursor: "pointer" }}
+                        />
+                        <span style={{ flex: 1, ...off }}>
+                          {el.number} слив · {el.weight.shortToDecimalPlaces(2)}{" "}
+                          г
+                        </span>
+                        <strong style={{ color: "var(--tx-1a202c)", ...off }}>
+                          {el.cost.shortToDecimalPlaces(2)} ₽
+                        </strong>
+                      </label>
+                    );
+                  })
                 )}
                 <div
                   // onClick={() => store.openReportComponentsModal()}
@@ -241,6 +260,9 @@ export const FinancialAccountingForm: React.FC<{ store: OrderStore }> =
                     {store.getCostComponents().shortToDecimalPlaces(2)} ₽
                   </strong>
                 </div>
+              </div>
+              <div style={{ fontSize: 12, color: "var(--tx-718096)", marginTop: 6 }}>
+                Отметьте сливы, себестоймость которых не учитывать.
               </div>
             </div>
           </div>

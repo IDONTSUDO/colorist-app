@@ -25,6 +25,8 @@ export interface ReceptStep {
   addingComponents?: (CostItem | null | undefined)[];
   // часть добавки, уже входящая в balance этого шага (см. OrderMapper)
   includedAdding?: number[] | null;
+  drainWeight?: number | null;
+  drainComponents?: number[] | null;
 }
 
 // вес компонента шага без добавки, которая уже в него включена. У последнего
@@ -159,6 +161,50 @@ export const calculateManufactureCost = (
       .reduce((acc, el) => acc + el.cost, 0),
   );
 
+// Себестоимость каждого слива: вес компонента слива × цена за грамм.
+// Раскладка слива — ручная (drainComponents), иначе пропорционально рецепту
+// (та же логика, что OrderMapper.getDrain). Шаг 0 и пустые сливы не берём.
+export const calculateDrainsCost = (
+  steps: ReceptStep[],
+): { number: number; weight: number; cost: number }[] =>
+  steps
+    .map((step, index) => {
+      const balance = step?.balance ?? [];
+      const drain = num(step?.drainWeight);
+      const total = balance.reduce(
+        (acc, el) => acc + num(el?.weightCalcRecept),
+        0,
+      );
+      const overrides =
+        Array.isArray(step?.drainComponents) &&
+        step.drainComponents.length === balance.length;
+      const cost = balance.reduce((acc, el, i) => {
+        const w = overrides
+          ? num(step.drainComponents![i])
+          : total === 0
+            ? 0
+            : (num(el?.weightCalcRecept) / total) * drain;
+        return acc + w * num(el?.costPrice);
+      }, 0);
+      return { number: index, weight: drain, cost };
+    })
+    .filter((el) => el.number !== 0 && el.weight > 0);
+
+// слив исключен из себестоимости сливов (галочки в «Финансовом учете»)
+export const isDrainExcluded = (
+  order: Pick<OrderViewModel, "drainExcludedNumbers">,
+  number: number,
+) => (order.drainExcludedNumbers ?? []).includes(number);
+
+// стоимость исключенных сливов — вычитается из себестоимости сливов
+export const calculateExcludedDrainsCost = (
+  steps: ReceptStep[],
+  order: Pick<OrderViewModel, "drainExcludedNumbers">,
+) =>
+  calculateDrainsCost(steps)
+    .filter((el) => isDrainExcluded(order, el.number))
+    .reduce((acc, el) => acc + el.cost, 0);
+
 export const parseArray = <T>(json?: string | null): T[] => {
   if (!json) return [];
   try {
@@ -171,14 +217,19 @@ export const parseArray = <T>(json?: string | null): T[] => {
 
 export const calculateOrderFinance = (order: OrderViewModel): OrderFinance => {
   const finalRecept = parseArray<CostItem>(order.selectReceptPaintFinal);
-  const componentsCost = finalRecept.reduce(
-    (acc, el) => acc + (el?.weightCalcRecept ?? 0) * (el?.costPrice ?? 0),
+  const steps = parseArray<ReceptStep>(order.componentsAddInReceptJson);
+  // сливы, отмеченные «не учитывать», из себестоимости сливов вычитаем
+  const componentsCost = Math.max(
     0,
+    finalRecept.reduce(
+      (acc, el) => acc + (el?.weightCalcRecept ?? 0) * (el?.costPrice ?? 0),
+      0,
+    ) - calculateExcludedDrainsCost(steps, order),
   );
 
   // рецепты, отмеченные «не учитывать», в себестоимость производства не идут
   const manufactureCost = calculateManufactureCost(
-    parseArray<ReceptStep>(order.componentsAddInReceptJson),
+    steps,
     (step) => isManufactureStepExcluded(order, step),
   );
 

@@ -107,6 +107,7 @@ export const Orders = observer(() => {
           "weightContainers",
           "ignoreManufactureCost",
           "manufactureExcludedSteps",
+          "drainExcludedNumbers",
           "readyAt",
           "paintConsistency",
         ]}

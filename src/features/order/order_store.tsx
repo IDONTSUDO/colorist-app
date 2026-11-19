@@ -16,6 +16,9 @@ import { SnapshotHistory } from "./snapshot_history";
 import { OrderHistoryDbRepository } from "./order_history_db_repository";
 import {
   calculateComponentsUsage,
+  calculateDrainsCost,
+  calculateExcludedDrainsCost,
+  isDrainExcluded,
   calculateManufactureCost,
   calculateManufactureCostBySteps,
   isManufactureStepExcluded,
@@ -1061,27 +1064,33 @@ export class OrderStore extends FormState<OrderViewModel> {
           (el.weightCalcRecept ?? 0) * (el.costPrice ?? 0),
       };
     });
-  // себестоимость каждого слива: вес компонента слива × цена за грамм
+  // себестоимость каждого слива + исключён ли слив галочкой
   getDrainsCost = () =>
-    this.componentsAddInRecept
-      .map((mapper, index) => {
-        const drain = mapper.getDrain();
-        return {
-          number: index,
-          weight: mapper.drainWeight ?? 0,
-          cost: mapper.balance.reduce(
-            (acc, paint, i) =>
-              acc + (drain[i]?.weight ?? 0) * (paint.costPrice ?? 0),
-            0,
-          ),
-        };
-      })
-      .filter((el) => el.number !== 0 && el.weight > 0);
+    calculateDrainsCost(this.componentsAddInRecept).map((el) => ({
+      ...el,
+      excluded: isDrainExcluded(this.viewModel, el.number),
+    }));
+  toggleDrain = (number: number, excluded: boolean): void => {
+    const list = (this.viewModel.drainExcludedNumbers ?? []).filter(
+      (el) => el !== number,
+    );
+    if (excluded) list.push(number);
+    this.viewModel.drainExcludedNumbers = list.sort((a, b) => a - b);
+    this.updateOrder();
+  };
+  // себестоимость сливов без исключённых сливов
   getCostComponents = () =>
-    this.getOrderStatisticComponents().reduce((acc, el) => {
-      return acc + el.finalCostOfTheComponent;
-      // return acc;
-    }, 0);
+    Math.max(
+      0,
+      this.getOrderStatisticComponents().reduce(
+        (acc, el) => acc + el.finalCostOfTheComponent,
+        0,
+      ) -
+        calculateExcludedDrainsCost(
+          this.componentsAddInRecept,
+          this.viewModel,
+        ),
+    );
   getCostConsumables = () => {
     let cost = 0;
     this.viewModel.consumables?.map((el) => {
